@@ -1,117 +1,296 @@
 // src/components/LeagueStandings.jsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
+import { getTeamLogo } from '../utils/teamLogos';
 
-// --- DATOS DE MUESTRA (Igual que antes, para conectar a Supabase en el futuro) ---
-const mockData = [
-    { id: 1, rank: 1, name: 'Mud Hens', points: 9, gp: 3, w: 3, l: 0, t: 0, gf: 9, ga: 2, gd: 7 },
-    { id: 2, rank: 2, name: 'Shooters', points: 9, gp: 3, w: 3, l: 0, t: 0, gf: 11, ga: 5, gd: 6 },
-    { id: 3, rank: 3, name: 'Cosmos', points: 6, gp: 3, w: 2, l: 1, t: 0, gf: 4, ga: 3, gd: 1 },
-    { id: 4, rank: 4, name: 'Muddies', points: 6, gp: 3, w: 2, l: 1, t: 0, gf: 9, ga: 9, gd: 0 },
-    { id: 5, rank: 5, name: 'Whipsaws FC', points: 3, gp: 3, w: 1, l: 2, t: 0, gf: 9, ga: 11, gd: -2 },
-    { id: 6, rank: 6, name: 'Medusa', points: 1, gp: 3, w: 0, l: 2, t: 1, gf: 2, ga: 5, gd: -3 },
-    { id: 7, rank: 7, name: 'Red Hots', points: 1, gp: 3, w: 0, l: 2, t: 1, gf: 5, ga: 10, gd: -5 },
-    { id: 8, rank: 8, name: 'Mud and Glory', points: 0, gp: 3, w: 0, l: 3, t: 0, gf: 5, ga: 9, gd: -4 },
-];
+interface TeamStanding {
+    pos: number;
+    var: string;
+    nombre: string;
+    pj: number;
+    pg: number;
+    pe: number;
+    pp: number;
+    gf: number;
+    gc: number;
+    dif: number;
+    pts: number;
+    grupo: string;
+}
 
-const columnHeaders = {
-    team: 'EQUIPO', points: 'PUNTOS', gp: 'PJ', w: 'G', l: 'P', t: 'E', gf: 'GF', ga: 'GC', gd: 'DIF',
+// Helper function to get the appropriate icon for VAR status
+const getVarIcon = (status: string) => {
+    if (status === 'SUBE') {
+        return <span className="text-green-500">▲</span>;
+    } else if (status === 'BAJA') {
+        return <span className="text-red-500">▼</span>;
+    }
+    return null;
 };
 
-// Objeto para mapear el ranking a un color de Tailwind
-const rankColors = {
-    1: 'bg-rank-1',
-    2: 'bg-rank-2',
-    3: 'bg-rank-3',
-};
 
+interface Competition {
+    ID: number;
+    NOMBRE: string;
+    EDICION: string;
+}
+
+interface Group {
+    ID: number;
+    NOMBRE: string;
+}
 
 const LeagueStandings = () => {
-    const [standings, setStandings] = useState([]);
+    const [standings, setStandings] = useState<TeamStanding[]>([]);
     const [loading, setLoading] = useState(true);
+    const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
+    const [competitions, setCompetitions] = useState<Competition[]>([]);
+    const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
+    const [groups, setGroups] = useState<Group[]>([]);
 
-    useEffect(() => {
-        // --- FUTURA LLAMADA A SUPABASE ---
-        // El código para conectar a tu API irá aquí.
-        const timer = setTimeout(() => {
-            setStandings(mockData);
+    const fetchLeagueData = useCallback(async () => {
+        try {
+            // Fetch competitions
+            const { data: competitionsData, error: competitionsError } = await supabase
+                .from('campeonato')
+                .select('ID, NOMBRE, EDICION')
+                .order('ID');
+
+            if (competitionsError) throw competitionsError;
+            setCompetitions(competitionsData || []);
+
+            // If no competition selected, return early
+            if (!selectedCompetition) return;
+
+            // Fetch all ronda IDs for the selected competition
+            const { data: rondaData, error: rondaError } = await supabase
+                .from('ronda')
+                .select('ID')
+                .eq('ID_CAMPEONATO', selectedCompetition);
+
+            if (rondaError) throw rondaError;
+            const rondaIds = rondaData?.map(r => r.ID) || [];
+
+            // Fetch all groups for the selected competition
+            const { data: groupsData, error: groupsError } = await supabase
+                .from('grupo')
+                .select('ID, NOMBRE')
+                .eq('TIPO', 'TODOS CONTRA TODOS')
+                .in('ID_RONDA', rondaIds)
+                .order('NOMBRE', { ascending: true });
+
+            if (groupsError) throw groupsError;
+            setGroups(groupsData || []);
+
+            // Fetch standings for each group
+            const groupStandings = await Promise.all(
+                groupsData?.map(async (group) => {
+                    const { data: standingsData, error: standingsError } = await supabase
+                        .rpc('get_standings', { grupo_param: group.ID });
+
+                    if (standingsError) throw standingsError;
+                    return { group: group.NOMBRE, standings: standingsData || [] };
+                }) || []
+            );
+
+
+
+            // Map the data to match our TeamStanding interface
+            const mappedData = groupStandings.flatMap(({ group, standings }) =>
+                standings.map((row: any) => ({
+                    pos: row.pos,
+                    var: row.var,
+                    nombre: row.nombre,
+                    pj: row.pj,
+                    pg: row.pg,
+                    pe: row.pe,
+                    pp: row.pp,
+                    gf: row.gf,
+                    gc: row.gc,
+                    dif: row.dif,
+                    pts: row.pts,
+                    grupo: group
+                }))
+            );
+
+            // Fetch max date for each group and find the latest date
+            const groupDates = await Promise.all(
+                groupsData?.map(async (group) => {
+                    const { data: dateData, error: dateError } = await supabase
+                        .rpc('get_max_date_by_group_id', { group_id: group.ID });
+
+                    if (dateError) throw dateError;
+                    return dateData ? new Date(dateData) : null;
+                }) || []
+            );
+
+            // Find the latest date among all groups
+            const latestDate = groupDates
+                .filter((date): date is Date => date !== null)
+                .reduce((latest, current) => current > latest ? current : latest, new Date('1970-01-01'));
+
+            setLastUpdateDate(latestDate);
+            setStandings(mappedData as TeamStanding[]);
+
+        } catch (error) {
+            console.error('Error fetching league data:', error);
+            setStandings([]); // Fallback to empty array
+        } finally {
             setLoading(false);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
+        }
+    }, [selectedCompetition]);
 
-    // Estilo para el ícono de flecha en el select
-    const selectArrowStyle = {
-        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-    };
+    // Re-fetch data when competition changes
+    useEffect(() => {
+        fetchLeagueData();
+    }, [selectedCompetition, fetchLeagueData]); // Re-fetch when selectedCompetition changes
 
     return (
         <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-bold text-center text-brand-primary mb-6">
-                    TABLA DE POSICIONES LIGA FEMENINA
+                    TABLA DE POSICIONES
                 </h1>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-5">
                     <div>
-                        <label htmlFor="division" className="text-xs font-semibold text-gray-600 uppercase">DIVISIÓN</label>
-                        <select id="division" className="w-full mt-1 p-2 pr-8 bg-brand-primary text-white font-semibold rounded cursor-pointer appearance-none" style={selectArrowStyle}>
-                            <option>Primera A</option>
-                            <option>Primera B</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label htmlFor="season" className="text-xs font-semibold text-gray-600 uppercase">TEMPORADA</label>
-                        <select id="season" className="w-full mt-1 p-2 pr-8 bg-brand-primary text-white font-semibold rounded cursor-pointer appearance-none" style={selectArrowStyle}>
-                            <option>Clausura 2024</option>
-                            <option>Apertura 2024</option>
+                        <label htmlFor="competition" className="text-xs font-semibold text-gray-600 uppercase">COMPETICIÓN</label>
+                        <select
+                            id="competition"
+                            className="w-full p-2 bg-brand-primary text-black rounded-lg"
+                            value={selectedCompetition}
+                            onChange={(e) => setSelectedCompetition(Number(e.target.value))}
+                        >
+                            {competitions.map(competition => (
+                                <option key={competition.ID} value={competition.ID}>
+                                    {competition.NOMBRE} {competition.EDICION}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-4 py-2 text-right text-sm text-gray-500">
-                        Refleja partidos hasta: 23/09/2024
+                        {selectedCompetition && competitions.find(c => c.ID === selectedCompetition)?.NOMBRE || 'Cargando...'}
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full border-separate border-spacing-y-2.5 text-center">
-                            <thead className="bg-brand-primary text-white">
-                                <tr>
-                                    <th colSpan="2" className="p-3 text-left font-semibold uppercase text-sm rounded-l-md">{columnHeaders.team}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.points}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.gp}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.w}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.l}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.t}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.gf}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm">{columnHeaders.ga}</th>
-                                    <th className="p-3 font-semibold uppercase text-sm rounded-r-md">{columnHeaders.gd}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="10" className="p-8 text-center text-gray-500">Cargando...</td></tr>
-                                ) : (
-                                    standings.map((team) => (
-                                        <tr key={team.id} className="bg-brand-secondary">
-                                            <td className="p-4 text-left font-bold w-12 relative">
-                                                <div className={`absolute left-0 top-0 h-full w-1.5 ${rankColors[team.rank] || ''}`}></div>
-                                                <span className="ml-4">{team.rank}</span>
-                                            </td>
-                                            <td className="p-4 text-left font-semibold text-gray-800">{team.name}</td>
-                                            <td className="p-4 font-bold text-gray-800">{team.points}</td>
-                                            <td className="p-4 text-gray-700">{team.gp}</td>
-                                            <td className="p-4 text-gray-700">{team.w}</td>
-                                            <td className="p-4 text-gray-700">{team.l}</td>
-                                            <td className="p-4 text-gray-700">{team.t}</td>
-                                            <td className="p-4 text-gray-700">{team.gf}</td>
-                                            <td className="p-4 text-gray-700">{team.ga}</td>
-                                            <td className="p-4 text-gray-700 font-medium">{team.gd}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                        {!loading && groups.length > 0 && (
+                            <div className="mt-4 space-y-8">
+                                {groups.map((group) => (
+                                    <div key={group.ID}>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-lg font-semibold">{group.NOMBRE}</h3>
+                                            <p className="text-sm text-gray-500">
+                                                Refleja partidos hasta: {lastUpdateDate?.toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <table className="min-w-full bg-white shadow-lg rounded-lg">
+                                            <thead className="bg-gray-200">
+                                                <tr>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pos</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PJ</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PG</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PE</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PP</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GF</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GC</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DIF</th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PTS</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {standings
+                                                    .filter(s => s.grupo === group.NOMBRE)
+                                                    .sort((a, b) => a.pos - b.pos)
+                                                    .map((row, index) => (
+                                                        <tr key={index} className={`hover:bg-gray-50 ${index === 0 ? 'bg-green-50' : ''}`}>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 relative">
+                                                            <div className="flex items-center gap-2">
+                                                                <span>{row.pos}</span>
+                                                                {getVarIcon(row.var)}
+                                                            </div>
+                                                            {selectedCompetition <= 2 ? (
+                                                                // National competition logic
+                                                                <>
+                                                                    {row.pos <= 8 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-green-500"></span>
+                                                                    )}
+                                                                    {row.pos >= standings.length - 1 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-red-500"></span>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                // ID = 32 competition logic
+                                                                <>
+                                                                    {row.pos <= 2 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-green-500"></span>
+                                                                    )}
+                                                                    {row.pos === 3 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-blue-500"></span>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="flex items-center gap-2">
+                                                                <img 
+                                                                    src={getTeamLogo(row.nombre) || ''} 
+                                                                    alt={row.nombre} 
+                                                                    className="w-6 h-6 flex-shrink-0" 
+                                                                    onError={(e) => {
+                                                                        const target = e.target as HTMLImageElement;
+                                                                        target.style.display = 'none';
+                                                                    }}
+                                                                />
+                                                                <span className="text-sm text-gray-900 font-medium">{row.nombre}</span>
+                                                            </div>
+                                                        </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pj}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pg}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pe}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pp}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.gf}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.gc}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.dif}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pts}</td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <div className="mt-4 flex items-center justify-center gap-12">
+                        {selectedCompetition <= 2 ? (
+                            // National competition legend
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">Top 8 (Play-offs)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-red-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">Descenso</span>
+                                </div>
+                            </>
+                        ) : (
+                            // ID = 32 competition legend
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">Top 2 (Semifinales)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-blue-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">3er lugar (5to lugar)</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

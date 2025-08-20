@@ -1,14 +1,6 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-router-dom';
-import type { FC } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import LeagueStandings from './components/LeagueStandings';
-import TeamSelector from './components/TeamSelector';
-
-// Wrapper component to extract competition and round IDs from URL
-const TeamSelectorWrapper: FC = () => {
-  const { competitionId, roundId } = useParams<{ competitionId: string; roundId?: string }>();
-  return competitionId ? <TeamSelector competitionId={competitionId} roundId={roundId} /> : null;
-};
 import Matches from './components/Matches';
 import TopScorers from './components/TopScorers';
 import MatchUpdater from './components/MatchUpdater';
@@ -16,10 +8,10 @@ import GoalScorerUpdater from './components/GoalScorerUpdater';
 import PlayerRosterManager from './components/PlayerRosterManager';
 import CompetitionCreator from './components/CompetitionCreator';
 import TeamCreator from './components/TeamCreator';
+import TeamSelector from './components/TeamSelector';
 import CompetitionList from './components/CompetitionList';
 import MatchCreator from './components/MatchCreator';
 import { RosterManager } from './components/RosterManager';
-import CompetitionRoundSelector from './components/CompetitionRoundSelector';
 
 function App() {
   return (
@@ -94,7 +86,7 @@ function App() {
                     Ingresar Plantel
                   </Link>
                   <Link 
-                    to="/create-matches"
+                    to="/match-creator"
                     className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
                   >
                     Crear Partidos
@@ -116,11 +108,8 @@ function App() {
             <Route path="/create-competition" element={<CompetitionCreator />} />
             <Route path="/roster-manager" element={<RosterManager />} />
             <Route path="/competition" element={<CompetitionList />} />
-            <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
-              <TeamSelectorWrapper />
-            } />
-            <Route path="/competition/:id/build-matches" element={<MatchCreator />} />
-            <Route path="/create-matches" element={<CompetitionRoundSelector />} />
+            <Route path="/competition/:id/select-teams" element={<TeamSelector />} />
+            <Route path="/match-creator" element={<MatchCreator />} />
             <Route path="/create-team" element={<TeamCreator />} />
           </Routes>
         </main>
