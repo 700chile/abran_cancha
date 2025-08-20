@@ -1,6 +1,11 @@
 
+// Función para obtener la ruta correcta del logo
 export const getTeamLogo = (teamName: string): string | null => {
+    if (!teamName) return null;
+    
     const teamNameLower = teamName.toLowerCase();
+    
+    // Mapa de nombres de equipos a nombres de archivo de logos
     const logoMap: { [key: string]: string } = {
         'audax': 'Audax.png',
         'everton': 'Everton.png',
@@ -28,13 +33,15 @@ export const getTeamLogo = (teamName: string): string | null => {
         'venezuela': 'VEN.png'
     };
 
-    // Try to find the logo by matching parts of the team name
-    for (const [key, value] of Object.entries(logoMap)) {
+    // Buscar el logo que coincida con el nombre del equipo
+    for (const [key, logoName] of Object.entries(logoMap)) {
         if (teamNameLower.includes(key)) {
-            return `/LOGOS/${value}`;
+            // En producción, las imágenes estarán en /logos/
+            // En desarrollo, Vite las servirá desde /public/logos/
+            return `/logos/${logoName}`;
         }
     }
 
-    // Return null if no logo is found
+    // Si no se encuentra el logo, devolver null
     return null;
 };

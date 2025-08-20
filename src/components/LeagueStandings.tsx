@@ -237,7 +237,7 @@ const LeagueStandings = () => {
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="flex items-center gap-2">
                                                                 <img 
-                                                                    src={getTeamLogo(row.nombre) || ''} 
+                                                                    src={new URL(getTeamLogo(row.nombre) || '', import.meta.url).href} 
                                                                     alt={row.nombre} 
                                                                     className="w-6 h-6 flex-shrink-0" 
                                                                     onError={(e) => {
