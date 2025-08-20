@@ -1,14 +1,7 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { FC } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-
-interface PlayerRoster {
-    ID_JUGADORA: string;
-    ID_EQUIPO: number;
-    NUMERO: number | null;
-    POSICION: string | null;
-}
 
 // Interfaces for our data models
 interface Team {
@@ -54,12 +47,6 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState(false);
-
-    // Filter groups by selected round
-    const filteredGroups = useMemo(() => {
-        if (!selectedRoundId) return [];
-        return groups.filter(group => group.ID_RONDA === selectedRoundId);
-    }, [groups, selectedRoundId]);
 
     // Remove the round parameter from URL if it exists in search params
     useEffect(() => {
@@ -293,66 +280,23 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
         }
     };
 
-    // Helper function to create a temporary equipo_grupo for testing
-    const createTemporaryEquipoGrupo = async (teamId: number, roundId: number): Promise<number | null> => {
-        try {
-            console.log(`Creating temporary equipo_grupo for team ${teamId} in round ${roundId}`);
-            
-            // First, find a group in this round
-            const { data: groups, error: groupError } = await supabase
-                .from('grupo')
-                .select('ID')
-                .eq('ID_RONDA', roundId)
-                .limit(1);
-                
-            if (groupError || !groups || groups.length === 0) {
-                console.error('No groups found in this round');
-                return null;
-            }
-            
-            const groupId = groups[0].ID;
-            
-            // Create the equipo_grupo entry
-            const { data, error } = await supabase
-                .from('equipo_grupo')
-                .insert([
-                    { 
-                        ID_EQUIPO: teamId, 
-                        ID_GRUPO: groupId,
-                        // Other required fields with default values
-                        PUNTOS: 0,
-                        GOLES_FAVOR: 0,
-                        GOLES_CONTRA: 0,
-                        DIFERENCIA_GOL: 0,
-                        PARTIDOS_JUGADOS: 0,
-                        PARTIDOS_GANADOS: 0,
-                        PARTIDOS_EMPATADOS: 0,
-                        PARTIDOS_PERDIDOS: 0
-                    }
-                ])
-                .select('ID')
-                .single();
-                
-            if (error) throw error;
-            
-            console.log(`Created temporary equipo_grupo with ID: ${data.ID}`);
-            return data.ID;
-        } catch (error) {
-            console.error('Error creating temporary equipo_grupo:', error);
-            return null;
-        }
-    };
-
-    // Function to copy roster for a team to the next round
+    // Function to copy team roster to the next round
     const copyTeamRosterToNextRound = async (teamId: number) => {
-        if (!competition || !selectedRoundId) {
-            console.error('No competition or round selected');
-            return { success: false, message: 'No competition or round selected' };
-        }
-
         console.log('=== Copying Roster to Next Round ===');
         console.log('Team ID:', teamId);
         console.log('Current round ID:', selectedRoundId);
+
+        if (!competition) {
+            const message = 'No competition selected';
+            console.error(message);
+            return { success: false, message };
+        }
+
+        if (!selectedRoundId) {
+            const message = 'No round selected';
+            console.error(message);
+            return { success: false, message };
+        }
 
         try {
             // Get previous round
@@ -484,7 +428,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
     }, []);
 
     // Copy roster from one equipo_grupo to another
-    const copyRoster = useCallback(async (fromEquipoGrupoId: number, toEquipoGrupoId: number, previousRoundId: number, currentRoundId: number) => {
+    const copyRoster = useCallback(async (fromEquipoGrupoId: number, toEquipoGrupoId: number) => {
         try {
             // Get the roster from the previous equipo_grupo
             const { data: roster, error: rosterError } = await supabase
@@ -634,9 +578,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                         try {
                             await copyRoster(
                                 assignment.ID_EQUIPO, 
-                                assignment.ID_EQUIPO, // Same team, different round
-                                previousRound.ID,
-                                selectedRoundId
+                                assignment.ID_EQUIPO // Same team, different round
                             );
                         } catch (err) {
                             console.error(`Error copying roster for team ${assignment.ID_EQUIPO}:`, err);

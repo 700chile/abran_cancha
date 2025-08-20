@@ -1,7 +1,3 @@
-interface TeamLogoProps {
-    teamName: string;
-    className?: string;
-}
 
 export const getTeamLogo = (teamName: string): string | null => {
     const teamNameLower = teamName.toLowerCase();

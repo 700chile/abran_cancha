@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import type {
-    Team,
-    TeamType
+    Team
 } from '../types';
 
 import { TEAM_TYPES } from '../types';
 import { createTeam } from '../lib/api';
 
 const TeamCreator: React.FC = () => {
-    const [formData, setFormData] = useState<Team>({
+    const [formData, setFormData] = useState<Omit<Team, 'ID'> & { ID?: number }>({
         NOMBRE: '',
         CHAPA: '',
         TIPO: TEAM_TYPES[0]

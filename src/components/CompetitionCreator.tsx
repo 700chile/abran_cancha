@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { CompetitionFormState, CompetitionType, RoundType, RoundVueltas } from '../types';
+import type { CompetitionFormState, RoundType, RoundVueltas } from '../types';
 import { COMPETITION_TYPES, ROUND_TYPES, ROUND_VUELTAS } from '../types';
 import { createCompetition } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -50,7 +50,12 @@ export const CompetitionCreator = () => {
                         
                         // Add new groups if needed
                         for (let i = currentGroups.length; i < newGroupsCount; i++) {
-                            newGroups.push({ NOMBRE: '', EQUIPOS_CANT: 0 });
+                            newGroups.push({ 
+                                ID: Date.now() + i, // Generate a temporary unique ID
+                                NOMBRE: `Grupo ${i + 1}`, 
+                                EQUIPOS_CANT: 0,
+                                EQUIPOS: [] 
+                            });
                         }
                         
                         // Remove extra groups if needed

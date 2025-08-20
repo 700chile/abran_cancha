@@ -5,11 +5,13 @@ export interface Team {
     TIPO: TeamType;
 }
 
-export enum TeamType {
-    MASCULINO = 'MASCULINO',
-    FEMENINO = 'FEMENINO',
-    MIXTO = 'MIXTO'
-}
+export const TeamType = {
+    MASCULINO: 'MASCULINO',
+    FEMENINO: 'FEMENINO',
+    MIXTO: 'MIXTO'
+} as const;
+
+export type TeamType = typeof TeamType[keyof typeof TeamType];
 
 export interface GroupConfig {
     ID: number;

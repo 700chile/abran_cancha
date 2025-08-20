@@ -156,7 +156,7 @@ const TopScorers = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="3" className="p-8 text-center text-gray-500">Cargando...</td></tr>
+                                    <tr><td colSpan={3} className="p-8 text-center text-gray-500">Cargando...</td></tr>
                                 ) : (
                                     scorers.map((scorer, index) => (
                                         <tr key={index} className="border-b">
@@ -167,7 +167,16 @@ const TopScorers = () => {
                                             </td>
                                             <td className="px-6 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <img src={getTeamLogo(scorer.equipo)} alt={scorer.equipo} className="w-8 h-8 rounded-full" />
+                                                    <img 
+                                                        src={getTeamLogo(scorer.equipo) || '/default-team-logo.png'} 
+                                                        alt={scorer.equipo} 
+                                                        className="w-8 h-8 rounded-full" 
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.onerror = null;
+                                                            target.src = '/default-team-logo.png';
+                                                        }}
+                                                    />
                                                     <span>{scorer.nombre_jugadora}</span>
                                                 </div>
                                             </td>

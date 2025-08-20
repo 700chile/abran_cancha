@@ -90,8 +90,16 @@ const TeamSelection: React.FC = () => {
 
     const handleSubmit = async () => {
         try {
+            if (!competitionID) {
+                throw new Error('No competition ID provided');
+            }
+            const competitionIdNum = parseInt(competitionID, 10);
+            if (isNaN(competitionIdNum)) {
+                throw new Error('Invalid competition ID');
+            }
+
             const { error: transactionError } = await supabase.rpc('assign_teams_to_groups', {
-                competition_id: parseInt(competitionID),
+                competition_id: competitionIdNum,
                 team_assignments: JSON.stringify(selectedTeams)
             });
 
@@ -121,7 +129,7 @@ const TeamSelection: React.FC = () => {
                         <h2 className="text-lg font-medium text-gray-900">Competencia: {competition.NOMBRE} {competition.EDICION}</h2>
                     </div>
 
-                    {rounds.map((round, roundIndex) => (
+                    {rounds.map((round) => (
                         <div key={round.ID} className="space-y-4">
                             <h3 className="text-md font-medium text-gray-900">{round.NOMBRE}</h3>
                             {round.GRUPOS.map((group) => (
