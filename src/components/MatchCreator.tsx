@@ -28,41 +28,41 @@ type SupabaseGroup = {
 const generateRoundRobinMatches = (group: Group, isSecondLeg: boolean = false): Gameday[] => {
   const { teams, teamsCount, id: groupId, competitionId, roundId } = group;
   const isOdd = teamsCount % 2 !== 0;
-  const totalTeams = isOdd ? teamsCount + 1 : teamsCount; // Add a dummy team for odd counts
+  const totalTeams = teamsCount;
   const matchesPerGameday = Math.floor(totalTeams / 2);
-  const totalGamedays = isOdd && !isSecondLeg ? teamsCount : teamsCount - 1;
+  const totalGamedays = teamsCount - 1; // Always n-1 gamedays for round-robin
 
   const gamedays: Gameday[] = [];
+  let teamList = [...teams];
   
-  // Create teams array (add dummy team if odd number)
-  const teamList = [...teams];
+  // If odd number of teams, add a dummy team to make it even
   if (isOdd) {
-    teamList.push({ id: 'dummy', name: 'BYE' });
+    teamList = [...teams, { id: 'dummy', name: 'BYE' }];
   }
-
+  
   // Generate gamedays
-  for (let i = 0; i < totalGamedays; i++) {
-    const gamedayNumber = i + 1 + (isSecondLeg ? totalGamedays : 0);
+  for (let round = 0; round < totalGamedays; round++) {
+    const gamedayNumber = round + 1 + (isSecondLeg ? totalGamedays : 0);
     const gamedayName = totalGamedays <= 9 ? 
       `Jornada ${gamedayNumber}` : 
       `Jornada ${gamedayNumber.toString().padStart(2, '0')}`;
     
     const matches: Match[] = [];
     
-    // Generate matches for this gameday
-    for (let j = 0; j < matchesPerGameday; j++) {
-      const homeIndex = (i + j) % (totalTeams - 1);
-      let awayIndex = (totalTeams - 1 - j + i) % (totalTeams - 1);
+    // Pair up teams for this gameday
+    for (let i = 0; i < matchesPerGameday; i++) {
+      const homeIndex = i;
+      const awayIndex = teamList.length - 1 - i;
       
-      // Skip matches with dummy team
+      // Skip if either team is the dummy team
       if (teamList[homeIndex].id === 'dummy' || teamList[awayIndex].id === 'dummy') {
         continue;
       }
       
-      // Swap home/away for second leg
-      const [homeTeam, awayTeam] = isSecondLeg ? 
-        [teamList[awayIndex], teamList[homeIndex]] : 
-        [teamList[homeIndex], teamList[awayIndex]];
+      // For second leg, swap home and away
+      const [homeTeam, awayTeam] = isSecondLeg 
+        ? [teamList[awayIndex], teamList[homeIndex]] 
+        : [teamList[homeIndex], teamList[awayIndex]];
       
       matches.push({
         fecha: gamedayNumber,
@@ -84,6 +84,16 @@ const generateRoundRobinMatches = (group: Group, isSecondLeg: boolean = false): 
       groupId,
       isFirstLeg: !isSecondLeg,
     });
+    
+    // Rotate all teams except the first one
+    if (teamList.length > 1) {
+      const firstTeam = teamList.shift();
+      const secondTeam = teamList.shift();
+      if (firstTeam && secondTeam) {
+        teamList.push(secondTeam);
+        teamList.unshift(firstTeam);
+      }
+    }
   }
   
   return gamedays;

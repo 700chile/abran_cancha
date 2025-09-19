@@ -212,7 +212,17 @@ const LeagueStandings = () => {
                                                                 <span>{row.pos}</span>
                                                                 {getVarIcon(row.var)}
                                                             </div>
-                                                            {selectedCompetition <= 2 ? (
+                                                            {selectedCompetition === 33 ? (
+                                                                // ID = 33 competition logic
+                                                                <>
+                                                                    {row.pos <= 2 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-green-500"></span>
+                                                                    )}
+                                                                    {(row.pos === 3 || row.pos === 4) && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-blue-500"></span>
+                                                                    )}
+                                                                </>
+                                                            ) : selectedCompetition <= 2 ? (
                                                                 // National competition logic
                                                                 <>
                                                                     {row.pos <= 8 && (
@@ -266,7 +276,19 @@ const LeagueStandings = () => {
                         )}
                     </div>
                     <div className="mt-4 flex items-center justify-center gap-12">
-                        {selectedCompetition <= 2 ? (
+                        {selectedCompetition === 33 ? (
+                            // ID = 33 competition legend
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">Top 2 (Clasifican al Mundial)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-blue-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">3ro y 4to (Clasifican al repechaje intercontinental)</span>
+                                </div>
+                            </>
+                        ) : selectedCompetition <= 2 ? (
                             // National competition legend
                             <>
                                 <div className="flex items-center gap-2">
