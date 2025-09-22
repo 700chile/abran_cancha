@@ -28,42 +28,42 @@ type SupabaseGroup = {
 const generateRoundRobinMatches = (group: Group, isSecondLeg: boolean = false): Gameday[] => {
   const { teams, teamsCount, id: groupId, competitionId, roundId } = group;
   const isOdd = teamsCount % 2 !== 0;
-  const totalTeams = teamsCount;
-  const matchesPerGameday = Math.floor(totalTeams / 2);
-  const totalGamedays = teamsCount - 1; // Always n-1 gamedays for round-robin
+  
+  // For odd team counts, add a BYE to make the list even and use the effective team count.
+  let teamList = [...teams];
+  if (isOdd) {
+    teamList = [...teamList, { id: 'dummy', name: 'BYE' }];
+  }
+
+  const effectiveTeams = teamList.length; // even number
+  const totalGamedays = effectiveTeams - 1; // n-1 rounds with BYE included
+  const matchesPerGameday = effectiveTeams / 2; // n/2 pairs (one will include BYE when odd)
 
   const gamedays: Gameday[] = [];
-  let teamList = [...teams];
-  
-  // If odd number of teams, add a dummy team to make it even
-  if (isOdd) {
-    teamList = [...teams, { id: 'dummy', name: 'BYE' }];
-  }
-  
-  // Generate gamedays
+
+  // Generate gamedays using the circle method (first fixed, rotate the rest)
   for (let round = 0; round < totalGamedays; round++) {
     const gamedayNumber = round + 1 + (isSecondLeg ? totalGamedays : 0);
-    const gamedayName = totalGamedays <= 9 ? 
-      `Jornada ${gamedayNumber}` : 
-      `Jornada ${gamedayNumber.toString().padStart(2, '0')}`;
-    
+    const gamedayName = totalGamedays <= 9
+      ? `Jornada ${gamedayNumber}`
+      : `Jornada ${gamedayNumber.toString().padStart(2, '0')}`;
+
     const matches: Match[] = [];
-    
-    // Pair up teams for this gameday
+
     for (let i = 0; i < matchesPerGameday; i++) {
       const homeIndex = i;
       const awayIndex = teamList.length - 1 - i;
-      
-      // Skip if either team is the dummy team
-      if (teamList[homeIndex].id === 'dummy' || teamList[awayIndex].id === 'dummy') {
+
+      const home = teamList[homeIndex];
+      const away = teamList[awayIndex];
+
+      // Skip BYE pair
+      if (home.id === 'dummy' || away.id === 'dummy') {
         continue;
       }
-      
-      // For second leg, swap home and away
-      const [homeTeam, awayTeam] = isSecondLeg 
-        ? [teamList[awayIndex], teamList[homeIndex]] 
-        : [teamList[homeIndex], teamList[awayIndex]];
-      
+
+      const [homeTeam, awayTeam] = isSecondLeg ? [away, home] : [home, away];
+
       matches.push({
         fecha: gamedayNumber,
         programacion: '',
@@ -75,7 +75,7 @@ const generateRoundRobinMatches = (group: Group, isSecondLeg: boolean = false): 
         ronda: gamedayName,
       });
     }
-    
+
     gamedays.push({
       id: `${groupId}-${gamedayNumber}`,
       name: gamedayName,
@@ -84,18 +84,17 @@ const generateRoundRobinMatches = (group: Group, isSecondLeg: boolean = false): 
       groupId,
       isFirstLeg: !isSecondLeg,
     });
-    
-    // Rotate all teams except the first one
-    if (teamList.length > 1) {
-      const firstTeam = teamList.shift();
-      const secondTeam = teamList.shift();
-      if (firstTeam && secondTeam) {
-        teamList.push(secondTeam);
-        teamList.unshift(firstTeam);
-      }
+
+    // Perform rotation: keep first fixed, rotate the rest one step to the right
+    if (teamList.length > 2) {
+      const fixed = teamList[0];
+      const rest = teamList.slice(1);
+      const last = rest.pop();
+      if (last) rest.unshift(last);
+      teamList = [fixed, ...rest];
     }
   }
-  
+
   return gamedays;
 };
 
@@ -549,15 +548,15 @@ const MatchCreator: React.FC = () => {
         throw new Error(`No se pudo conectar a la base de datos: ${testError.message}`);
       }
       
-          // Flatten all matches from all gamedays
+      // Flatten all matches from all gamedays
       const allMatches: any[] = [];
       const errors: string[] = [];
       
       gamedays.forEach((gameday, gIdx) => {
         gameday.matches.forEach((match, mIdx) => {
-          // Validate required fields
+          // Only attempt to save matches that have a date assigned
           if (!match.programacion) {
-            errors.push(`El partido ${gIdx + 1}-${mIdx + 1} no tiene fecha programada`);
+            // Skip undated matches (e.g., future rounds like semifinal/final not yet scheduled)
             return;
           }
           
