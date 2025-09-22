@@ -12,7 +12,7 @@ export const createTeam = async (team: any) => {
             .from('equipo')
             .select()
             .eq('NOMBRE', team.NOMBRE)
-            .single();
+            .maybeSingle();
 
         if (checkError) throw checkError;
         if (existingTeam) {
@@ -31,7 +31,14 @@ export const createTeam = async (team: any) => {
             ])
             .select();
 
-        if (error) throw error;
+        if (error) {
+            // Map unique constraint violation to a friendly message
+            const code = (error as any)?.code || (error as any)?.details?.code;
+            if (code === '23505') {
+                throw new Error(`El equipo ${team.NOMBRE} ya existe`);
+            }
+            throw error;
+        }
         return data[0];
     } catch (error) {
         console.error('Error creating team:', error);
