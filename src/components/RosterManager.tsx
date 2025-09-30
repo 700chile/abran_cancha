@@ -20,8 +20,10 @@ interface PlayerInput {
 }
 
 interface Team {
-    id: number;
-    nombre: string;
+    id?: number;
+    nombre?: string;
+    id_equipo?: number;
+    nombre_equipo?: string;
 }
 
 
@@ -105,7 +107,7 @@ export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) =
                         console.log('First team structure:', teamsArray[0]);
                     }
 
-                    setTeams(teamsArray);
+                    setTeams(teamsArray as Team[]);
                 } catch (err) {
                     console.error('Error fetching teams:', err);
                     setError('Error fetching teams');
@@ -155,7 +157,7 @@ export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) =
 
         if (teamNumber) {
             const { data: rosterData, error: rosterError } = await supabase
-                .rpc('get_roster_with_names', { team_id: selectedTeam });
+                .rpc('get_roster_with_names', { team_id: teamNumber });
 
             if (rosterError) {
                 console.error('Error reloading roster:', rosterError);
@@ -315,11 +317,15 @@ export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) =
                     >
                         <option value="">Seleccione un equipo</option>
                         {teams?.length > 0 ? (
-                            teams.map((team) => (
-                                <option key={team.id} value={team.id.toString()}>
-                                    {team.nombre}
-                                </option>
-                            ))
+                            teams.map((team, idx) => {
+                                const idValue = team.id ?? team.id_equipo;
+                                const nameValue = team.nombre ?? team.nombre_equipo ?? '';
+                                return (
+                                    <option key={idValue?.toString() ?? `team-${idx}`} value={idValue?.toString() ?? ''}>
+                                        {nameValue}
+                                    </option>
+                                );
+                            })
                         ) : (
                             <option value="">Cargando equipos...</option>
                         )}
