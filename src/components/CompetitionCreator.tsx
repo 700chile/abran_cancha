@@ -106,7 +106,8 @@ export const CompetitionCreator = () => {
                 TIPO: 'TODOS CONTRA TODOS' as RoundType,
                 VUELTAS: 'UNA VUELTA' as RoundVueltas,
                 GRUPOS_CANT: 0,
-                GRUPOS: []
+                GRUPOS: [],
+                ORDINAL: prev.rounds.length + 1
             }]
         }));
     };
@@ -141,6 +142,7 @@ export const CompetitionCreator = () => {
             TIPO: round.TIPO,
             VUELTAS: round.VUELTAS,
             GRUPOS_CANT: round.GRUPOS_CANT,
+            ORDINAL: round.ORDINAL ?? 1,
             GRUPOS: round.GRUPOS.map(group => ({
                 NOMBRE: group.NOMBRE,
                 EQUIPOS_CANT: group.EQUIPOS_CANT

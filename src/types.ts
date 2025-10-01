@@ -66,6 +66,7 @@ export interface RoundConfig {
     VUELTAS: RoundVueltas;
     GRUPOS_CANT: number;
     NOMBRE: string; // Add NOMBRE for round
+    ORDINAL: number; // Added for round ordering in DB (ronda.ORDINAL)
     GRUPOS: GroupConfig[];
     ID?: number; // Add ID for existing rounds
 }
