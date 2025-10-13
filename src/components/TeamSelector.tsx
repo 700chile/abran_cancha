@@ -566,35 +566,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                 currentRoundId: selectedRoundId
             });
 
-            // After processing team assignments, handle roster updates if this is not the first round
-            if (competition) {
-                const previousRound = await findPreviousRound(competition.ID, selectedRoundId);
-                
-                if (previousRound) {
-                    console.log(`Found previous round: ${previousRound.NOMBRE} (ID: ${previousRound.ID})`);
-                    
-                    // For each team that was just added, copy its roster from the previous round
-                    for (const assignment of assignmentsToAdd) {
-                        try {
-                            const fromEquipoGrupoId = await getEquipoGrupoId(assignment.ID_EQUIPO, previousRound.ID);
-                            const toEquipoGrupoId = await getEquipoGrupoId(assignment.ID_EQUIPO, selectedRoundId);
-
-                            if (fromEquipoGrupoId && toEquipoGrupoId) {
-                                await copyRoster(fromEquipoGrupoId, toEquipoGrupoId);
-                            } else {
-                                console.warn(
-                                    `Skipping roster copy for team ${assignment.ID_EQUIPO}: from=${fromEquipoGrupoId}, to=${toEquipoGrupoId}`
-                                );
-                            }
-                        } catch (err) {
-                            console.error(`Error copying roster for team ${assignment.ID_EQUIPO}:`, err);
-                            // Continue with other teams even if one fails
-                        }
-                    }
-                } else {
-                    console.log('No previous round found or this is the first round');
-                }
-            }
+            // Roster copy moved to after insert so current round equipo_grupo IDs exist
 
             if (assignmentsToRemove.length > 0) {
                 console.log('Starting to remove', assignmentsToRemove.length, 'assignments...');
@@ -628,15 +600,46 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
             if (assignmentsToAdd.length > 0) {
                 console.log('Starting to add', assignmentsToAdd.length, 'new assignments...');
                 try {
-                    const { error: insertError } = await supabase
+                    const { data: insertedAssignments, error: insertError } = await supabase
                         .from('equipo_grupo')
-                        .insert(assignmentsToAdd);
+                        .insert(assignmentsToAdd)
+                        .select('ID, ID_EQUIPO, ID_GRUPO');
 
                     if (insertError) {
                         console.error('Error adding assignments:', insertError);
                         throw insertError;
                     }
                     console.log('Successfully added all new assignments');
+
+                    // After adding assignments, handle roster updates (now current equipo_grupo IDs exist)
+                    if (competition) {
+                        const previousRound = await findPreviousRound(competition.ID, selectedRoundId);
+                        if (previousRound) {
+                            console.log(`Found previous round: ${previousRound.NOMBRE} (ID: ${previousRound.ID})`);
+                            // Build team -> inserted equipo_grupo ID map for current round
+                            const toIdByTeam = new Map<number, number>();
+                            insertedAssignments?.forEach((row: any) => {
+                                toIdByTeam.set(row.ID_EQUIPO, row.ID);
+                            });
+                            // For each newly added team, copy roster from previous round
+                            for (const assignment of assignmentsToAdd) {
+                                try {
+                                    const fromEquipoGrupoId = await getEquipoGrupoId(assignment.ID_EQUIPO, previousRound.ID);
+                                    const toEquipoGrupoId = toIdByTeam.get(assignment.ID_EQUIPO) ?? null;
+                                    if (fromEquipoGrupoId && toEquipoGrupoId) {
+                                        await copyRoster(fromEquipoGrupoId, toEquipoGrupoId);
+                                    } else {
+                                        console.warn(`Skipping roster copy for team ${assignment.ID_EQUIPO}: from=${fromEquipoGrupoId}, to=${toEquipoGrupoId}`);
+                                    }
+                                } catch (err) {
+                                    console.error(`Error copying roster for team ${assignment.ID_EQUIPO}:`, err);
+                                    // Continue with other teams even if one fails
+                                }
+                            }
+                        } else {
+                            console.log('No previous round found or this is the first round');
+                        }
+                    }
                 } catch (err) {
                     console.error('Error in adding assignments:', err);
                     throw err;
