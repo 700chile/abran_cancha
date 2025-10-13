@@ -434,7 +434,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
             const { data: roster, error: rosterError } = await supabase
                 .from('plantel')
                 .select('ID_JUGADORA, NUMERO, POSICION')
-                .eq('ID_EQUIPO_GRUPO', fromEquipoGrupoId);
+                .eq('ID_EQUIPO', fromEquipoGrupoId);
 
             if (rosterError) throw rosterError;
             if (!roster || roster.length === 0) {
@@ -445,7 +445,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
             // Prepare new roster entries with the new equipo_grupo ID
             const newRosterEntries = roster.map(player => ({
                 ID_JUGADORA: player.ID_JUGADORA,
-                ID_EQUIPO_GRUPO: toEquipoGrupoId,
+                ID_EQUIPO: toEquipoGrupoId,
                 NUMERO: player.NUMERO,
                 POSICION: player.POSICION
             }));
@@ -576,10 +576,16 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                     // For each team that was just added, copy its roster from the previous round
                     for (const assignment of assignmentsToAdd) {
                         try {
-                            await copyRoster(
-                                assignment.ID_EQUIPO, 
-                                assignment.ID_EQUIPO // Same team, different round
-                            );
+                            const fromEquipoGrupoId = await getEquipoGrupoId(assignment.ID_EQUIPO, previousRound.ID);
+                            const toEquipoGrupoId = await getEquipoGrupoId(assignment.ID_EQUIPO, selectedRoundId);
+
+                            if (fromEquipoGrupoId && toEquipoGrupoId) {
+                                await copyRoster(fromEquipoGrupoId, toEquipoGrupoId);
+                            } else {
+                                console.warn(
+                                    `Skipping roster copy for team ${assignment.ID_EQUIPO}: from=${fromEquipoGrupoId}, to=${toEquipoGrupoId}`
+                                );
+                            }
                         } catch (err) {
                             console.error(`Error copying roster for team ${assignment.ID_EQUIPO}:`, err);
                             // Continue with other teams even if one fails

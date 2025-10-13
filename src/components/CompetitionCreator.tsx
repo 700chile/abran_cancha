@@ -52,7 +52,7 @@ export const CompetitionCreator = () => {
                         for (let i = currentGroups.length; i < newGroupsCount; i++) {
                             newGroups.push({ 
                                 ID: Date.now() + i, // Generate a temporary unique ID
-                                NOMBRE: `Grupo ${i + 1}`, 
+                                NOMBRE: `GRUPO ${i + 1}`, 
                                 EQUIPOS_CANT: 0,
                                 EQUIPOS: [] 
                             });
