@@ -66,7 +66,7 @@ export default function AuthPage() {
           disabled={loading}
           className="w-full bg-brand-primary text-white py-2 rounded disabled:opacity-60"
         >
-          {loading ? 'Procesando...' : mode === 'login' ? 'Entrar' : 'Registrar'}
+          {loading ? 'Procesando...' : mode === 'login' ? 'Iniciar sesión' : 'Registrar'}
         </button>
       </form>
       <div className="mt-4 text-sm">

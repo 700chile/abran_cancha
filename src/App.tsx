@@ -29,10 +29,10 @@ const UserMenu: FC = () => {
     <div className="flex items-center space-x-3">
       {user ? (
         <>
-          <span className="text-sm text-gray-700">{user.email}</span>
+          <span className="text-xs text-gray-700">{user.email}</span>
           <button
             onClick={() => signOut()}
-            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded"
+            className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded"
           >
             Cerrar sesión
           </button>
@@ -40,7 +40,7 @@ const UserMenu: FC = () => {
       ) : (
         <Link 
           to="/login"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Iniciar sesión
         </Link>
@@ -57,25 +57,25 @@ const ProtectedNavGroups: FC = () => {
       <div className="flex space-x-2">
         <Link 
           to="/match-updater"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Actualizar Partidos
         </Link>
         <Link 
           to="/goal-scorers"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Registrar Goles
         </Link>
         <Link 
           to="/player-roster"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Ingresar Jugadora
         </Link>
         <Link 
           to="/create-team"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Equipo
         </Link>
@@ -83,19 +83,19 @@ const ProtectedNavGroups: FC = () => {
       <div className="flex space-x-2">
         <Link 
           to="/create-competition"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Competencia
         </Link>
         <Link 
           to="/roster-manager"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Ingresar Plantel
         </Link>
         <Link 
           to="/create-matches"
-          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Partidos
         </Link>
@@ -121,19 +121,19 @@ function App() {
                 <div className="flex space-x-2">
                   <Link 
                     to="/"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
                   >
                     Tabla de Posiciones
                   </Link>
                   <Link 
                     to="/matches"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
                   >
                     Partidos
                   </Link>
                   <Link 
                     to="/top-scorers"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
                   >
                     Goleadoras
                   </Link>
