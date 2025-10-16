@@ -11,14 +11,32 @@ export type PermissionKey =
   | 'teams:create'
   | 'roster:manage'
   | 'matches:create'
+  | 'teams:select'
+  | 'users:create'
+  | 'permissions:admin'
   | 'users:manage';
 
 export type RoleKey = 'admin' | 'editor' | 'viewer';
 
+// Map app-level permission keys to DB IDs provided by the user
+const PERMISSION_IDS: Record<PermissionKey, number> = {
+  'matches:update': 11,          // Actualizar partidos
+  'goals:create': 12,            // Registrar goles
+  'players:create': 13,          // Ingresar jugadora
+  'teams:create': 14,            // Crear equipo
+  'competitions:create': 15,     // Crear competencia
+  'roster:manage': 16,           // Ingresar plantel
+  'matches:create': 17,          // Crear partidos
+  'teams:select': 18,            // Seleccionar equipos
+  'users:create': 19,            // Crear usuario
+  'permissions:admin': 20,       // Administrar permisos
+  'users:manage': 20             // Treat users:manage as admin-permissions too (or adjust if separate)
+};
+
 type PermissionContextValue = {
   roleId: number | null;
   roleKey: RoleKey | null;
-  permissions: Set<PermissionKey>;
+  permissions: Set<number>; // store permission IDs
   loading: boolean;
   has: (perm: PermissionKey) => boolean;
 };
@@ -29,7 +47,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [roleId, setRoleId] = useState<number | null>(null);
   const [roleKey, setRoleKey] = useState<RoleKey | null>(null);
-  const [permissions, setPermissions] = useState<Set<PermissionKey>>(new Set());
+  const [permissions, setPermissions] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -61,37 +79,56 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const { data: role } = await supabase
-          .from('rbac_role')
-          .select('key')
-          .eq('id', rId)
-          .maybeSingle();
-
-        const roleKeyValue = (role?.key as RoleKey) ?? null;
+        // Try roles table with two common names
+        let roleKeyValue: RoleKey | null = null;
+        {
+          const { data: roleA, error: errA } = await supabase
+            .from('rbac_roles')
+            .select('key')
+            .eq('id', rId)
+            .maybeSingle();
+          if (!errA && roleA?.key) {
+            roleKeyValue = roleA.key as RoleKey;
+          } else {
+            const { data: roleB } = await supabase
+              .from('rbac_role')
+              .select('key')
+              .eq('id', rId)
+              .maybeSingle();
+            roleKeyValue = (roleB?.key as RoleKey) ?? null;
+          }
+        }
         if (!mounted) return;
         setRoleKey(roleKeyValue);
 
-        // Fetch permission IDs from join table rbac_role_permission (role_id, permission_id)
-        const { data: rolePerms } = await supabase
-          .from('rbac_role_permission')
-          .select('permission_id')
-          .eq('role_id', rId);
-
-        const permIds = (rolePerms ?? []).map((rp: any) => rp.permission_id);
+        // Fetch permission IDs from join table. Try multiple table names.
+        let permIds: number[] = [];
+        {
+          const { data: rpA, error: errA } = await supabase
+            .from('rbac_role_permission')
+            .select('permission_id')
+            .eq('role_id', rId);
+          if (!errA && rpA) {
+            permIds = rpA.map((rp: any) => rp.permission_id);
+          } else {
+            const { data: rpB, error: errB } = await supabase
+              .from('rbac_roles_permissions')
+              .select('permission_id')
+              .eq('role_id', rId);
+            if (!errB && rpB) {
+              permIds = rpB.map((rp: any) => rp.permission_id);
+            }
+          }
+        }
         if (permIds.length === 0) {
           if (!mounted) return;
           setPermissions(new Set());
           return;
         }
 
-        const { data: perms } = await supabase
-          .from('rbac_permissions')
-          .select('key')
-          .in('id', permIds);
-
-        const keys = new Set<PermissionKey>((perms ?? []).map((p: any) => p.key));
+        // Store IDs directly
         if (!mounted) return;
-        setPermissions(keys);
+        setPermissions(new Set<number>(permIds));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -109,7 +146,11 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       roleKey,
       permissions,
       loading,
-      has: (perm: PermissionKey) => permissions.has(perm),
+      has: (perm: PermissionKey) => {
+        if (roleKey === 'admin') return true;
+        const id = PERMISSION_IDS[perm];
+        return permissions.has(id);
+      },
     }),
     [roleId, roleKey, permissions, loading]
   );
