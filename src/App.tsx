@@ -4,6 +4,8 @@ import type { FC } from 'react';
 import LeagueStandings from './components/LeagueStandings';
 import TeamSelector from './components/TeamSelector';
 import { AuthProvider, useAuth } from './components/AuthProvider';
+import { PermissionProvider } from './components/PermissionProvider';
+import PermissionGate from './components/PermissionGate';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthPage from './components/AuthPage';
 
@@ -23,6 +25,7 @@ import CompetitionList from './components/CompetitionList';
 import MatchCreator from './components/MatchCreator';
 import { RosterManager } from './components/RosterManager';
 import CompetitionRoundSelector from './components/CompetitionRoundSelector';
+import UserRoleManager from './components/UserRoleManager';
 const UserMenu: FC = () => {
   const { user, signOut } = useAuth();
   return (
@@ -55,50 +58,56 @@ const ProtectedNavGroups: FC = () => {
   return (
     <>
       <div className="flex space-x-2">
-        <Link 
+        <PermissionGate need="matches:update"><Link 
           to="/match-updater"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Actualizar Partidos
-        </Link>
-        <Link 
+        </Link></PermissionGate>
+        <PermissionGate need="goals:create"><Link 
           to="/goal-scorers"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Registrar Goles
-        </Link>
-        <Link 
+        </Link></PermissionGate>
+        <PermissionGate need="players:create"><Link 
           to="/player-roster"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Ingresar Jugadora
-        </Link>
-        <Link 
+        </Link></PermissionGate>
+        <PermissionGate need="teams:create"><Link 
           to="/create-team"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Equipo
-        </Link>
+        </Link></PermissionGate>
       </div>
       <div className="flex space-x-2">
-        <Link 
+        <PermissionGate need="competitions:create"><Link 
           to="/create-competition"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Competencia
-        </Link>
-        <Link 
+        </Link></PermissionGate>
+        <PermissionGate need="roster:manage"><Link 
           to="/roster-manager"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Ingresar Plantel
-        </Link>
-        <Link 
+        </Link></PermissionGate>
+        <PermissionGate need="matches:create"><Link 
           to="/create-matches"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Partidos
-        </Link>
+        </Link></PermissionGate>
+        <PermissionGate need="users:manage"><Link 
+          to="/users-roles"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+        >
+          Usuarios y Roles
+        </Link></PermissionGate>
       </div>
     </>
   );
@@ -107,6 +116,7 @@ const ProtectedNavGroups: FC = () => {
 function App() {
   return (
     <AuthProvider>
+      <PermissionProvider>
       <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <nav className="bg-white shadow-md w-full">
@@ -153,22 +163,24 @@ function App() {
             <Route path="/matches" element={<Matches />} />
             <Route path="/top-scorers" element={<TopScorers />} />
             <Route path="/login" element={<AuthPage />} />
-            <Route path="/match-updater" element={<ProtectedRoute><MatchUpdater /></ProtectedRoute>} />
-            <Route path="/goal-scorers" element={<ProtectedRoute><GoalScorerUpdater /></ProtectedRoute>} />
-            <Route path="/player-roster" element={<ProtectedRoute><PlayerRosterManager /></ProtectedRoute>} />
-            <Route path="/create-competition" element={<ProtectedRoute><CompetitionCreator /></ProtectedRoute>} />
-            <Route path="/roster-manager" element={<ProtectedRoute><RosterManager /></ProtectedRoute>} />
+            <Route path="/match-updater" element={<ProtectedRoute need="matches:update"><MatchUpdater /></ProtectedRoute>} />
+            <Route path="/goal-scorers" element={<ProtectedRoute need="goals:create"><GoalScorerUpdater /></ProtectedRoute>} />
+            <Route path="/player-roster" element={<ProtectedRoute need="players:create"><PlayerRosterManager /></ProtectedRoute>} />
+            <Route path="/create-competition" element={<ProtectedRoute need="competitions:create"><CompetitionCreator /></ProtectedRoute>} />
+            <Route path="/roster-manager" element={<ProtectedRoute need="roster:manage"><RosterManager /></ProtectedRoute>} />
             <Route path="/competition" element={<CompetitionList />} />
             <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
-              <ProtectedRoute><TeamSelectorWrapper /></ProtectedRoute>
+              <ProtectedRoute need="matches:create"><TeamSelectorWrapper /></ProtectedRoute>
             } />
-            <Route path="/competition/:id/build-matches" element={<ProtectedRoute><MatchCreator /></ProtectedRoute>} />
-            <Route path="/create-matches" element={<ProtectedRoute><CompetitionRoundSelector /></ProtectedRoute>} />
-            <Route path="/create-team" element={<ProtectedRoute><TeamCreator /></ProtectedRoute>} />
+            <Route path="/competition/:id/build-matches" element={<ProtectedRoute need="matches:create"><MatchCreator /></ProtectedRoute>} />
+            <Route path="/create-matches" element={<ProtectedRoute need="matches:create"><CompetitionRoundSelector /></ProtectedRoute>} />
+            <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
+            <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />
           </Routes>
         </main>
       </div>
       </Router>
+      </PermissionProvider>
     </AuthProvider>
   );
 }
