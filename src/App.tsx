@@ -50,8 +50,8 @@ const UserMenu: FC = () => {
 };
 
 const ProtectedNavGroups: FC = () => {
-  const { user } = useAuth();
-  if (!user) return null;
+  const { user, loading } = useAuth();
+  if (loading || !user) return null;
   return (
     <>
       <div className="flex space-x-2">
@@ -109,9 +109,9 @@ function App() {
     <AuthProvider>
       <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        <nav className="bg-white shadow-md min-h-[96px] w-full">
+        <nav className="bg-white shadow-md w-full">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-start h-24">
+            <div className="flex justify-between items-start py-4">
               <div className="flex items-center">
                 <Link to="/" className="text-brand-primary font-bold text-xl">
                   Abran Cancha
