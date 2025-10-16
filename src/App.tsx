@@ -49,6 +49,61 @@ const UserMenu: FC = () => {
   );
 };
 
+const ProtectedNavGroups: FC = () => {
+  const { user } = useAuth();
+  if (!user) return null;
+  return (
+    <>
+      <div className="flex space-x-2">
+        <Link 
+          to="/match-updater"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Actualizar Partidos
+        </Link>
+        <Link 
+          to="/goal-scorers"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Registrar Goles
+        </Link>
+        <Link 
+          to="/player-roster"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Ingresar Jugadora
+        </Link>
+        <Link 
+          to="/create-team"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Crear Equipo
+        </Link>
+      </div>
+      <div className="flex space-x-2">
+        <Link 
+          to="/create-competition"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Crear Competencia
+        </Link>
+        <Link 
+          to="/roster-manager"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Ingresar Plantel
+        </Link>
+        <Link 
+          to="/create-matches"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Crear Partidos
+        </Link>
+      </div>
+    </>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -83,52 +138,7 @@ function App() {
                     Goleadoras
                   </Link>
                 </div>
-                <div className="flex space-x-2">
-                  <Link 
-                    to="/match-updater"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Actualizar Partidos
-                  </Link>
-                  <Link 
-                    to="/goal-scorers"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Registrar Goles
-                  </Link>
-                  <Link 
-                    to="/player-roster"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Ingresar Jugadora
-                  </Link>
-                  <Link 
-                    to="/create-team"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Crear Equipo
-                  </Link>
-                </div>
-                <div className="flex space-x-2">
-                  <Link 
-                    to="/create-competition"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Crear Competencia
-                  </Link>
-                  <Link 
-                    to="/roster-manager"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Ingresar Plantel
-                  </Link>
-                  <Link 
-                    to="/create-matches"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
-                  >
-                    Crear Partidos
-                  </Link>
-                </div>
+                <ProtectedNavGroups />
               </div>
               <div className="flex items-center">
                 <UserMenu />

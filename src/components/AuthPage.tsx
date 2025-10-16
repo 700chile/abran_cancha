@@ -71,9 +71,9 @@ export default function AuthPage() {
       </form>
       <div className="mt-4 text-sm">
         {mode === 'login' ? (
-          <button className="text-brand-primary" onClick={() => setMode('signup')}>¿No tienes cuenta? Regístrate</button>
+          <button className="text-blue-600 hover:underline font-medium" onClick={() => setMode('signup')}>¿No tienes cuenta? Regístrate</button>
         ) : (
-          <button className="text-brand-primary" onClick={() => setMode('login')}>¿Ya tienes cuenta? Inicia sesión</button>
+          <button className="text-blue-600 hover:underline font-medium" onClick={() => setMode('login')}>¿Ya tienes cuenta? Inicia sesión</button>
         )}
       </div>
     </div>
