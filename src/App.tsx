@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-r
 import type { FC } from 'react';
 import LeagueStandings from './components/LeagueStandings';
 import TeamSelector from './components/TeamSelector';
+import { AuthProvider, useAuth } from './components/AuthProvider';
+import ProtectedRoute from './components/ProtectedRoute';
+import AuthPage from './components/AuthPage';
 
 // Wrapper component to extract competition and round IDs from URL
 const TeamSelectorWrapper: FC = () => {
@@ -20,10 +23,36 @@ import CompetitionList from './components/CompetitionList';
 import MatchCreator from './components/MatchCreator';
 import { RosterManager } from './components/RosterManager';
 import CompetitionRoundSelector from './components/CompetitionRoundSelector';
+const UserMenu: FC = () => {
+  const { user, signOut } = useAuth();
+  return (
+    <div className="flex items-center space-x-3">
+      {user ? (
+        <>
+          <span className="text-sm text-gray-700">{user.email}</span>
+          <button
+            onClick={() => signOut()}
+            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded"
+          >
+            Cerrar sesión
+          </button>
+        </>
+      ) : (
+        <Link 
+          to="/login"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-sm font-medium"
+        >
+          Iniciar sesión
+        </Link>
+      )}
+    </div>
+  );
+};
 
 function App() {
   return (
-    <Router>
+    <AuthProvider>
+      <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <nav className="bg-white shadow-md min-h-[96px] w-full">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,6 +130,9 @@ function App() {
                   </Link>
                 </div>
               </div>
+              <div className="flex items-center">
+                <UserMenu />
+              </div>
             </div>
           </div>
         </nav>
@@ -110,22 +142,24 @@ function App() {
             <Route path="/" element={<LeagueStandings />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/top-scorers" element={<TopScorers />} />
-            <Route path="/match-updater" element={<MatchUpdater />} />
-            <Route path="/goal-scorers" element={<GoalScorerUpdater />} />
-            <Route path="/player-roster" element={<PlayerRosterManager />} />
-            <Route path="/create-competition" element={<CompetitionCreator />} />
-            <Route path="/roster-manager" element={<RosterManager />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/match-updater" element={<ProtectedRoute><MatchUpdater /></ProtectedRoute>} />
+            <Route path="/goal-scorers" element={<ProtectedRoute><GoalScorerUpdater /></ProtectedRoute>} />
+            <Route path="/player-roster" element={<ProtectedRoute><PlayerRosterManager /></ProtectedRoute>} />
+            <Route path="/create-competition" element={<ProtectedRoute><CompetitionCreator /></ProtectedRoute>} />
+            <Route path="/roster-manager" element={<ProtectedRoute><RosterManager /></ProtectedRoute>} />
             <Route path="/competition" element={<CompetitionList />} />
             <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
-              <TeamSelectorWrapper />
+              <ProtectedRoute><TeamSelectorWrapper /></ProtectedRoute>
             } />
-            <Route path="/competition/:id/build-matches" element={<MatchCreator />} />
-            <Route path="/create-matches" element={<CompetitionRoundSelector />} />
-            <Route path="/create-team" element={<TeamCreator />} />
+            <Route path="/competition/:id/build-matches" element={<ProtectedRoute><MatchCreator /></ProtectedRoute>} />
+            <Route path="/create-matches" element={<ProtectedRoute><CompetitionRoundSelector /></ProtectedRoute>} />
+            <Route path="/create-team" element={<ProtectedRoute><TeamCreator /></ProtectedRoute>} />
           </Routes>
         </main>
       </div>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 
