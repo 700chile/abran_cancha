@@ -566,7 +566,7 @@ export default function MatchUpdater() {
             {/* Position Updater Section - Fixed at bottom of page */}
             {selectedMatchday && selectedCompetition && (
                 <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-6 shadow-inner">
-                    <div className="max-w-7xl mx-auto flex justify-end items-center gap-4">
+                    <div className="w-full flex justify-end items-center gap-4">
                         {updateStatus && (
                             <div className={`p-3 rounded-md shadow-lg max-w-xs ${
                                 updateStatus.type === 'success' 

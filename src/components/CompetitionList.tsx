@@ -37,7 +37,7 @@ export default function CompetitionList() {
 
     if (isLoading) {
         return (
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-center min-h-[200px]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
                 </div>
@@ -46,7 +46,7 @@ export default function CompetitionList() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-bold mb-4">Competencias</h1>
             <div className="bg-white shadow rounded-lg p-6">
                 <div className="space-y-4">

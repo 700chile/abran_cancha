@@ -118,7 +118,7 @@ const TopScorers = () => {
 
     return (
         <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full px-0 sm:px-2 lg:px-4">
                 <h1 className="text-2xl sm:text-3xl font-bold text-center text-brand-primary mb-6">
                     GOLEADORAS
                 </h1>
