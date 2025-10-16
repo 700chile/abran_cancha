@@ -63,11 +63,12 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       }
       setLoading(true);
       try {
-        const { data: ur } = await supabase
+        const { data: ur, error: urErr } = await supabase
           .from('user_role')
           .select('role_id')
           .eq('user_id', user.id)
           .maybeSingle();
+        if (urErr) console.error('[RBAC] user_role error', urErr);
 
         const rId = ur?.role_id ?? null;
         if (!mounted) return;
@@ -90,16 +91,18 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
           if (!errA && roleA?.key) {
             roleKeyValue = roleA.key as RoleKey;
           } else {
-            const { data: roleB } = await supabase
+            const { data: roleB, error: errB2 } = await supabase
               .from('rbac_role')
               .select('key')
               .eq('id', rId)
               .maybeSingle();
+            if (errA) console.error('[RBAC] rbac_roles error', errA);
+            if (errB2) console.error('[RBAC] rbac_role error', errB2);
             roleKeyValue = (roleB?.key as RoleKey) ?? null;
           }
         }
         if (!mounted) return;
-        setRoleKey(roleKeyValue);
+        setRoleKey(roleKeyValue as RoleKey);
 
         // Fetch permission IDs from join table. Try multiple table names.
         let permIds: number[] = [];
@@ -118,8 +121,11 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
             if (!errB && rpB) {
               permIds = rpB.map((rp: any) => rp.permission_id);
             }
+            if (errA) console.error('[RBAC] rbac_role_permission error', errA);
+            if (errB) console.error('[RBAC] rbac_roles_permissions error', errB);
           }
         }
+        console.log('[RBAC] user', user.id, 'roleId', rId, 'roleKey', roleKeyValue, 'permIds', permIds);
         if (permIds.length === 0) {
           if (!mounted) return;
           setPermissions(new Set());
@@ -147,7 +153,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
       permissions,
       loading,
       has: (perm: PermissionKey) => {
-        if (roleKey === 'admin') return true;
+        if ((roleKey && roleKey.toLowerCase() === 'admin') || roleId === 1) return true;
         const id = PERMISSION_IDS[perm];
         return permissions.has(id);
       },

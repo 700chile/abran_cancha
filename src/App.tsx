@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import LeagueStandings from './components/LeagueStandings';
 import TeamSelector from './components/TeamSelector';
 import { AuthProvider, useAuth } from './components/AuthProvider';
-import { PermissionProvider } from './components/PermissionProvider';
+import { PermissionProvider, usePermissions } from './components/PermissionProvider';
 import PermissionGate from './components/PermissionGate';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthPage from './components/AuthPage';
@@ -54,7 +54,25 @@ const UserMenu: FC = () => {
 
 const ProtectedNavGroups: FC = () => {
   const { user, loading } = useAuth();
-  if (loading || !user) return null;
+  const { has, roleKey, roleId, loading: permLoading } = usePermissions();
+  if (loading || permLoading || !user) return null;
+  console.log('[RBAC:UI] permissions', {
+    roleKey,
+    roleId,
+    permissions: {
+      'matches:update': has('matches:update'),
+      'goals:create': has('goals:create'),
+      'players:create': has('players:create'),
+      'teams:create': has('teams:create'),
+      'competitions:create': has('competitions:create'),
+      'roster:manage': has('roster:manage'),
+      'matches:create': has('matches:create'),
+      'teams:select': has('teams:select'),
+      'users:create': has('users:create'),
+      'permissions:admin': has('permissions:admin'),
+      'users:manage': has('users:manage'),
+    },
+  });
   return (
     <>
       <div className="flex space-x-2">
