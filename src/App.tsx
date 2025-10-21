@@ -26,6 +26,7 @@ import MatchCreator from './components/MatchCreator';
 import { RosterManager } from './components/RosterManager';
 import CompetitionRoundSelector from './components/CompetitionRoundSelector';
 import UserRoleManager from './components/UserRoleManager';
+import PenalesUpdater from './components/PenalesUpdater';
 const UserMenu: FC = () => {
   const { user, signOut } = useAuth();
   return (
@@ -114,6 +115,12 @@ const ProtectedNavGroups: FC = () => {
         >
           Ingresar Plantel
         </Link></PermissionGate>
+        <PermissionGate need="goals:create"><Link 
+          to="/penalties"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+        >
+          Ingresar penales
+        </Link></PermissionGate>
         <PermissionGate need="matches:create"><Link 
           to="/create-matches"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
@@ -183,6 +190,7 @@ function App() {
             <Route path="/login" element={<AuthPage />} />
             <Route path="/match-updater" element={<ProtectedRoute need="matches:update"><MatchUpdater /></ProtectedRoute>} />
             <Route path="/goal-scorers" element={<ProtectedRoute need="goals:create"><GoalScorerUpdater /></ProtectedRoute>} />
+            <Route path="/penalties" element={<ProtectedRoute need="goals:create"><PenalesUpdater /></ProtectedRoute>} />
             <Route path="/player-roster" element={<ProtectedRoute need="players:create"><PlayerRosterManager /></ProtectedRoute>} />
             <Route path="/create-competition" element={<ProtectedRoute need="competitions:create"><CompetitionCreator /></ProtectedRoute>} />
             <Route path="/roster-manager" element={<ProtectedRoute need="roster:manage"><RosterManager /></ProtectedRoute>} />

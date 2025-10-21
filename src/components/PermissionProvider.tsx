@@ -80,63 +80,26 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // Try roles table with two common names
+        // Prefer exact table name provided by user: rbac_role (singular)
         let roleKeyValue: RoleKey | null = null;
-        {
-          const { data: roleA, error: errA } = await supabase
-            .from('rbac_roles')
-            .select('key')
-            .eq('id', rId)
-            .maybeSingle();
-          if (!errA && roleA?.key) {
-            roleKeyValue = roleA.key as RoleKey;
-          } else {
-            const { data: roleB, error: errB2 } = await supabase
-              .from('rbac_role')
-              .select('key')
-              .eq('id', rId)
-              .maybeSingle();
-            if (errA) console.error('[RBAC] rbac_roles error', errA);
-            if (errB2) console.error('[RBAC] rbac_role error', errB2);
-            roleKeyValue = (roleB?.key as RoleKey) ?? null;
-          }
-        }
+        const { data: roleRow, error: roleErr } = await supabase
+          .from('rbac_role')
+          .select('key')
+          .eq('id', rId)
+          .maybeSingle();
+        if (roleErr) console.error('[RBAC] rbac_role error', roleErr);
+        roleKeyValue = (roleRow?.key as RoleKey) ?? null;
         if (!mounted) return;
         setRoleKey(roleKeyValue as RoleKey);
 
-        // Fetch permission IDs from join table. Try declared name first: rbac_role_permissions
+        // Fetch permission IDs from join table: rbac_role_permissions (plural)
         let permIds: number[] = [];
-        {
-          const { data: rp0, error: err0 } = await supabase
-            .from('rbac_role_permissions')
-            .select('permission_id')
-            .eq('role_id', rId);
-          if (!err0 && rp0) {
-            permIds = rp0.map((rp: any) => rp.permission_id);
-            console.log('[RBAC] using table rbac_role_permissions');
-          } else {
-            const { data: rpA, error: errA } = await supabase
-              .from('rbac_role_permission')
-              .select('permission_id')
-              .eq('role_id', rId);
-            if (!errA && rpA) {
-              permIds = rpA.map((rp: any) => rp.permission_id);
-              console.log('[RBAC] using table rbac_role_permission');
-            } else {
-              const { data: rpB, error: errB } = await supabase
-                .from('rbac_roles_permissions')
-                .select('permission_id')
-                .eq('role_id', rId);
-              if (!errB && rpB) {
-                permIds = rpB.map((rp: any) => rp.permission_id);
-                console.log('[RBAC] using table rbac_roles_permissions');
-              }
-              if (errA) console.error('[RBAC] rbac_role_permission error', errA);
-              if (errB) console.error('[RBAC] rbac_roles_permissions error', errB);
-            }
-            if (err0) console.error('[RBAC] rbac_role_permissions error', err0);
-          }
-        }
+        const { data: rpRows, error: rpErr } = await supabase
+          .from('rbac_role_permissions')
+          .select('permission_id')
+          .eq('role_id', rId);
+        if (rpErr) console.error('[RBAC] rbac_role_permissions error', rpErr);
+        permIds = (rpRows ?? []).map((rp: any) => rp.permission_id);
         console.log('[RBAC] user', user.id, 'roleId', rId, 'roleKey', roleKeyValue, 'permIds', permIds);
         if (permIds.length === 0) {
           if (!mounted) return;

@@ -4,12 +4,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 
 export default function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation() as any;
@@ -18,18 +16,11 @@ export default function AuthPage() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    setInfo(null);
     setLoading(true);
     try {
-      if (mode === 'login') {
-        const res = await signIn(email, password);
-        if (res.error) return setError(res.error);
-        navigate(from, { replace: true });
-      } else {
-        const res = await signUp(email, password);
-        if (res.error) return setError(res.error);
-        if (res.needsVerification) setInfo('Revisa tu correo para confirmar la cuenta.');
-      }
+      const res = await signIn(email, password);
+      if (res.error) return setError(res.error);
+      navigate(from, { replace: true });
     } finally {
       setLoading(false);
     }
@@ -37,9 +28,8 @@ export default function AuthPage() {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-semibold mb-4">{mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}</h1>
+      <h1 className="text-2xl font-semibold mb-4">Iniciar sesión</h1>
       {error && <div className="mb-3 text-red-600 text-sm">{error}</div>}
-      {info && <div className="mb-3 text-green-600 text-sm">{info}</div>}
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="block text-sm mb-1">Email</label>
@@ -66,16 +56,9 @@ export default function AuthPage() {
           disabled={loading}
           className="w-full bg-brand-primary text-white py-2 rounded disabled:opacity-60"
         >
-          {loading ? 'Procesando...' : mode === 'login' ? 'Iniciar sesión' : 'Registrar'}
+          {loading ? 'Procesando...' : 'Iniciar sesión'}
         </button>
       </form>
-      <div className="mt-4 text-sm">
-        {mode === 'login' ? (
-          <button className="text-blue-600 hover:underline font-medium" onClick={() => setMode('signup')}>¿No tienes cuenta? Regístrate</button>
-        ) : (
-          <button className="text-blue-600 hover:underline font-medium" onClick={() => setMode('login')}>¿Ya tienes cuenta? Inicia sesión</button>
-        )}
-      </div>
     </div>
   );
 }
