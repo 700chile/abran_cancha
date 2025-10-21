@@ -36,6 +36,7 @@ interface Match {
     equipo_visita?: string;
     nombre_grupo?: string;
     id_partido?: number;
+    penalties?: { home: number; away: number };
 }
 
 interface Matchday {
@@ -231,6 +232,44 @@ const Matches: React.FC = () => {
                 });
 
                 setMatches(mappedData);
+
+                // After setting matches, fetch penalties summary for each match
+                try {
+                    const summaries = await Promise.all(
+                        mappedData.map(async (m) => {
+                            const matchId = m.ID || m.id;
+                            if (!matchId) return { id: m.ID, penalties: undefined } as { id: number; penalties?: { home: number; away: number } };
+                            const { data: pensData, error: pensError } = await supabase.rpc('get_penalties', { match: matchId });
+                            if (pensError || !pensData || pensData.length === 0) {
+                                return { id: matchId, penalties: undefined } as { id: number; penalties?: { home: number; away: number } };
+                            }
+
+                            // Count only converted penalties per team name
+                            const homeTeam = (m.EQUIPO_LOCAL || m.equipo_local || '').toString().toLowerCase();
+                            const awayTeam = (m.EQUIPO_VISITA || m.equipo_visita || '').toString().toLowerCase();
+                            let home = 0;
+                            let away = 0;
+                            for (const row of pensData as any[]) {
+                                if (row.resultado) {
+                                    const teamName = (row.nombre || row.NOMBRE || '').toString().toLowerCase();
+                                    if (teamName === homeTeam) home++;
+                                    else if (teamName === awayTeam) away++;
+                                }
+                            }
+                            if (home === 0 && away === 0) return { id: matchId, penalties: undefined };
+                            return { id: matchId, penalties: { home, away } };
+                        })
+                    );
+
+                    // Merge summaries into matches
+                    setMatches(prev => prev.map(pm => {
+                        const id = pm.ID || pm.id;
+                        const sum = summaries.find(s => s.id === id);
+                        return sum && sum.penalties ? { ...pm, penalties: sum.penalties } : pm;
+                    }));
+                } catch (penErr) {
+                    console.error('Error fetching penalties summaries:', penErr);
+                }
             } catch (error) {
                 console.error('Error fetching matches:', error);
             } finally {
@@ -325,9 +364,16 @@ const Matches: React.FC = () => {
                                                         />
                                                     </div>
                                                     
-                                                    <div className="mx-2 font-bold text-lg bg-gray-100 px-3 py-1 rounded">
+                                                    <div className="mx-2 flex flex-col items-center">
+                                                    {match.penalties && (
+                                                        <div className="text-[10px] font-semibold text-gray-700 bg-yellow-100 px-2 py-0.5 rounded mb-1">
+                                                            {`PENALES: ${match.penalties.home}-${match.penalties.away}`}
+                                                        </div>
+                                                    )}
+                                                    <div className="font-bold text-lg bg-gray-100 px-3 py-1 rounded">
                                                         {match.goles_local !== null ? match.goles_local : '-'} - {match.goles_visita !== null ? match.goles_visita : '-'}
                                                     </div>
+                                                </div>
                                                     
                                                     <div className="flex-1 flex items-center">
                                                         <img 
