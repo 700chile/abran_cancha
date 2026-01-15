@@ -14,6 +14,7 @@ export default function UserRoleManager() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentRole, setCurrentRole] = useState<Role | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -26,6 +27,37 @@ export default function UserRoleManager() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setCurrentRole(null);
+      if (!userId) return;
+      const { data: ur, error: urErr } = await supabase
+        .from('user_role')
+        .select('role_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (urErr) {
+        console.error(urErr);
+        return;
+      }
+      const rid = ur?.role_id;
+      if (!rid) return;
+      const { data: roleRow, error: roleErr } = await supabase
+        .from('rbac_role')
+        .select('*')
+        .eq('id', rid)
+        .maybeSingle();
+      if (roleErr) {
+        console.error(roleErr);
+        return;
+      }
+      if (!active) return;
+      setCurrentRole(roleRow as Role);
+    })();
+    return () => { active = false };
+  }, [userId]);
 
   const assignRole = async () => {
     setError(null);
@@ -73,6 +105,11 @@ export default function UserRoleManager() {
               className="w-full p-2 border rounded"
               placeholder="00000000-0000-0000-0000-000000000000"
             />
+            {currentRole && (
+              <div className="mt-2 text-xs text-gray-600">
+                Rol actual: <b>{currentRole.key}</b>{currentRole.description ? ` — ${currentRole.description}` : ''}
+              </div>
+            )}
           </div>
 
           <div>
@@ -85,7 +122,7 @@ export default function UserRoleManager() {
               <option value="">Selecciona un rol</option>
               {roles.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.key}
+                  {r.description ? `${r.key} — ${r.description}` : r.key}
                 </option>
               ))}
             </select>

@@ -56,7 +56,7 @@ export default function AuthPage() {
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded disabled:opacity-60"
         >
-          {loading ? 'Procesando...' : 'Login'}
+          {loading ? 'Procesando...' : 'Iniciar sesión'}
         </button>
       </form>
     </div>
