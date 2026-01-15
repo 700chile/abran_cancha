@@ -7,6 +7,12 @@ interface Role {
   description: string | null;
 }
 
+interface Profile {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+}
+
 export default function UserRoleManager() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [userId, setUserId] = useState('');
@@ -15,6 +21,10 @@ export default function UserRoleManager() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
+  const [search, setSearch] = useState('');
+  const [results, setResults] = useState<Profile[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -59,6 +69,37 @@ export default function UserRoleManager() {
     return () => { active = false };
   }, [userId]);
 
+  useEffect(() => {
+    let active = true;
+    const handler = setTimeout(async () => {
+      setSearchError(null);
+      if (!search || search.trim().length < 2) {
+        if (active) setResults([]);
+        return;
+      }
+      setSearching(true);
+      try {
+        const q = search.trim();
+        const { data, error } = await supabase
+          .from('rbac_profiles')
+          .select('user_id, display_name, email')
+          .or(`email.ilike.%${q}%,display_name.ilike.%${q}%`)
+          .limit(10);
+        if (error) throw error;
+        if (active) setResults((data as Profile[]) || []);
+      } catch (e: any) {
+        console.error(e);
+        if (active) setSearchError(e?.message || 'Error buscando usuarios');
+      } finally {
+        if (active) setSearching(false);
+      }
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(handler);
+    };
+  }, [search]);
+
   const assignRole = async () => {
     setError(null);
     setMessage(null);
@@ -95,6 +136,41 @@ export default function UserRoleManager() {
 
           {message && <div className="text-green-600 text-sm">{message}</div>}
           {error && <div className="text-red-600 text-sm">{error}</div>}
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Buscar por Email o Nombre</label>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="ej: ana@correo.com o Ana"
+            />
+            {searchError && <div className="mt-2 text-xs text-red-600">{searchError}</div>}
+            {search && results.length > 0 && (
+              <div className="mt-2 border rounded divide-y max-h-64 overflow-auto">
+                {results.map((u) => (
+                  <button
+                    key={u.user_id}
+                    type="button"
+                    onClick={() => {
+                      setUserId(u.user_id);
+                      setSearch(u.email || u.display_name || '');
+                      setResults([]);
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                  >
+                    <div className="text-sm font-medium">{u.display_name || '(sin nombre)'}</div>
+                    <div className="text-xs text-gray-600">{u.email || '(sin email)'} — <span className="font-mono">{u.user_id}</span></div>
+                  </button>
+                ))}
+                {searching && <div className="px-3 py-2 text-xs text-gray-500">Buscando…</div>}
+              </div>
+            )}
+            {search && !searching && results.length === 0 && !searchError && (
+              <div className="mt-2 text-xs text-gray-500">Sin resultados</div>
+            )}
+          </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">UUID del Usuario</label>
