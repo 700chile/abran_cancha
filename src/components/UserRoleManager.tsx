@@ -43,6 +43,7 @@ export default function UserRoleManager() {
     (async () => {
       setCurrentRole(null);
       if (!userId) return;
+      console.log('[RBAC:UI] lookup current role for user', userId);
       const { data: ur, error: urErr } = await supabase
         .from('user_role')
         .select('role_id')
@@ -52,6 +53,7 @@ export default function UserRoleManager() {
         console.error(urErr);
         return;
       }
+      console.log('[RBAC:UI] user_role result', ur);
       const rid = ur?.role_id;
       if (!rid) return;
       const { data: roleRow, error: roleErr } = await supabase
@@ -63,6 +65,7 @@ export default function UserRoleManager() {
         console.error(roleErr);
         return;
       }
+      console.log('[RBAC:UI] rbac_role result', roleRow);
       if (!active) return;
       setCurrentRole(roleRow as Role);
     })();
@@ -76,6 +79,7 @@ export default function UserRoleManager() {
       setSearching(true);
       try {
         const q = search.trim();
+        console.log('[RBAC:UI] profiles search query', q);
         let data: any[] | null = null;
         let error: any = null;
         if (!q) {
@@ -87,6 +91,7 @@ export default function UserRoleManager() {
             .limit(50);
           data = res.data;
           error = res.error;
+          console.log('[RBAC:UI] profiles fetch (all) resp', { error, count: data?.length, sample: data?.[0] });
         } else if (q.length < 2) {
           // For very short queries, just show all to avoid noisy filtering
           const res = await supabase
@@ -97,6 +102,7 @@ export default function UserRoleManager() {
             .limit(50);
           data = res.data;
           error = res.error;
+          console.log('[RBAC:UI] profiles fetch (short) resp', { error, count: data?.length, sample: data?.[0] });
         } else {
           const res = await supabase
             .from('rbac_profiles')
@@ -107,6 +113,7 @@ export default function UserRoleManager() {
             .limit(50);
           data = res.data;
           error = res.error;
+          console.log('[RBAC:UI] profiles fetch (filtered) resp', { error, count: data?.length, sample: data?.[0] });
         }
         if (error) throw error;
         if (active) setResults((data as Profile[]) || []);
@@ -177,6 +184,7 @@ export default function UserRoleManager() {
                     key={u.user_id}
                     type="button"
                     onClick={() => {
+                      console.log('[RBAC:UI] selected profile', u);
                       setUserId(u.user_id);
                       setSearch(u.email || u.display_name || '');
                       setResults([]);
