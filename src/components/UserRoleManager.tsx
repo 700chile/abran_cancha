@@ -73,18 +73,41 @@ export default function UserRoleManager() {
     let active = true;
     const handler = setTimeout(async () => {
       setSearchError(null);
-      if (!search || search.trim().length < 2) {
-        if (active) setResults([]);
-        return;
-      }
       setSearching(true);
       try {
         const q = search.trim();
-        const { data, error } = await supabase
-          .from('rbac_profiles')
-          .select('user_id, display_name, email')
-          .or(`email.ilike.%${q}%,display_name.ilike.%${q}%`)
-          .limit(10);
+        let data: any[] | null = null;
+        let error: any = null;
+        if (!q) {
+          const res = await supabase
+            .from('rbac_profiles')
+            .select('user_id, display_name, email')
+            .order('display_name', { ascending: true })
+            .order('email', { ascending: true })
+            .limit(50);
+          data = res.data;
+          error = res.error;
+        } else if (q.length < 2) {
+          // For very short queries, just show all to avoid noisy filtering
+          const res = await supabase
+            .from('rbac_profiles')
+            .select('user_id, display_name, email')
+            .order('display_name', { ascending: true })
+            .order('email', { ascending: true })
+            .limit(50);
+          data = res.data;
+          error = res.error;
+        } else {
+          const res = await supabase
+            .from('rbac_profiles')
+            .select('user_id, display_name, email')
+            .or(`email.ilike.%${q}%,display_name.ilike.%${q}%`)
+            .order('display_name', { ascending: true })
+            .order('email', { ascending: true })
+            .limit(50);
+          data = res.data;
+          error = res.error;
+        }
         if (error) throw error;
         if (active) setResults((data as Profile[]) || []);
       } catch (e: any) {
@@ -138,7 +161,7 @@ export default function UserRoleManager() {
           {error && <div className="text-red-600 text-sm">{error}</div>}
 
           <div>
-            <label className="block text-sm font-medium mb-1">Buscar por Email o Nombre</label>
+            <label className="block text-sm font-medium mb-1">Buscar por Email o Nombre (vacío muestra todos)</label>
             <input
               type="text"
               value={search}
@@ -147,7 +170,7 @@ export default function UserRoleManager() {
               placeholder="ej: ana@correo.com o Ana"
             />
             {searchError && <div className="mt-2 text-xs text-red-600">{searchError}</div>}
-            {search && results.length > 0 && (
+            {(results.length > 0 || searching) && (
               <div className="mt-2 border rounded divide-y max-h-64 overflow-auto">
                 {results.map((u) => (
                   <button
@@ -167,7 +190,7 @@ export default function UserRoleManager() {
                 {searching && <div className="px-3 py-2 text-xs text-gray-500">Buscando…</div>}
               </div>
             )}
-            {search && !searching && results.length === 0 && !searchError && (
+            {!searching && results.length === 0 && !searchError && (
               <div className="mt-2 text-xs text-gray-500">Sin resultados</div>
             )}
           </div>
