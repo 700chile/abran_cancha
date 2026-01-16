@@ -121,7 +121,7 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   ctx.fillText(opts.roundTitle.toUpperCase(), 470, 160);
 
   const startY = 300;
-  const rowH = 100;
+  const rowH = 120;
   const leftX = 200;
   const logoSize = 77;
 
