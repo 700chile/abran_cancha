@@ -114,14 +114,14 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
   ctx.font = '600 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 430, 70);
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 470, 70);
   ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 430, 110);
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 470, 110);
   ctx.font = '500 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 430, 140);
+  ctx.fillText(opts.roundTitle.toUpperCase(), 470, 140);
 
   const startY = 260;
-  const rowH = 130;
+  const rowH = 112;
   const leftX = 140;
   const logoSize = 64;
 
@@ -143,12 +143,12 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
     ctx.font = '700 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 50);
+    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 44);
 
     ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     const estadio = (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
-    wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 78, estadioMaxWidth, 22);
+    wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 66, estadioMaxWidth, 22);
   }
 
   return canvas.toDataURL('image/png');
