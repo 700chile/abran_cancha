@@ -113,17 +113,17 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
 
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
-  ctx.font = '600 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.font = '700 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillText(opts.competitionTitle.toUpperCase(), 470, 80);
-  ctx.font = '600 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.font = '500 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillText(opts.divisionTitle.toUpperCase(), 470, 120);
-  ctx.font = '600 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 470, 150);
+  ctx.font = '500 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.roundTitle.toUpperCase(), 470, 160);
 
   const startY = 280;
   const rowH = 100;
-  const leftX = 180;
-  const logoSize = 64;
+  const leftX = 200;
+  const logoSize = 77;
 
   for (let i = 0; i < matches.length; i++) {
     const m = matches[i];
