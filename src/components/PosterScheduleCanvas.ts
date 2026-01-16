@@ -113,16 +113,16 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
 
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
-  ctx.font = '600 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 520, 70);
-  ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 520, 110);
-  ctx.font = '500 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 520, 140);
+  ctx.font = '600 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 470, 75);
+  ctx.font = '600 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 470, 115);
+  ctx.font = '500 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.roundTitle.toUpperCase(), 470, 145);
 
-  const startY = 260;
+  const startY = 280;
   const rowH = 100;
-  const leftX = 140;
+  const leftX = 160;
   const logoSize = 64;
 
   for (let i = 0; i < matches.length; i++) {
@@ -139,16 +139,16 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     }
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 46px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
-    ctx.font = '700 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 38);
+    ctx.font = '700 20px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 42);
 
-    ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '600 20px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     const estadio = (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
-    wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 58, estadioMaxWidth, 20);
+    wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 66, estadioMaxWidth, 22);
   }
 
   return canvas.toDataURL('image/png');
