@@ -85,14 +85,29 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     ctx.fillRect(0, 0, width, height);
   }
 
+  // Ensure custom font (Ruda) is loaded if available before drawing text
+  if ((document as any).fonts && typeof (document as any).fonts.load === 'function') {
+    try {
+      await Promise.all([
+        (document as any).fonts.load('600 34px Ruda'),
+        (document as any).fonts.load('600 24px Ruda'),
+        (document as any).fonts.load('500 22px Ruda'),
+        (document as any).fonts.load('800 40px Ruda'),
+        (document as any).fonts.load('700 18px Ruda'),
+        (document as any).fonts.load('600 18px Ruda'),
+      ]);
+      await (document as any).fonts.ready;
+    } catch {}
+  }
+
   ctx.textBaseline = 'top';
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '600 34px Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 210, 70);
-  ctx.font = '600 24px Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 210, 110);
-  ctx.font = '500 22px Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 210, 140);
+  ctx.fillStyle = '#000000';
+  ctx.font = '600 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 300, 70);
+  ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 300, 110);
+  ctx.font = '500 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.roundTitle.toUpperCase(), 300, 140);
 
   const startY = 200;
   const rowH = 130;
@@ -113,13 +128,13 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     }
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 40px Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
-    ctx.font = '700 18px Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 50);
 
-    ctx.font = '600 18px Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     const estadio = (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
     wrapFillText(ctx, `ESTADIO ${estadio}`, leftX + logoSize*2 + 48, y + 78, estadioMaxWidth, 22);
