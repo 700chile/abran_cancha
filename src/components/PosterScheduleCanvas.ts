@@ -16,12 +16,33 @@ export type RenderOptions = {
   getLogoUrl: (teamName: string | null) => string | null;
 };
 
+function isSameOrigin(resourceUrl: string): boolean {
+  try {
+    const u = new URL(resourceUrl, window.location.origin);
+    return u.origin === window.location.origin;
+  } catch {
+    return true; // data URLs or invalid will be treated as same-origin fallback
+  }
+}
+
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = reject;
+    // Only set crossOrigin for off-origin assets; same-origin must omit to avoid 0x0 on some hosts
+    if (!isSameOrigin(url) && !url.startsWith('data:')) {
+      img.crossOrigin = 'anonymous';
+    }
+    img.onload = () => {
+      if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+        reject(new Error(`Image loaded but has zero size: ${url}`));
+        return;
+      }
+      resolve(img);
+    };
+    img.onerror = (e) => {
+      console.error('[Poster] image load error', url, e);
+      reject(e);
+    };
     img.src = url;
   });
 }
