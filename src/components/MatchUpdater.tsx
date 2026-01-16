@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
+import { renderScheduleImage, type PosterMatch } from './PosterScheduleCanvas';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -64,6 +65,36 @@ export default function MatchUpdater() {
         const logo = getTeamLogo(teamName);
         if (!logo) return <div className={className} />;
         return <img src={logo} alt={teamName} className={className} />;
+    };
+
+    const handleGeneratePoster = async () => {
+        try {
+            if (!selectedMatchday || !selectedCompetition) return;
+            const comp = competitions.find(c => c.ID === selectedCompetition);
+            const posterMatches: PosterMatch[] = matches.map((m) => ({
+                local: m.equipo_local,
+                visita: m.equipo_visita,
+                estadio: m.recinto,
+                programacion: m.programacion,
+            }));
+            const dataUrl = await renderScheduleImage(posterMatches, {
+                backgroundUrl: '/assets/posters/schedule_bg.png',
+                competitionTitle: comp ? `${comp.NOMBRE} ${comp.EDICION}` : 'CAMPEONATO',
+                divisionTitle: 'PRIMERA DIVISIÓN',
+                roundTitle: `PROGRAMACIÓN ${selectedMatchday}`,
+                pixelRatio: 2,
+                getLogoUrl: (name) => getTeamLogo(name || ''),
+            });
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `programacion_${selectedMatchday}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (e) {
+            console.error('Error generando imagen', e);
+            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+        }
     };
 
     const isSuspendedMatch = (match: Match) => {
@@ -610,6 +641,12 @@ export default function MatchUpdater() {
                                     Actualizar Posiciones
                                 </>
                             )}
+                        </button>
+                        <button
+                            onClick={handleGeneratePoster}
+                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all"
+                        >
+                            Generar imagen
                         </button>
                     </div>
                 </div>
