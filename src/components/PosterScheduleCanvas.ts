@@ -88,6 +88,10 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   // Ensure custom font (Ruda) is loaded if available before drawing text
   if ((document as any).fonts && typeof (document as any).fonts.load === 'function') {
     try {
+      const before = (document as any).fonts.check('16px Ruda');
+      if (!before) console.warn('[Poster][fonts] Ruda not yet available before load(). Ensure it is imported via @fontsource or a <link>.');
+    } catch {}
+    try {
       await Promise.all([
         (document as any).fonts.load('600 34px Ruda'),
         (document as any).fonts.load('600 24px Ruda'),
@@ -97,21 +101,28 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
         (document as any).fonts.load('600 18px Ruda'),
       ]);
       await (document as any).fonts.ready;
-    } catch {}
+      try {
+        const after = (document as any).fonts.check('16px Ruda');
+        console.log('[Poster][fonts] Ruda available after load():', after);
+        if (!after) console.warn('[Poster][fonts] Ruda still not available. The font files may not be included or blocked by CSP/network.');
+      } catch {}
+    } catch (err) {
+      console.warn('[Poster][fonts] Error while loading Ruda via document.fonts.load:', err);
+    }
   }
 
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
   ctx.font = '600 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 300, 70);
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 360, 70);
   ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 300, 110);
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 360, 110);
   ctx.font = '500 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 300, 140);
+  ctx.fillText(opts.roundTitle.toUpperCase(), 360, 140);
 
-  const startY = 200;
+  const startY = 240;
   const rowH = 130;
-  const leftX = 90;
+  const leftX = 120;
   const logoSize = 64;
 
   for (let i = 0; i < matches.length; i++) {
