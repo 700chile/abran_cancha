@@ -74,9 +74,16 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('No 2D context');
   ctx.scale(pixelRatio, pixelRatio);
-
-  const bg = await loadImage(opts.backgroundUrl);
-  ctx.drawImage(bg, 0, 0, width, height);
+  // Background
+  try {
+    console.log('[Poster] loading background', opts.backgroundUrl);
+    const bg = await loadImage(opts.backgroundUrl);
+    ctx.drawImage(bg, 0, 0, width, height);
+  } catch (e) {
+    console.warn('[Poster] background failed to load, drawing fallback', e);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, width, height);
+  }
 
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#ffffff';

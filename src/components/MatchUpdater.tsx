@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderScheduleImage, type PosterMatch } from './PosterScheduleCanvas';
+// If you place the background at src/assets/posters/schedule_bg.png, this import will resolve
+// and Vite will serve the optimized asset URL in production.
+import scheduleBg from '../assets/posters/schedule_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -78,7 +81,7 @@ export default function MatchUpdater() {
                 programacion: m.programacion,
             }));
             const dataUrl = await renderScheduleImage(posterMatches, {
-                backgroundUrl: '/assets/posters/schedule_bg.png',
+                backgroundUrl: scheduleBg,
                 competitionTitle: comp ? `${comp.NOMBRE} ${comp.EDICION}` : 'CAMPEONATO',
                 divisionTitle: 'PRIMERA DIVISIÓN',
                 roundTitle: `PROGRAMACIÓN ${selectedMatchday}`,
