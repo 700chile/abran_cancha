@@ -1,6 +1,6 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-router-dom';
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import LeagueStandings from './components/LeagueStandings';
 import TeamSelector from './components/TeamSelector';
 import { AuthProvider, useAuth } from './components/AuthProvider';
@@ -29,20 +29,56 @@ import UserRoleManager from './components/UserRoleManager';
 import PenalesUpdater from './components/PenalesUpdater';
 import UserCreator from './components/UserCreator';
 import PasswordUpdater from './components/PasswordUpdater';
+import { supabase } from './supabase';
 const UserMenu: FC = () => {
   const { user, signOut } = useAuth();
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (!user?.id) {
+        if (active) setDisplayName(null);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from('rbac_profiles')
+          .select('display_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (error) {
+          console.error('[RBAC:UI] load display_name error', error);
+          if (active) setDisplayName(null);
+        } else if (active) {
+          setDisplayName((data as any)?.display_name ?? null);
+        }
+      } catch (e) {
+        console.error('[RBAC:UI] load display_name exception', e);
+        if (active) setDisplayName(null);
+      }
+    })();
+    return () => { active = false };
+  }, [user?.id]);
+
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center">
       {user ? (
-        <>
-          <span className="text-xs text-gray-700">{user.email}</span>
+        <div className="flex flex-col items-end space-y-1">
+          <span className="text-xs text-gray-700">{displayName || user.email}</span>
           <button
             onClick={() => signOut()}
             className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded"
           >
             Cerrar sesión
           </button>
-        </>
+          <Link
+            to="/password-updater"
+            className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+          >
+            Actualizar contraseña
+          </Link>
+        </div>
       ) : (
         <Link 
           to="/login"
