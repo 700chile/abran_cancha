@@ -14,6 +14,7 @@ export default function UserCreator() {
   const [roleId, setRoleId] = useState<number | ''>('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,6 +78,31 @@ export default function UserCreator() {
       setError(e?.message || 'Error enviando invitación');
     } finally {
       setLoading(false);
+      setTimeout(() => setMessage(null), 4000);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    setError(null);
+    setMessage(null);
+    if (!email) {
+      setError('Ingresa un email válido');
+      return;
+    }
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/password-updater` },
+      });
+      if (error) throw error;
+      setMessage('Se reenvió el correo de confirmación. Pide al usuario revisar su bandeja y spam.');
+    } catch (e: any) {
+      console.error('[Auth] resend confirmation error', e);
+      setError(e?.message || 'No se pudo reenviar el correo de confirmación');
+    } finally {
+      setResendLoading(false);
       setTimeout(() => setMessage(null), 4000);
     }
   };
@@ -151,7 +177,14 @@ export default function UserCreator() {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={resendConfirmation}
+              disabled={resendLoading || !email}
+              className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60"
+            >
+              {resendLoading ? 'Reenviando...' : 'Reenviar confirmación'}
+            </button>
             <button
               onClick={sendInvite}
               disabled={loading}
