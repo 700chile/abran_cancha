@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
+import { getPosterLogo } from '../utils/posterLogos';
 import { renderScheduleImage, type PosterMatch } from './PosterScheduleCanvas';
 // If you place the background at src/assets/posters/schedule_bg.png, this import will resolve
 // and Vite will serve the optimized asset URL in production.
@@ -86,7 +87,8 @@ export default function MatchUpdater() {
                 divisionTitle: 'PRIMERA DIVISIÓN',
                 roundTitle: `PROGRAMACIÓN ${selectedMatchday}`,
                 pixelRatio: 2,
-                getLogoUrl: (name) => getTeamLogo(name || ''),
+                // Use poster-specific logo mapping for the image only
+                getLogoUrl: (name) => getPosterLogo(name || ''),
             });
             const a = document.createElement('a');
             a.href = dataUrl;
