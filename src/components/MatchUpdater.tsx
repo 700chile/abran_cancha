@@ -81,11 +81,18 @@ export default function MatchUpdater() {
                 estadio: m.recinto,
                 programacion: m.programacion,
             }));
+            // Build header texts per requested rules
+            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
+            const roundTitle = isNumericFecha
+                ? `PROGRAMACIÓN FECHA ${selectedMatchday}`
+                : `PROGRAMACIÓN ${selectedMatchday.toUpperCase()}`;
+
             const dataUrl = await renderScheduleImage(posterMatches, {
                 backgroundUrl: scheduleBg,
-                competitionTitle: comp ? `${comp.NOMBRE} ${comp.EDICION}` : 'CAMPEONATO',
+                competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
-                roundTitle: `PROGRAMACIÓN ${selectedMatchday}`,
+                roundTitle,
                 pixelRatio: 2,
                 // Use poster-specific logo mapping for the image only
                 getLogoUrl: (name) => getPosterLogo(name || ''),

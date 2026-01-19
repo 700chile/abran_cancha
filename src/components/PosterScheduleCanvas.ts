@@ -123,7 +123,7 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   const startY = 300;
   const rowH = 120;
   const leftX = 200;
-  const logoSize = 77;
+  const logoSize = 90;
 
   for (let i = 0; i < matches.length; i++) {
     const m = matches[i];
