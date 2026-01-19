@@ -4,6 +4,22 @@ export const getPosterLogo = (teamName: string): string | null => {
   if (!teamName) return null;
   const teamNameLower = teamName.toLowerCase();
 
+  // Eagerly import all images in the folder so Vite emits hashed URLs
+  const images: Record<string, string> = import.meta.glob(
+    '../assets/posters/logosrevista/*.{png,svg,jpg,jpeg,webp}',
+    { eager: true, as: 'url' }
+  ) as any;
+
+  // Helper: resolve a filename (case-insensitive) to its emitted URL
+  const resolveUrl = (fileName: string): string | null => {
+    const lower = fileName.toLowerCase();
+    for (const [path, url] of Object.entries(images)) {
+      const end = path.split('/').pop()?.toLowerCase();
+      if (end === lower) return url as string;
+    }
+    return null;
+  };
+
   const logoMap: { [key: string]: string } = {
     'audax': 'audax.png',
     'everton': 'everton.png',
@@ -31,14 +47,10 @@ export const getPosterLogo = (teamName: string): string | null => {
     'venezuela': 'VEN.png',
   };
 
-  const basePath = '../assets/posters/logosrevista/';
   for (const [key, logoName] of Object.entries(logoMap)) {
     if (teamNameLower.includes(key)) {
-      try {
-        return new URL(basePath + logoName, import.meta.url).toString();
-      } catch {
-        // continue checking
-      }
+      const url = resolveUrl(logoName);
+      if (url) return url;
     }
   }
   return null;
