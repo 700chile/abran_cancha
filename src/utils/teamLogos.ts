@@ -33,12 +33,16 @@ export const getTeamLogo = (teamName: string): string | null => {
         'venezuela': 'VEN.png'
     };
 
-    // Buscar el logo que coincida con el nombre del equipo
+    // Resolver a URLs de Vite desde src/assets/posters/logosrevista
+    const basePath = '../assets/posters/logosrevista/';
     for (const [key, logoName] of Object.entries(logoMap)) {
         if (teamNameLower.includes(key)) {
-            // En producción, las imágenes estarán en /logos/
-            // En desarrollo, Vite las servirá desde /public/logos/
-            return `/logos/${logoName}`;
+            try {
+                const url = new URL(basePath + logoName, import.meta.url).toString();
+                return url;
+            } catch {
+                // si falla la resolución, continuar buscando
+            }
         }
     }
 
