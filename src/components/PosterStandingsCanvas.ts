@@ -109,17 +109,17 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Table header line
   const tableX = 80;
   const tableY = 250;
-  const rowH = 72;
+  const rowH = 62; // Reduced from 72 to bring rows closer
 
   // Column positions
   const colPos = {
     num: tableX,
-    club: tableX + 80,
-    pj: tableX + 580,
-    dif: tableX + 680,
-    ptsBgX: tableX + 760, // background pill for PTS
-    pts: tableX + 780,
-    rend: tableX + 880,
+    club: tableX + 70, // Reduced spacing
+    pj: tableX + 520, // Reduced spacing
+    dif: tableX + 610, // Reduced spacing
+    ptsBgX: tableX + 680, // Reduced spacing
+    pts: tableX + 700, // Reduced spacing
+    rend: tableX + 790, // Reduced spacing
   } as const;
 
   // Header labels
@@ -220,7 +220,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(String(r.dif), colPos.dif, y);
 
     // PTS
-    ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
