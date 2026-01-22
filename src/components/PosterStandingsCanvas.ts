@@ -40,29 +40,31 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   if (!ctx) throw new Error('No 2D context');
   ctx.scale(pixelRatio, pixelRatio);
 
-  // Check if Ruda font is loaded
-  console.log('Using font: Ruda');
-  
-  // Create test element to verify Ruda is loaded
-  const testDiv = document.createElement('div');
-  testDiv.style.fontFamily = 'Ruda';
-  testDiv.style.fontSize = '72px';
-  testDiv.style.position = 'absolute';
-  testDiv.style.left = '-9999px';
-  testDiv.textContent = 'TEST';
-  document.body.appendChild(testDiv);
-  
-  // Wait a bit for font to apply
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  const computedFont = window.getComputedStyle(testDiv).fontFamily;
-  console.log('Computed font family:', computedFont);
-  console.log('Ruda detected:', computedFont.includes('Ruda'));
-  
-  document.body.removeChild(testDiv);
-  
-  // Use simple font declaration
-  ctx.font = '800 72px Ruda, sans-serif';
+  // Ensure custom font (Ruda) is loaded if available before drawing text
+  if ((document as any).fonts && typeof (document as any).fonts.load === 'function') {
+    try {
+      const before = (document as any).fonts.check('16px Ruda');
+      if (!before) console.warn('[Poster][fonts] Ruda not yet available before load(). Ensure it is imported via @fontsource or a <link>.');
+    } catch {}
+    try {
+      await Promise.all([
+        (document as any).fonts.load('800 72px Ruda'),
+        (document as any).fonts.load('700 44px Ruda'),
+        (document as any).fonts.load('800 28px Ruda'),
+        (document as any).fonts.load('800 30px Ruda'),
+        (document as any).fonts.load('700 26px Ruda'),
+        (document as any).fonts.load('600 18px Ruda'),
+      ]);
+      await (document as any).fonts.ready;
+      try {
+        const after = (document as any).fonts.check('16px Ruda');
+        console.log('[Poster][fonts] Ruda available after load():', after);
+        if (!after) console.warn('[Poster][fonts] Ruda still not available. The font files may not be included or blocked by CSP/network.');
+      } catch {}
+    } catch (err) {
+      console.warn('[Poster][fonts] Error while loading Ruda via document.fonts.load:', err);
+    }
+  }
   
   // List some common fonts to see what's available
   console.log('Testing common fonts:');
@@ -218,7 +220,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(String(r.dif), colPos.dif, y);
 
     // PTS
-    ctx.font = '800 28px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
