@@ -44,6 +44,10 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   const rudaFont = 'Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   console.log('Using font:', rudaFont);
   
+  // Wait for Ruda font to load before rendering
+  await document.fonts.load('48px Ruda');
+  console.log('Ruda font loaded successfully');
+  
   // Test if Ruda is available by measuring text
   ctx.font = '48px Ruda';
   const rudaWidth = ctx.measureText('TEST').width;
