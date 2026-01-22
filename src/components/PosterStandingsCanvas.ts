@@ -43,7 +43,21 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Check if Ruda font is loaded
   const rudaFont = 'Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   console.log('Using font:', rudaFont);
-  console.log('Available fonts:', Array.from(document.fonts.values()).map(f => f.family));
+  
+  // Test if Ruda is available by measuring text
+  ctx.font = '48px Ruda';
+  const rudaWidth = ctx.measureText('TEST').width;
+  ctx.font = '48px Arial';
+  const arialWidth = ctx.measureText('TEST').width;
+  console.log('Ruda font test - Ruda width:', rudaWidth, 'Arial width:', arialWidth);
+  console.log('Ruda likely loaded:', rudaWidth !== arialWidth);
+  
+  // List some common fonts to see what's available
+  console.log('Testing common fonts:');
+  ['Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana'].forEach(font => {
+    ctx.font = `48px ${font}`;
+    console.log(`${font}:`, ctx.measureText('TEST').width);
+  });
 
   // Background
   try {
