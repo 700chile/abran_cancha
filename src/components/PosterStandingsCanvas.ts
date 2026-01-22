@@ -15,6 +15,8 @@ export type StandingsOptions = {
   width?: number;
   height?: number;
   pixelRatio?: number;
+  competitionId?: number; // for determining marker logic
+  totalTeams?: number; // for determining relegation zone
 };
 
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -63,10 +65,10 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Header
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#ffffff';
-  ctx.font = '800 64px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillText(opts.title.toUpperCase(), 100, 90);
-  ctx.font = '700 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.subtitle.toUpperCase(), 100, 160);
+  ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.fillText(opts.subtitle.toUpperCase(), 100, 170);
 
   // Table header line
   const tableX = 80;
@@ -95,7 +97,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.fillText('REND', colPos.rend, tableY);
 
   // Accent line
-  ctx.strokeStyle = '#21E7B6';
+  ctx.strokeStyle = '#00D084'; // Exact green from reference
   ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.moveTo(tableX, tableY + 34);
@@ -109,8 +111,41 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     const y = tableY + 50 + i * rowH;
 
     // PTS pill background
-    ctx.fillStyle = 'rgba(255, 128, 149, 0.95)'; // pinkish
+    ctx.fillStyle = '#FF4081'; // Exact pink from reference
     ctx.fillRect(colPos.ptsBgX, y - 6, 70, 44);
+
+    // Position markers (left side bars)
+    const competitionId = opts.competitionId ?? 2;
+    const totalTeams = opts.totalTeams ?? rows.length;
+    
+    if (competitionId === 33) {
+      // World Cup qualifiers: Top 2 green, 3-4 blue
+      if (r.pos <= 2) {
+        ctx.fillStyle = '#00D084';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      } else if (r.pos === 3 || r.pos === 4) {
+        ctx.fillStyle = '#2196F3';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      }
+    } else if (competitionId <= 2) {
+      // National competition: Top 8 green, bottom 1 red
+      if (r.pos <= 8) {
+        ctx.fillStyle = '#00D084';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      } else if (r.pos >= totalTeams) {
+        ctx.fillStyle = '#FF5C5C';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      }
+    } else if (competitionId === 32) {
+      // Other competition: Top 2 green, 3rd blue
+      if (r.pos <= 2) {
+        ctx.fillStyle = '#00D084';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      } else if (r.pos === 3) {
+        ctx.fillStyle = '#2196F3';
+        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+      }
+    }
 
     // Position number
     ctx.fillStyle = '#ffffff';
@@ -136,19 +171,42 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   }
 
   // Legend (simple)
-  ctx.font = '600 20px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.font = '600 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillStyle = '#ffffff';
   const legendY = height - 90;
-  // Green marker
-  ctx.fillStyle = '#21E7B6';
-  ctx.fillRect(tableX, legendY - 10, 6, 24);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('CLASIFICA A PLAY-OFFS', tableX + 20, legendY);
-  // Red marker
-  ctx.fillStyle = '#FF5C5C';
-  ctx.fillRect(tableX + 360, legendY - 10, 6, 24);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('DESCIENDE AL ASCENSO 2026', tableX + 380, legendY);
+  const competitionId = opts.competitionId ?? 2;
+  
+  if (competitionId === 33) {
+    // World Cup qualifiers legend
+    ctx.fillStyle = '#00D084';
+    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('TOP 2 (CLASIFICAN AL MUNDIAL)', tableX + 20, legendY);
+    ctx.fillStyle = '#2196F3';
+    ctx.fillRect(tableX + 380, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('3RO Y 4TO (REPECHAJE)', tableX + 400, legendY);
+  } else if (competitionId <= 2) {
+    // National competition legend
+    ctx.fillStyle = '#00D084';
+    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('TOP 8 (PLAY-OFFS)', tableX + 20, legendY);
+    ctx.fillStyle = '#FF5C5C';
+    ctx.fillRect(tableX + 220, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('DESCIENDE AL ASCENSO 2026', tableX + 240, legendY);
+  } else if (competitionId === 32) {
+    // Other competition legend
+    ctx.fillStyle = '#00D084';
+    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('TOP 2 (SEMIFINALES)', tableX + 20, legendY);
+    ctx.fillStyle = '#2196F3';
+    ctx.fillRect(tableX + 280, legendY - 10, 6, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('3ER (5TO LUGAR)', tableX + 300, legendY);
+  }
 
   // Credit (bottom-right rotated)
   if (opts.credit) {

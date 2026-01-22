@@ -49,6 +49,7 @@ const LeagueStandings = () => {
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
     const [groups, setGroups] = useState<Group[]>([]);
+    const [selectedGroup, setSelectedGroup] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchLeagueData = useCallback(async () => {
@@ -84,6 +85,10 @@ const LeagueStandings = () => {
 
             if (groupsError) throw groupsError;
             setGroups(groupsData || []);
+            // Auto-select first group if none selected
+            if (groupsData && groupsData.length > 0 && !selectedGroup) {
+                setSelectedGroup(groupsData[0].NOMBRE);
+            }
 
             // Fetch standings for each group
             const groupStandings = await Promise.all(
@@ -171,12 +176,29 @@ const LeagueStandings = () => {
                             ))}
                         </select>
                     </div>
-
+                    {groups.length > 1 && (
+                        <div>
+                            <label htmlFor="group" className="text-xs font-semibold text-gray-600 uppercase">GRUPO</label>
+                            <select
+                                id="group"
+                                className="w-full p-2 bg-brand-primary text-black rounded-lg"
+                                value={selectedGroup}
+                                onChange={(e) => setSelectedGroup(e.target.value)}
+                            >
+                                {groups.map(group => (
+                                    <option key={group.ID} value={group.NOMBRE}>
+                                        {group.NOMBRE}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                </div>
                 <div className="flex justify-end mb-4">
                     <button
                         className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700"
                         onClick={() => {
-                            if (!groups.length) return;
+                            if (!groups.length || !selectedGroup) return;
                             fileInputRef.current?.click();
                         }}
                     >
@@ -192,11 +214,10 @@ const LeagueStandings = () => {
                             if (!file) return;
                             try {
                                 const bgUrl = URL.createObjectURL(file);
-                                const targetGroup = groups[0];
                                 const comp = competitions.find(c => c.ID === selectedCompetition);
                                 const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
-                                const rows: StandingsPosterRow[] = standings
-                                  .filter(s => s.grupo === targetGroup.NOMBRE)
+                                const groupStandings = standings.filter(s => s.grupo === selectedGroup);
+                                const rows: StandingsPosterRow[] = groupStandings
                                   .sort((a, b) => a.pos - b.pos)
                                   .map((r) => ({
                                     pos: r.pos,
@@ -211,6 +232,8 @@ const LeagueStandings = () => {
                                   title: 'TABLA DE POSICIONES',
                                   subtitle: comp ? `PRIMERA DIVISIÓN ${comp.EDICION}` : 'PRIMERA DIVISIÓN',
                                   credit,
+                                  competitionId: selectedCompetition,
+                                  totalTeams: groupStandings.length,
                                 });
                                 const a = document.createElement('a');
                                 a.href = dataUrl;
@@ -227,7 +250,6 @@ const LeagueStandings = () => {
                             e.target.value = '';
                         }}
                     />
-                </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
