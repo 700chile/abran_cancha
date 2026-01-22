@@ -1,6 +1,6 @@
 // src/components/LeagueStandings.jsx
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderStandingsPoster, type StandingsPosterRow } from './PosterStandingsCanvas';
@@ -49,6 +49,7 @@ const LeagueStandings = () => {
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
     const [groups, setGroups] = useState<Group[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchLeagueData = useCallback(async () => {
         try {
@@ -174,54 +175,58 @@ const LeagueStandings = () => {
                 <div className="flex justify-end mb-4">
                     <button
                         className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700"
-                        onClick={async () => {
-                            try {
-                                if (!groups.length) return;
-                                const targetGroup = groups[0];
-                                const comp = competitions.find(c => c.ID === selectedCompetition);
-                                const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
-                                // create a hidden input for file selection
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'image/*';
-                                input.onchange = async () => {
-                                    const file = input.files?.[0];
-                                    if (!file) return;
-                                    const bgUrl = URL.createObjectURL(file);
-                                    const rows: StandingsPosterRow[] = standings
-                                      .filter(s => s.grupo === targetGroup.NOMBRE)
-                                      .sort((a, b) => a.pos - b.pos)
-                                      .map((r) => ({
-                                        pos: r.pos,
-                                        club: r.nombre,
-                                        pj: r.pj,
-                                        dif: r.dif,
-                                        pts: r.pts,
-                                        rend: r.pj > 0 ? Math.round(((r.pg * 3 + r.pe) / (r.pj * 3)) * 100) : 0,
-                                      }));
-                                    const dataUrl = await renderStandingsPoster(rows, {
-                                      backgroundUrl: bgUrl,
-                                      title: 'TABLA DE POSICIONES',
-                                      subtitle: comp ? `PRIMERA DIVISIÓN ${comp.EDICION}` : 'PRIMERA DIVISIÓN',
-                                      credit,
-                                    });
-                                    const a = document.createElement('a');
-                                    a.href = dataUrl;
-                                    a.download = `tabla_posiciones_${comp?.EDICION || ''}.png`;
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                    URL.revokeObjectURL(bgUrl);
-                                };
-                                input.click();
-                            } catch (e) {
-                                console.error('Error generando póster de posiciones', e);
-                                alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
-                            }
+                        onClick={() => {
+                            if (!groups.length) return;
+                            fileInputRef.current?.click();
                         }}
                     >
                         Generar imagen
                     </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                                const bgUrl = URL.createObjectURL(file);
+                                const targetGroup = groups[0];
+                                const comp = competitions.find(c => c.ID === selectedCompetition);
+                                const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
+                                const rows: StandingsPosterRow[] = standings
+                                  .filter(s => s.grupo === targetGroup.NOMBRE)
+                                  .sort((a, b) => a.pos - b.pos)
+                                  .map((r) => ({
+                                    pos: r.pos,
+                                    club: r.nombre,
+                                    pj: r.pj,
+                                    dif: r.dif,
+                                    pts: r.pts,
+                                    rend: r.pj > 0 ? Math.round(((r.pg * 3 + r.pe) / (r.pj * 3)) * 100) : 0,
+                                  }));
+                                const dataUrl = await renderStandingsPoster(rows, {
+                                  backgroundUrl: bgUrl,
+                                  title: 'TABLA DE POSICIONES',
+                                  subtitle: comp ? `PRIMERA DIVISIÓN ${comp.EDICION}` : 'PRIMERA DIVISIÓN',
+                                  credit,
+                                });
+                                const a = document.createElement('a');
+                                a.href = dataUrl;
+                                a.download = `tabla_posiciones_${comp?.EDICION || ''}.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(bgUrl);
+                            } catch (e) {
+                                console.error('Error generando póster de posiciones', e);
+                                alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+                            }
+                            // Reset input so same file can be selected again
+                            e.target.value = '';
+                        }}
+                    />
                 </div>
                 </div>
 
