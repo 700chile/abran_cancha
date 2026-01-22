@@ -290,4 +290,3 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   return canvas.toDataURL('image/png');
 }
-}
