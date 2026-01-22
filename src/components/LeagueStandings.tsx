@@ -226,6 +226,7 @@ const LeagueStandings = () => {
                                     dif: r.dif,
                                     pts: r.pts,
                                     rend: r.pj > 0 ? Math.round(((r.pg * 3 + r.pe) / (r.pj * 3)) * 100) : 0,
+                                    var: r.var,
                                   }));
                                 const dataUrl = await renderStandingsPoster(rows, {
                                   backgroundUrl: bgUrl,

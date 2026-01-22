@@ -5,6 +5,7 @@ export type StandingsPosterRow = {
   dif: number;
   pts: number;
   rend: number; // percent 0..100
+  var?: string; // 'SUBE' or 'BAJA' for arrows
 };
 
 export type StandingsOptions = {
@@ -66,9 +67,11 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#ffffff';
   ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.title.toUpperCase(), 100, 90);
+  ctx.textAlign = 'center';
+  ctx.fillText(opts.title.toUpperCase(), width / 2, 90);
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.subtitle.toUpperCase(), 100, 170);
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 170);
+  ctx.textAlign = 'left'; // Reset to left for rest of content
 
   // Table header line
   const tableX = 80;
@@ -128,11 +131,11 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
         ctx.fillRect(tableX - 20, y - 6, 12, 44);
       }
     } else if (competitionId <= 2) {
-      // National competition: Top 8 green, bottom 1 red
+      // National competition: Top 8 green, bottom 2 red
       if (r.pos <= 8) {
         ctx.fillStyle = '#00D084';
         ctx.fillRect(tableX - 20, y - 6, 12, 44);
-      } else if (r.pos >= totalTeams) {
+      } else if (r.pos >= totalTeams - 1) {
         ctx.fillStyle = '#FF5C5C';
         ctx.fillRect(tableX - 20, y - 6, 12, 44);
       }
@@ -151,6 +154,25 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#ffffff';
     ctx.font = '800 28px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pos), colPos.num, y);
+
+    // VAR arrow (up/down triangle)
+    if (r.var === 'SUBE') {
+      ctx.fillStyle = '#00D084';
+      ctx.beginPath();
+      ctx.moveTo(colPos.num + 35, y + 8);
+      ctx.lineTo(colPos.num + 42, y + 16);
+      ctx.lineTo(colPos.num + 28, y + 16);
+      ctx.closePath();
+      ctx.fill();
+    } else if (r.var === 'BAJA') {
+      ctx.fillStyle = '#FF5C5C';
+      ctx.beginPath();
+      ctx.moveTo(colPos.num + 35, y + 20);
+      ctx.lineTo(colPos.num + 42, y + 12);
+      ctx.lineTo(colPos.num + 28, y + 12);
+      ctx.closePath();
+      ctx.fill();
+    }
 
     // Club name
     ctx.font = '800 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
@@ -191,7 +213,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 8 (PLAY-OFFS)', tableX + 20, legendY);
+    ctx.fillText('CLASIFICA A PLAY-OFFS', tableX + 20, legendY);
     ctx.fillStyle = '#FF5C5C';
     ctx.fillRect(tableX + 220, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
@@ -215,7 +237,9 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(opts.credit, 0, 0);
+    const creditText = opts.credit.toUpperCase();
+    const creditWithCopyright = creditText.startsWith('©') ? creditText : `© ${creditText}`;
+    ctx.fillText(creditWithCopyright, 0, 0);
     ctx.restore();
   }
 
