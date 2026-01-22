@@ -192,17 +192,17 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     if (r.var === 'SUBE') {
       ctx.fillStyle = '#00D084';
       ctx.beginPath();
-      ctx.moveTo(colPos.num + 35, y + 8);
-      ctx.lineTo(colPos.num + 42, y + 16);
-      ctx.lineTo(colPos.num + 28, y + 16);
+      ctx.moveTo(colPos.club - 15, y + 8);
+      ctx.lineTo(colPos.club - 8, y + 16);
+      ctx.lineTo(colPos.club - 22, y + 16);
       ctx.closePath();
       ctx.fill();
     } else if (r.var === 'BAJA') {
       ctx.fillStyle = '#FF5C5C';
       ctx.beginPath();
-      ctx.moveTo(colPos.num + 35, y + 20);
-      ctx.lineTo(colPos.num + 42, y + 12);
-      ctx.lineTo(colPos.num + 28, y + 12);
+      ctx.moveTo(colPos.club - 15, y + 20);
+      ctx.lineTo(colPos.club - 8, y + 12);
+      ctx.lineTo(colPos.club - 22, y + 12);
       ctx.closePath();
       ctx.fill();
     }
@@ -228,42 +228,51 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(`${r.rend}%`, colPos.rend, y);
   }
 
-  // Legend (simple)
+  // Legend (two lines)
   ctx.font = '600 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillStyle = '#ffffff';
   const legendY = height - 90;
   const competitionId = opts.competitionId ?? 2;
   
   if (competitionId === 33) {
-    // World Cup qualifiers legend
+    // World Cup qualifiers legend - two lines
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2 (CLASIFICAN AL MUNDIAL)', tableX + 20, legendY);
+    ctx.fillText('TOP 2', tableX + 20, legendY);
+    ctx.fillText('(CLASIFICAN AL MUNDIAL)', tableX + 20, legendY + 25);
+    
     ctx.fillStyle = '#2196F3';
     ctx.fillRect(tableX + 380, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3RO Y 4TO (REPECHAJE)', tableX + 400, legendY);
+    ctx.fillText('3RO Y 4TO', tableX + 400, legendY);
+    ctx.fillText('(REPECHAJE)', tableX + 400, legendY + 25);
   } else if (competitionId <= 2) {
-    // National competition legend
+    // National competition legend - two lines
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('CLASIFICA A PLAY-OFFS', tableX + 20, legendY);
+    ctx.fillText('CLASIFICA A', tableX + 20, legendY);
+    ctx.fillText('PLAY-OFFS', tableX + 20, legendY + 25);
+    
     ctx.fillStyle = '#FF5C5C';
     ctx.fillRect(tableX + 220, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('DESCIENDE AL ASCENSO 2026', tableX + 240, legendY);
+    ctx.fillText('DESCIENDE AL', tableX + 240, legendY);
+    ctx.fillText('ASCENSO 2026', tableX + 240, legendY + 25);
   } else if (competitionId === 32) {
-    // Other competition legend
+    // Other competition legend - two lines
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2 (SEMIFINALES)', tableX + 20, legendY);
+    ctx.fillText('TOP 2', tableX + 20, legendY);
+    ctx.fillText('(SEMIFINALES)', tableX + 20, legendY + 25);
+    
     ctx.fillStyle = '#2196F3';
     ctx.fillRect(tableX + 280, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3ER (5TO LUGAR)', tableX + 300, legendY);
+    ctx.fillText('3ER', tableX + 300, legendY);
+    ctx.fillText('(5TO LUGAR)', tableX + 300, legendY + 25);
   }
 
   // Credit (bottom-right rotated)
@@ -280,4 +289,5 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   }
 
   return canvas.toDataURL('image/png');
+}
 }
