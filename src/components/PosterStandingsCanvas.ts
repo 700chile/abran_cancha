@@ -40,6 +40,11 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   if (!ctx) throw new Error('No 2D context');
   ctx.scale(pixelRatio, pixelRatio);
 
+  // Check if Ruda font is loaded
+  const rudaFont = 'Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  console.log('Using font:', rudaFont);
+  console.log('Available fonts:', Array.from(document.fonts.values()).map(f => f.family));
+
   // Background
   try {
     const bg = await loadImage(opts.backgroundUrl);
@@ -173,6 +178,9 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
       ctx.closePath();
       ctx.fill();
     }
+
+    // Reset fillStyle to white for club name
+    ctx.fillStyle = '#ffffff';
 
     // Club name
     ctx.font = '800 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
