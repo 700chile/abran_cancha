@@ -41,21 +41,28 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.scale(pixelRatio, pixelRatio);
 
   // Check if Ruda font is loaded
-  const rudaFont = '800 72px "Ruda", sans-serif';
-  console.log('Using font:', rudaFont);
+  console.log('Using font: Ruda');
   
-  // Force font loading with multiple approaches
-  await document.fonts.load('72px Ruda');
-  await document.fonts.load('48px Ruda');
-  await document.fonts.load('28px Ruda');
+  // Create test element to verify Ruda is loaded
+  const testDiv = document.createElement('div');
+  testDiv.style.fontFamily = 'Ruda';
+  testDiv.style.fontSize = '72px';
+  testDiv.style.position = 'absolute';
+  testDiv.style.left = '-9999px';
+  testDiv.textContent = 'TEST';
+  document.body.appendChild(testDiv);
   
-  // Test if Ruda is available by measuring text
-  ctx.font = rudaFont;
-  const rudaWidth = ctx.measureText('TEST').width;
-  ctx.font = '72px Times New Roman';
-  const timesWidth = ctx.measureText('TEST').width;
-  console.log('Ruda font test - Ruda width:', rudaWidth, 'Times width:', timesWidth);
-  console.log('Ruda likely loaded:', rudaWidth !== timesWidth);
+  // Wait a bit for font to apply
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const computedFont = window.getComputedStyle(testDiv).fontFamily;
+  console.log('Computed font family:', computedFont);
+  console.log('Ruda detected:', computedFont.includes('Ruda'));
+  
+  document.body.removeChild(testDiv);
+  
+  // Use simple font declaration
+  ctx.font = '800 72px Ruda, sans-serif';
   
   // List some common fonts to see what's available
   console.log('Testing common fonts:');
