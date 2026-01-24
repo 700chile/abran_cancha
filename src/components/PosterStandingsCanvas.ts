@@ -98,12 +98,22 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Header
   ctx.textBaseline = 'top';
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.textAlign = 'center';
+  
+  // Title with outline
+  ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 4;
+  ctx.lineJoin = 'round';
+  ctx.strokeText(opts.title.toUpperCase(), width / 2, 90);
+  ctx.fillStyle = '#ffffff';
   ctx.fillText(opts.title.toUpperCase(), width / 2, 90);
+  
+  // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 170);
   ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 170);
+  
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
   // Table header line
@@ -192,17 +202,17 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     if (r.var === 'SUBE') {
       ctx.fillStyle = '#00D084';
       ctx.beginPath();
-      ctx.moveTo(colPos.club - 15, y + 8);
-      ctx.lineTo(colPos.club - 8, y + 16);
-      ctx.lineTo(colPos.club - 22, y + 16);
+      ctx.moveTo(colPos.club - 25, y + 4);
+      ctx.lineTo(colPos.club - 8, y + 28);
+      ctx.lineTo(colPos.club - 42, y + 28);
       ctx.closePath();
       ctx.fill();
     } else if (r.var === 'BAJA') {
       ctx.fillStyle = '#FF5C5C';
       ctx.beginPath();
-      ctx.moveTo(colPos.club - 15, y + 20);
+      ctx.moveTo(colPos.club - 25, y + 36);
       ctx.lineTo(colPos.club - 8, y + 12);
-      ctx.lineTo(colPos.club - 22, y + 12);
+      ctx.lineTo(colPos.club - 42, y + 12);
       ctx.closePath();
       ctx.fill();
     }
