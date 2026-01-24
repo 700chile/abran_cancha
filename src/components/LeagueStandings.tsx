@@ -220,15 +220,23 @@ const LeagueStandings = () => {
                                 const groupStandings = standings.filter(s => s.grupo === selectedGroup);
                                 const rows: StandingsPosterRow[] = groupStandings
                                   .sort((a, b) => a.pos - b.pos)
-                                  .map((r) => ({
-                                    pos: r.pos,
-                                    club: r.chapa || r.nombre, // Use chapa if available, otherwise nombre
-                                    pj: r.pj,
-                                    dif: r.dif,
-                                    pts: r.pts,
-                                    rend: r.pj > 0 ? Math.round(((r.pg * 3 + r.pe) / (r.pj * 3)) * 100) : 0,
-                                    var: r.var,
-                                  }));
+                                  .map((r) => {
+                                    console.log('Team data:', { 
+                                      pos: r.pos, 
+                                      nombre: r.nombre, 
+                                      chapa: r.chapa, 
+                                      final: r.chapa || r.nombre 
+                                    });
+                                    return {
+                                      pos: r.pos,
+                                      club: r.chapa || r.nombre, // Use chapa if available, otherwise nombre
+                                      pj: r.pj,
+                                      dif: r.dif,
+                                      pts: r.pts,
+                                      rend: r.pj > 0 ? Math.round(((r.pg * 3 + r.pe) / (r.pj * 3)) * 100) : 0,
+                                      var: r.var,
+                                    };
+                                  });
                                 const dataUrl = await renderStandingsPoster(rows, {
                                   backgroundUrl: bgUrl,
                                   title: 'TABLA DE POSICIONES',
