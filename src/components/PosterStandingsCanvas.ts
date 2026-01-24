@@ -88,14 +88,6 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillRect(0, 0, width, height);
   }
 
-  // Dark overlay for readability
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
-  grad.addColorStop(0, 'rgba(0,0,0,0.35)');
-  grad.addColorStop(0.4, 'rgba(0,0,0,0.55)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.65)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, width, height);
-
   // Header
   ctx.textBaseline = 'top';
   ctx.textAlign = 'center';

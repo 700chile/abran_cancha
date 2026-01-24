@@ -110,6 +110,7 @@ const LeagueStandings = () => {
                     pos: row.pos,
                     var: row.var,
                     nombre: row.nombre,
+                    chapa: row.chapa, // Add the chapa field mapping
                     pj: row.pj,
                     pg: row.pg,
                     pe: row.pe,
