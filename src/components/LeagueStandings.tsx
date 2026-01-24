@@ -221,6 +221,7 @@ const LeagueStandings = () => {
                                 const rows: StandingsPosterRow[] = groupStandings
                                   .sort((a, b) => a.pos - b.pos)
                                   .map((r) => {
+                                    console.log('Full team object:', r);
                                     console.log('Team data:', { 
                                       pos: r.pos, 
                                       nombre: r.nombre, 

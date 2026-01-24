@@ -141,11 +141,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.fillText('DIF', colPos.dif, tableY);
   
   // PTS header with pink background and outline
-  ctx.fillStyle = '#FF4081';
+  ctx.fillStyle = '#FFB3D9'; // Lighter pink
   ctx.fillRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
-  ctx.strokeStyle = '#888888';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
   ctx.fillStyle = '#ffffff';
   ctx.fillText('PTS', colPos.pts, tableY);
   
@@ -166,11 +163,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     const y = tableY + 50 + i * rowH;
 
     // PTS pill background (continuous with header)
-    ctx.fillStyle = '#FF4081';
+    ctx.fillStyle = '#FFB3D9'; // Lighter pink
     ctx.fillRect(colPos.ptsBgX - 10, y - 6, 90, 44);
-    ctx.strokeStyle = '#888888';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(colPos.ptsBgX - 10, y - 6, 90, 44);
 
     // Position markers (left side bars)
     const competitionId = opts.competitionId ?? 2;
