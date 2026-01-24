@@ -102,7 +102,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   
   // Title with outline
   ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeStyle = '#000000';
+  ctx.strokeStyle = '#cccccc';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
   ctx.strokeText(opts.title.toUpperCase(), width / 2, 90);
@@ -124,12 +124,12 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Column positions
   const colPos = {
     num: tableX,
-    club: tableX + 70, // Reduced spacing
-    pj: tableX + 520, // Reduced spacing
-    dif: tableX + 610, // Reduced spacing
-    ptsBgX: tableX + 680, // Reduced spacing
-    pts: tableX + 700, // Reduced spacing
-    rend: tableX + 790, // Reduced spacing
+    club: tableX + 100, // Increased spacing for arrows
+    pj: tableX + 550, // Adjusted spacing
+    dif: tableX + 640, // Adjusted spacing
+    ptsBgX: tableX + 710, // Adjusted spacing
+    pts: tableX + 730, // Adjusted spacing
+    rend: tableX + 820, // Adjusted spacing
   } as const;
 
   // Header labels
@@ -139,7 +139,16 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.fillText('CLUB', colPos.club, tableY);
   ctx.fillText('PJ', colPos.pj, tableY);
   ctx.fillText('DIF', colPos.dif, tableY);
+  
+  // PTS header with pink background and outline
+  ctx.fillStyle = '#FF4081';
+  ctx.fillRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
+  ctx.strokeStyle = '#cccccc';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
+  ctx.fillStyle = '#ffffff';
   ctx.fillText('PTS', colPos.pts, tableY);
+  
   ctx.fillText('REND', colPos.rend, tableY);
 
   // Accent line
@@ -156,9 +165,12 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     const r = rows[i];
     const y = tableY + 50 + i * rowH;
 
-    // PTS pill background
-    ctx.fillStyle = '#FF4081'; // Exact pink from reference
-    ctx.fillRect(colPos.ptsBgX, y - 6, 70, 44);
+    // PTS pill background (continuous with header)
+    ctx.fillStyle = '#FF4081';
+    ctx.fillRect(colPos.ptsBgX - 10, y - 6, 90, 44);
+    ctx.strokeStyle = '#cccccc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(colPos.ptsBgX - 10, y - 6, 90, 44);
 
     // Position markers (left side bars)
     const competitionId = opts.competitionId ?? 2;
@@ -229,8 +241,12 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(String(r.pj), colPos.pj, y);
     ctx.fillText(String(r.dif), colPos.dif, y);
 
-    // PTS
+    // PTS with outline
     ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.strokeStyle = '#cccccc';
+    ctx.lineWidth = 2;
+    ctx.strokeText(String(r.pts), colPos.pts + 4, y);
+    ctx.fillStyle = '#ffffff';
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
