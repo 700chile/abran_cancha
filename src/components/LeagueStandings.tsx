@@ -9,6 +9,7 @@ interface TeamStanding {
     pos: number;
     var: string;
     nombre: string;
+    chapa?: string; // Nickname field, optional
     pj: number;
     pg: number;
     pe: number;
@@ -221,7 +222,7 @@ const LeagueStandings = () => {
                                   .sort((a, b) => a.pos - b.pos)
                                   .map((r) => ({
                                     pos: r.pos,
-                                    club: r.nombre,
+                                    club: r.chapa || r.nombre, // Use chapa if available, otherwise nombre
                                     pj: r.pj,
                                     dif: r.dif,
                                     pts: r.pts,

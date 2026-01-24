@@ -102,7 +102,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   
   // Title with outline
   ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeStyle = '#cccccc';
+  ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
   ctx.strokeText(opts.title.toUpperCase(), width / 2, 90);
@@ -143,7 +143,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // PTS header with pink background and outline
   ctx.fillStyle = '#FF4081';
   ctx.fillRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
-  ctx.strokeStyle = '#cccccc';
+  ctx.strokeStyle = '#888888';
   ctx.lineWidth = 2;
   ctx.strokeRect(colPos.ptsBgX - 10, tableY - 6, 90, 44);
   ctx.fillStyle = '#ffffff';
@@ -168,7 +168,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     // PTS pill background (continuous with header)
     ctx.fillStyle = '#FF4081';
     ctx.fillRect(colPos.ptsBgX - 10, y - 6, 90, 44);
-    ctx.strokeStyle = '#cccccc';
+    ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
     ctx.strokeRect(colPos.ptsBgX - 10, y - 6, 90, 44);
 
@@ -180,34 +180,34 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
       // World Cup qualifiers: Top 2 green, 3-4 blue
       if (r.pos <= 2) {
         ctx.fillStyle = '#00D084';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       } else if (r.pos === 3 || r.pos === 4) {
         ctx.fillStyle = '#2196F3';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       }
     } else if (competitionId <= 2) {
       // National competition: Top 8 green, bottom 2 red
       if (r.pos <= 8) {
         ctx.fillStyle = '#00D084';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       } else if (r.pos >= totalTeams - 1) {
         ctx.fillStyle = '#FF5C5C';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       }
     } else if (competitionId === 32) {
       // Other competition: Top 2 green, 3rd blue
       if (r.pos <= 2) {
         ctx.fillStyle = '#00D084';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       } else if (r.pos === 3) {
         ctx.fillStyle = '#2196F3';
-        ctx.fillRect(tableX - 20, y - 6, 12, 44);
+        ctx.fillRect(tableX - 20, y - 6, 6, 44);
       }
     }
 
     // Position number
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 28px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 32px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pos), colPos.num, y);
 
     // VAR arrow (up/down triangle)
@@ -233,24 +233,24 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#ffffff';
 
     // Club name
-    ctx.font = '800 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(r.club.toUpperCase(), colPos.club, y);
 
     // PJ, DIF
-    ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pj), colPos.pj, y);
     ctx.fillText(String(r.dif), colPos.dif, y);
 
     // PTS with outline
-    ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.strokeStyle = '#cccccc';
+    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
     ctx.strokeText(String(r.pts), colPos.pts + 4, y);
     ctx.fillStyle = '#ffffff';
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
-    ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(`${r.rend}%`, colPos.rend, y);
   }
 
