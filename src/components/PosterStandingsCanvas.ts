@@ -88,6 +88,10 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillRect(0, 0, width, height);
   }
 
+  // Light dark overlay for better text readability
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.fillRect(0, 0, width, height);
+
   // Header
   ctx.textBaseline = 'top';
   ctx.textAlign = 'center';
@@ -208,9 +212,9 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     } else if (r.var === 'BAJA') {
       ctx.fillStyle = '#FF5C5C';
       ctx.beginPath();
-      ctx.moveTo(colPos.club - 25, y + 36);
-      ctx.lineTo(colPos.club - 8, y + 12);
-      ctx.lineTo(colPos.club - 42, y + 12);
+      ctx.moveTo(colPos.club - 25, y + 24); // Moved up by 12px (about 1/3 of triangle height)
+      ctx.lineTo(colPos.club - 8, y);
+      ctx.lineTo(colPos.club - 42, y);
       ctx.closePath();
       ctx.fill();
     }
