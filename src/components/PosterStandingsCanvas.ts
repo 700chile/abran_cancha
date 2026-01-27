@@ -88,8 +88,11 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillRect(0, 0, width, height);
   }
 
-  // Light dark overlay for better text readability
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
 
   // Header
@@ -113,8 +116,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
   // Table header line
-  const tableX = 80;
-  const tableY = 250;
+  const tableX = 100; // Moved 20px to the right
+  const tableY = 270; // Moved 20px down
   const rowH = 62; // Reduced from 72 to bring rows closer
 
   // Column positions
@@ -197,7 +200,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
     // Position number
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 32px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pos), colPos.num, y);
 
     // VAR arrow (up/down triangle)
@@ -223,16 +226,16 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#ffffff';
 
     // Club name
-    ctx.font = '800 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(r.club.toUpperCase(), colPos.club, y);
 
     // PJ, DIF
-    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(String(r.pj), colPos.pj, y);
     ctx.fillText(String(r.dif), colPos.dif, y);
 
     // PTS with outline
-    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
     ctx.strokeText(String(r.pts), colPos.pts + 4, y);
@@ -240,7 +243,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
-    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(`${r.rend}%`, colPos.rend, y);
   }
 
