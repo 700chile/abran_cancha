@@ -4,6 +4,9 @@ export const getPosterLogo = (teamName: string): string | null => {
   if (!teamName) return null;
   const teamNameLower = teamName.toLowerCase();
 
+  // Debug logging
+  console.log('Poster: Looking for logo for team:', teamName);
+
   // Eagerly import all images in the folder so Vite emits hashed URLs
   const images: Record<string, string> = import.meta.glob(
     '../assets/posters/logosrevista/*.{png,svg,jpg,jpeg,webp}',
@@ -50,8 +53,13 @@ export const getPosterLogo = (teamName: string): string | null => {
   for (const [key, logoName] of Object.entries(logoMap)) {
     if (teamNameLower.includes(key)) {
       const url = resolveUrl(logoName);
-      if (url) return url;
+      if (url) {
+        console.log('Poster: Found logo:', logoName, 'for team:', teamName);
+        return url;
+      }
     }
   }
+
+  console.log('Poster: No logo found for team:', teamName);
   return null;
 };

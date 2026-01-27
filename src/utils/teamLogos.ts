@@ -5,6 +5,9 @@ export const getTeamLogo = (teamName: string): string | null => {
     
     const teamNameLower = teamName.toLowerCase();
     
+    // Debug logging
+    console.log('Looking for logo for team:', teamName);
+    
     // Mapa de nombres de equipos a nombres de archivo de logos
     const logoMap: { [key: string]: string } = {
         'audax': 'Audax.png',
@@ -36,10 +39,12 @@ export const getTeamLogo = (teamName: string): string | null => {
     // Resolver a la carpeta pública /logos/ para el resto de la app
     for (const [key, logoName] of Object.entries(logoMap)) {
         if (teamNameLower.includes(key)) {
+            console.log('Found logo:', logoName, 'for team:', teamName);
             return `/logos/${logoName}`;
         }
     }
 
     // Si no se encuentra el logo, devolver null
+    console.log('No logo found for team:', teamName);
     return null;
 };
