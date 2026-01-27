@@ -91,7 +91,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
   const grad = ctx.createLinearGradient(0, 0, 0, height);
   grad.addColorStop(0, 'rgba(0,0,0,0)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.5)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.3)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
 
@@ -104,20 +104,20 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.title.toUpperCase(), width / 2, 90);
+  ctx.strokeText(opts.title.toUpperCase(), width / 2, 190); // Moved 100px down
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.title.toUpperCase(), width / 2, 90);
+  ctx.fillText(opts.title.toUpperCase(), width / 2, 190);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 170);
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 170);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 270); // Moved 100px down
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 270);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
   // Table header line
-  const tableX = 100; // Moved 20px to the right
-  const tableY = 270; // Moved 20px down
+  const tableX = 120; // Moved 20px more to the right (total 40px from original)
+  const tableY = 370; // Moved 100px more down (total 120px from original)
   const rowH = 62; // Reduced from 72 to bring rows closer
 
   // Column positions
