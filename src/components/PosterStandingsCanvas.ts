@@ -90,7 +90,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
   const grad = ctx.createLinearGradient(0, 0, 0, height);
-  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(0, 'rgba(0,0,0,0.1)');
   grad.addColorStop(1, 'rgba(0,0,0,0.3)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
@@ -118,7 +118,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Table header line
   const tableX = 120; // Moved 20px more to the right (total 40px from original)
   const tableY = 370; // Moved 100px more down (total 120px from original)
-  const rowH = 62; // Reduced from 72 to bring rows closer
+  const rowH = 52; // Reduced from 62 to bring rows even closer
 
   // Column positions
   const colPos = {
