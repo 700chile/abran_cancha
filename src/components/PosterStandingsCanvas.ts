@@ -104,20 +104,20 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.title.toUpperCase(), width / 2, 190); // Moved 100px down
+  ctx.strokeText(opts.title.toUpperCase(), width / 2, 340); // Moved 150px down
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.title.toUpperCase(), width / 2, 190);
+  ctx.fillText(opts.title.toUpperCase(), width / 2, 340);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 270); // Moved 100px down
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 270);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 420); // Moved 150px down
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 420);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
   // Table header line
   const tableX = 120; // Moved 20px more to the right (total 40px from original)
-  const tableY = 370; // Moved 100px more down (total 120px from original)
+  const tableY = 520; // Moved 150px more down (total 270px from original)
   const rowH = 52; // Reduced from 62 to bring rows even closer
 
   // Column positions
@@ -254,44 +254,38 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   const competitionId = opts.competitionId ?? 2;
   
   if (competitionId === 33) {
-    // World Cup qualifiers legend - two lines
+    // World Cup qualifiers legend - one line each
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2', tableX + 20, legendY);
-    ctx.fillText('(CLASIFICAN AL MUNDIAL)', tableX + 20, legendY + 25);
+    ctx.fillText('TOP 2 (CLASIFICAN AL MUNDIAL)', tableX + 20, legendY);
     
     ctx.fillStyle = '#2196F3';
     ctx.fillRect(tableX + 380, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3RO Y 4TO', tableX + 400, legendY);
-    ctx.fillText('(REPECHAJE)', tableX + 400, legendY + 25);
+    ctx.fillText('3RO Y 4TO (REPECHAJE)', tableX + 400, legendY);
   } else if (competitionId <= 2) {
-    // National competition legend - two lines
+    // National competition legend - one line each
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('CLASIFICA A', tableX + 20, legendY);
-    ctx.fillText('PLAY-OFFS', tableX + 20, legendY + 25);
+    ctx.fillText('CLASIFICA A PLAY-OFFS', tableX + 20, legendY);
     
     ctx.fillStyle = '#FF5C5C';
     ctx.fillRect(tableX + 220, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('DESCIENDE AL', tableX + 240, legendY);
-    ctx.fillText('ASCENSO 2026', tableX + 240, legendY + 25);
+    ctx.fillText('DESCIENDE AL ASCENSO 2026', tableX + 240, legendY);
   } else if (competitionId === 32) {
-    // Other competition legend - two lines
+    // Other competition legend - one line each
     ctx.fillStyle = '#00D084';
     ctx.fillRect(tableX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2', tableX + 20, legendY);
-    ctx.fillText('(SEMIFINALES)', tableX + 20, legendY + 25);
+    ctx.fillText('TOP 2 (SEMIFINALES)', tableX + 20, legendY);
     
     ctx.fillStyle = '#2196F3';
     ctx.fillRect(tableX + 280, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3ER', tableX + 300, legendY);
-    ctx.fillText('(5TO LUGAR)', tableX + 300, legendY + 25);
+    ctx.fillText('3ER (5TO LUGAR)', tableX + 300, legendY);
   }
 
   // Credit (bottom-right rotated)
