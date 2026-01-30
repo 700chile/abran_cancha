@@ -104,14 +104,14 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.title.toUpperCase(), width / 2, 290); // Moved 50px up
+  ctx.strokeText(opts.title.toUpperCase(), width / 2, 390); // Moved down 100px
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.title.toUpperCase(), width / 2, 290);
+  ctx.fillText(opts.title.toUpperCase(), width / 2, 390);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 350); // Moved up 20px
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 350);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 450); // Moved down 100px
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 450);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -127,7 +127,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     // Draw circular logo
     const logoSize = 80;
     const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 410; // Moved down 30px more (was 380)
+    const logoY = 510; // Moved down 100px (was 410)
     
     // Save context state
     ctx.save();
@@ -158,7 +158,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Table header line
   const tableX = 120; // Moved 20px more to the right (total 40px from original)
-  const tableY = 470; // Moved 50px up (total 220px from original)
+  const tableY = 570; // Moved down 100px (was 470)
   const rowH = 52; // Reduced from 62 to bring rows even closer
 
   // Column positions

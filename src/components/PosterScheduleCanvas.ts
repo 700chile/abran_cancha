@@ -113,12 +113,12 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
 
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
-  ctx.font = '700 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 470, 80);
-  ctx.font = '500 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 470, 120);
-  ctx.font = '500 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 470, 160);
+  ctx.font = '700 42px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 38px
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 80); // Moved right 40px
+  ctx.font = '500 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 120); // Moved right 40px
+  ctx.font = '500 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
+  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 160); // Moved right 40px
 
   const startY = 300;
   const rowH = 120;
@@ -139,13 +139,13 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     }
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 52px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 52px
     ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
-    ctx.font = '700 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
     ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
 
-    ctx.font = '600 26px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '600 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
     const estadio = (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
     wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
