@@ -20,7 +20,7 @@ export async function renderTopScorersPoster(
 ): Promise<string> {
   const canvas = document.createElement('canvas');
   const width = 1200;
-  const height = 1600;
+  const height = 1500; // Changed from 1600 to 1500 for 4:5 ratio
   canvas.width = width;
   canvas.height = height;
 
@@ -118,8 +118,8 @@ export async function renderTopScorersPoster(
 
   // Table header line
   const tableX = 120;
-  const tableY = 520;
-  const rowH = 80; // Height for each row
+  const tableY = 470; // Moved up from 520 to compensate for reduced height
+  const rowH = 70; // Slightly reduced row height to fit
 
   // Column positions
   const colPos = {

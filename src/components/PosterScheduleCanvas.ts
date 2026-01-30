@@ -65,8 +65,8 @@ function fmtDateLine(timeIso: string) {
 }
 
 export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOptions): Promise<string> {
-  const width = opts.width ?? 1080;
-  const height = opts.height ?? 1350;
+  const width = opts.width ?? 1200; // Changed from 1080 to 1200
+  const height = opts.height ?? 1500; // Changed from 1350 to 1500 for exact 4:5 ratio
   const pixelRatio = opts.pixelRatio ?? 2;
   const canvas = document.createElement('canvas');
   canvas.width = width * pixelRatio;
