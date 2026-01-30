@@ -12,7 +12,7 @@ export default defineConfig({
     {
       name: 'spa-fallback',
       configureServer(server: any) {
-        server.middlewares.use((req: any, res: any, next: any) => {
+        server.middlewares.use((req: any, _res: any, next: any) => {
           const url = req.url || '';
           
           // Skip if it's a file request (has extension), API request, or root
