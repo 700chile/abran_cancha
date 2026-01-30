@@ -87,7 +87,7 @@ export async function renderTopScorersPoster(
     // Draw circular logo
     const logoSize = 100; // Increased from 80
     const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 610; // Moved down 200px (was 410)
+    const logoY = 630; // Moved down 20px (was 610)
     
     // Save context state
     ctx.save();
@@ -162,27 +162,13 @@ export async function renderTopScorersPoster(
   for (const [index, scorer] of topScorers.entries()) {
     const y = tableY + 50 + (index * rowH);
     
-    // Position marker for top 3
-    if (index < 3) {
-      if (index === 0) {
-        ctx.fillStyle = '#FFD700'; // Gold
-        ctx.fillRect(tableX - 20, y - 6, 6, 44);
-      } else if (index === 1) {
-        ctx.fillStyle = '#C0C0C0'; // Silver
-        ctx.fillRect(tableX - 20, y - 6, 6, 44);
-      } else if (index === 2) {
-        ctx.fillStyle = '#CD7F32'; // Bronze
-        ctx.fillRect(tableX - 20, y - 6, 6, 44);
-      }
-    }
-
-    // Position number
+    // Position number - larger font
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 40px
     ctx.fillText(String(index + 1), colPos.pos, y);
 
-    // Player name
-    ctx.font = '800 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    // Player name - larger font
+    ctx.font = '800 46px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 42px
     ctx.fillText(scorer.player_name.toUpperCase(), colPos.name, y);
 
     // Team logo
@@ -201,8 +187,8 @@ export async function renderTopScorersPoster(
         teamLogo.onerror = () => reject(new Error('Failed to load team logo'));
       });
       
-      // Draw team logo centered in column
-      const logoSize = 50;
+      // Draw team logo centered in column - larger size
+      const logoSize = 75; // Increased from 50
       const logoColumnWidth = 200; // Approximate width of team column
       const logoColumnCenter = colPos.team + (logoColumnWidth / 2);
       const logoX = logoColumnCenter - (logoSize / 2); // Center the logo
@@ -223,8 +209,8 @@ export async function renderTopScorersPoster(
     ctx.fillStyle = '#FF6B35'; // More reddish-orange color
     ctx.fillRect(goalsX - 10, y - 8, goalsWidth + 20, 48);
     
-    // Goals text with outline, centered
-    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    // Goals text with outline, centered - larger font
+    ctx.font = '700 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 34px
     ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
     ctx.strokeText(goalsText, goalsX, y);
