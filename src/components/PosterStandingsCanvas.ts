@@ -110,8 +110,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 370); // Moved 50px up
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 370);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 350); // Moved up 20px
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 350);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -295,6 +295,11 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   const legendX = tableX + 200; // Moved 50px more to the right (was 150)
   const competitionId = opts.competitionId ?? 2;
   
+  // Extract edition number from subtitle for relegation text
+  const editionMatch = opts.subtitle.match(/(\d{4})/);
+  const currentEdition = editionMatch ? parseInt(editionMatch[1]) : 2026;
+  const nextEdition = currentEdition + 1;
+  
   if (competitionId === 33) {
     // World Cup qualifiers legend - one line each, properly separated
     ctx.fillStyle = '#00D084';
@@ -316,7 +321,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#FF5C5C';
     ctx.fillRect(legendX, legendY + 25, 6, 24); // Same X coordinate
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('DESCIENDE AL ASCENSO 2026', legendX + 20, legendY + 35); // Same X coordinate
+    ctx.fillText(`DESCIENDE AL ASCENSO ${nextEdition}`, legendX + 20, legendY + 35); // Same X coordinate
   } else if (competitionId === 32) {
     // Other competition legend - one line each, properly separated
     ctx.fillStyle = '#00D084';
