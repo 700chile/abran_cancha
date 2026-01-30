@@ -85,7 +85,7 @@ export async function renderTopScorersPoster(
     });
     
     // Draw circular logo
-    const logoSize = 80;
+    const logoSize = 100; // Increased from 80
     const logoX = (width - logoSize) / 2; // Centered horizontally
     const logoY = 610; // Moved down 200px (was 410)
     
@@ -119,7 +119,7 @@ export async function renderTopScorersPoster(
   // Table header line - center the table in the image
   const tableWidth = 750; // Approximate total width of the table
   const tableX = (width - tableWidth) / 2; // Center the table horizontally
-  const tableY = 870; // Moved down 200px (was 670)
+  const tableY = 670; // Moved up 200px (was 870)
   const rowH = 70; // Slightly reduced row height to fit
 
   // Column positions
@@ -150,9 +150,9 @@ export async function renderTopScorersPoster(
   const goalsTitleX = goalsColumnCenter - (goalsTitleWidth / 2);
   ctx.fillText('GOLES', goalsTitleX, tableY);
 
-  // Pink horizontal line beneath column titles
+  // Pink horizontal line beneath column titles - twice as wide
   ctx.strokeStyle = '#FFB3D9';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 6; // Doubled from 3 to 6
   ctx.beginPath();
   ctx.moveTo(tableX, tableY + 40); // Start from left edge of POS column
   ctx.lineTo(colPos.goals + 100, tableY + 40); // End after GOLES column
@@ -220,7 +220,7 @@ export async function renderTopScorersPoster(
     const goalsX = goalsColumnCenter - (goalsWidth / 2); // Center the text
     
     // Orange background centered
-    ctx.fillStyle = '#FF9800'; // Orange color
+    ctx.fillStyle = '#F57C00'; // Darker orange color
     ctx.fillRect(goalsX - 10, y - 8, goalsWidth + 20, 48);
     
     // Goals text with outline, centered
