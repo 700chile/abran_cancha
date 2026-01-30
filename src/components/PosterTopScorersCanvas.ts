@@ -48,10 +48,10 @@ export async function renderTopScorersPoster(
     ctx.fillRect(0, 0, width, height);
   }
 
-  // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
+  // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
   const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
   grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
-  grad.addColorStop(1, 'rgba(0,0,0,0.5)'); // 50% dark at bottom
+  grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
 
@@ -120,14 +120,14 @@ export async function renderTopScorersPoster(
   const tableWidth = 750; // Approximate total width of the table
   const tableX = (width - tableWidth) / 2; // Center the table horizontally
   const tableY = 720; // Moved down 50px (was 670)
-  const rowH = 70; // Slightly reduced row height to fit
+  const rowH = 60; // Reduced from 70 - lines closer together
 
-  // Column positions
+  // Column positions - adjusted widths
   const colPos = {
     pos: tableX,
-    name: tableX + 60, // Reduced from 80
-    team: tableX + 450, // Reduced from 600
-    goals: tableX + 650, // Reduced from 850
+    name: tableX + 60, // Same as before
+    team: tableX + 550, // Moved further right (was 450) - player names column wider
+    goals: tableX + 700, // Moved left (was 650) - last two columns narrower
   } as const;
 
   // Table headers
