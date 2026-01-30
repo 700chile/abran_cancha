@@ -48,6 +48,7 @@ const LeagueStandings = () => {
     const [loading, setLoading] = useState(true);
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
     const [selectedGroup, setSelectedGroup] = useState<string>('ZONA A');
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
