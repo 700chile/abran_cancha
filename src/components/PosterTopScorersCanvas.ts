@@ -64,14 +64,14 @@ export async function renderTopScorersPoster(
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.title.toUpperCase(), width / 2, 490); // Moved down 200px (was 290)
+  ctx.strokeText('GOLEADORAS', width / 2, 490); // Changed to GOLEADORAS
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.title.toUpperCase(), width / 2, 490);
+  ctx.fillText('GOLEADORAS', width / 2, 490);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 550); // Moved down 200px (was 350)
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 550);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 580); // Moved further down (was 550)
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 580);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -119,7 +119,7 @@ export async function renderTopScorersPoster(
   // Table header line - center the table in the image
   const tableWidth = 750; // Approximate total width of the table
   const tableX = (width - tableWidth) / 2; // Center the table horizontally
-  const tableY = 670; // Moved up 200px (was 870)
+  const tableY = 720; // Moved down 50px (was 670)
   const rowH = 70; // Slightly reduced row height to fit
 
   // Column positions
@@ -220,7 +220,7 @@ export async function renderTopScorersPoster(
     const goalsX = goalsColumnCenter - (goalsWidth / 2); // Center the text
     
     // Orange background centered
-    ctx.fillStyle = '#F57C00'; // Darker orange color
+    ctx.fillStyle = '#FF6B35'; // More reddish-orange color
     ctx.fillRect(goalsX - 10, y - 8, goalsWidth + 20, 48);
     
     // Goals text with outline, centered
