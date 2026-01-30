@@ -7,7 +7,25 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss()
+    tailwindcss(),
+    // Custom plugin for SPA fallback
+    {
+      name: 'spa-fallback',
+      configureServer(server: any) {
+        server.middlewares.use((req: any, res: any, next: any) => {
+          // Skip if it's a file request (has extension) or API request
+          if (req.url && (req.url.includes('.') || req.url.startsWith('/api'))) {
+            return next();
+          }
+          
+          // For all other routes, rewrite to index.html
+          if (req.url && req.url !== '/') {
+            req.url = '/index.html';
+          }
+          next();
+        });
+      }
+    }
   ],
   base: './',
   publicDir: 'public',
@@ -47,5 +65,9 @@ export default defineConfig({
     fs: {
       strict: false,
     },
+  },
+  // Add this for SPA routing fallback in preview
+  preview: {
+    port: 4173,
   },
 })
