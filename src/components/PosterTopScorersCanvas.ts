@@ -51,7 +51,7 @@ export async function renderTopScorersPoster(
   // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
   const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
   grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
-  grad.addColorStop(1, 'rgba(0,0,0,0.3)'); // Darker at bottom
+  grad.addColorStop(1, 'rgba(0,0,0,0.5)'); // 50% dark at bottom
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
 
@@ -124,9 +124,9 @@ export async function renderTopScorersPoster(
   // Column positions
   const colPos = {
     pos: tableX,
-    name: tableX + 80,
-    team: tableX + 600,
-    goals: tableX + 850,
+    name: tableX + 60, // Reduced from 80
+    team: tableX + 450, // Reduced from 600
+    goals: tableX + 650, // Reduced from 850
   } as const;
 
   // Table headers
@@ -136,6 +136,14 @@ export async function renderTopScorersPoster(
   ctx.fillText('JUGADORA', colPos.name, tableY);
   ctx.fillText('EQUIPO', colPos.team, tableY);
   ctx.fillText('GOLES', colPos.goals, tableY);
+
+  // Pink horizontal line beneath column titles
+  ctx.strokeStyle = '#FFB3D9';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(tableX, tableY + 40); // Start from left edge of POS column
+  ctx.lineTo(colPos.goals + 100, tableY + 40); // End after GOLES column
+  ctx.stroke();
 
   // Draw top scorers
   for (const [index, scorer] of topScorers.entries()) {
@@ -180,29 +188,35 @@ export async function renderTopScorersPoster(
         teamLogo.onerror = () => reject(new Error('Failed to load team logo'));
       });
       
-      // Draw team logo
+      // Draw team logo centered in column
       const logoSize = 50;
-      ctx.drawImage(teamLogo, colPos.team, y - 10, logoSize, logoSize);
+      const logoColumnWidth = 200; // Approximate width of team column
+      const logoColumnCenter = colPos.team + (logoColumnWidth / 2);
+      const logoX = logoColumnCenter - (logoSize / 2); // Center the logo
+      ctx.drawImage(teamLogo, logoX, y - 10, logoSize, logoSize);
     } catch (error) {
       console.log('Team logo not found for:', scorer.team_name);
       // Draw placeholder or skip
     }
 
-    // Goals with pink background
+    // Goals with orange background, centered in column
     const goalsText = String(scorer.goals);
     const goalsWidth = ctx.measureText(goalsText).width;
+    const goalsColumnWidth = 100; // Approximate width of goals column
+    const goalsColumnCenter = colPos.goals + (goalsColumnWidth / 2);
+    const goalsX = goalsColumnCenter - (goalsWidth / 2); // Center the text
     
-    // Pink background
-    ctx.fillStyle = '#FFB3D9';
-    ctx.fillRect(colPos.goals - 10, y - 8, goalsWidth + 20, 48);
+    // Orange background centered
+    ctx.fillStyle = '#FF9800'; // Orange color
+    ctx.fillRect(goalsX - 10, y - 8, goalsWidth + 20, 48);
     
-    // Goals text with outline
+    // Goals text with outline, centered
     ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
-    ctx.strokeText(goalsText, colPos.goals, y);
+    ctx.strokeText(goalsText, goalsX, y);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(goalsText, colPos.goals, y);
+    ctx.fillText(goalsText, goalsX, y);
   }
 
   // Credit (bottom-right rotated)
