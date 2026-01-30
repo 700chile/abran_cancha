@@ -13,15 +13,23 @@ export default defineConfig({
       name: 'spa-fallback',
       configureServer(server: any) {
         server.middlewares.use((req: any, res: any, next: any) => {
-          // Skip if it's a file request (has extension) or API request
-          if (req.url && (req.url.includes('.') || req.url.startsWith('/api'))) {
+          const url = req.url || '';
+          
+          // Skip if it's a file request (has extension), API request, or root
+          if (url.includes('.') || url.startsWith('/api') || url === '/' || url.startsWith('/@')) {
             return next();
           }
           
-          // For all other routes, rewrite to index.html
-          if (req.url && req.url !== '/') {
+          // Only apply fallback to known React routes (not HTML files)
+          const knownRoutes = ['/matches', '/top-scorers', '/login', '/match-updater', '/goal-scorers', 
+                              '/penalties', '/player-roster', '/create-competition', '/roster-manager',
+                              '/competition', '/create-matches', '/create-team', '/users-roles',
+                              '/create-user', '/password-updater', '/competition/'];
+          
+          if (knownRoutes.some(route => url.startsWith(route))) {
             req.url = '/index.html';
           }
+          
           next();
         });
       }
