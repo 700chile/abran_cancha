@@ -49,8 +49,8 @@ const LeagueStandings = () => {
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
-    const [groups, setGroups] = useState<Group[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<string>('');
+    const [selectedGroup, setSelectedGroup] = useState<string>('ZONA A');
+    const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchLeagueData = useCallback(async () => {
@@ -198,13 +198,14 @@ const LeagueStandings = () => {
                 </div>
                 <div className="flex justify-end mb-4">
                     <button
-                        className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700"
+                        className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isGeneratingPoster || !groups.length || !selectedGroup}
                         onClick={() => {
                             if (!groups.length || !selectedGroup) return;
                             fileInputRef.current?.click();
                         }}
                     >
-                        Generar imagen
+                        {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
                     </button>
                     <input
                         ref={fileInputRef}
@@ -214,6 +215,7 @@ const LeagueStandings = () => {
                         onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
+                            setIsGeneratingPoster(true);
                             try {
                                 const bgUrl = URL.createObjectURL(file);
                                 const comp = competitions.find(c => c.ID === selectedCompetition);
@@ -257,6 +259,8 @@ const LeagueStandings = () => {
                             } catch (e) {
                                 console.error('Error generando póster de posiciones', e);
                                 alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+                            } finally {
+                                setIsGeneratingPoster(false);
                             }
                             // Reset input so same file can be selected again
                             e.target.value = '';

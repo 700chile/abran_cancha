@@ -221,7 +221,7 @@ const TopScorers = () => {
                             className="px-4 py-2 rounded-lg hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                             style={{ backgroundColor: '#0d4a68', color: 'white' }}
                         >
-                            {isGeneratingPoster ? 'Generando...' : 'Generar Póster'}
+                            {isGeneratingPoster ? 'Generando...' : 'Generar Imagen'}
                         </button>
                     </div>
                 </div>

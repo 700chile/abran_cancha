@@ -59,6 +59,7 @@ export default function MatchUpdater() {
     const [visitTeam, setVisitTeam] = useState<string>('');
     const [isUpdatingPositions, setIsUpdatingPositions] = useState<boolean>(false);
     const [updateStatus, setUpdateStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
+    const [isGeneratingPoster, setIsGeneratingPoster] = useState<boolean>(false);
     
     // Helper function to safely convert string | null | undefined to string
     const safeString = (value: SafeString): string => value ?? '';
@@ -72,6 +73,7 @@ export default function MatchUpdater() {
     };
 
     const handleGeneratePoster = async () => {
+        setIsGeneratingPoster(true);
         try {
             if (!selectedMatchday || !selectedCompetition) return;
             const comp = competitions.find(c => c.ID === selectedCompetition);
@@ -106,6 +108,8 @@ export default function MatchUpdater() {
         } catch (e) {
             console.error('Error generando imagen', e);
             alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+        } finally {
+            setIsGeneratingPoster(false);
         }
     };
 
@@ -656,9 +660,10 @@ export default function MatchUpdater() {
                         </button>
                         <button
                             onClick={handleGeneratePoster}
-                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all"
+                            disabled={isGeneratingPoster}
+                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Generar imagen
+                            {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
                         </button>
                     </div>
                 </div>

@@ -49,9 +49,9 @@ export async function renderTopScorersPoster(
   }
 
   // Gradient dark overlay for better text readability (0% at top, 50% at bottom)
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
-  grad.addColorStop(0, 'rgba(0,0,0,0.1)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+  const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
+  grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
+  grad.addColorStop(1, 'rgba(0,0,0,0.3)'); // Darker at bottom
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, width, height);
 
