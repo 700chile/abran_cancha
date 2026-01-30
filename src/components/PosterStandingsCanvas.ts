@@ -159,17 +159,17 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   // Table header line
   const tableX = 120; // Moved 20px more to the right (total 40px from original)
   const tableY = 570; // Moved down 100px (was 470)
-  const rowH = 52; // Reduced from 62 to bring rows even closer
+  const rowH = 57; // Increased by 10% from 52 to 57
 
   // Column positions
   const colPos = {
     num: tableX,
-    club: tableX + 100, // Increased spacing for arrows
-    pj: tableX + 550, // Adjusted spacing
-    dif: tableX + 640, // Adjusted spacing
-    ptsBgX: tableX + 710, // Adjusted spacing
-    pts: tableX + 730, // Adjusted spacing
-    rend: tableX + 820, // Adjusted spacing
+    club: tableX + 110, // Increased by 10% from 100
+    pj: tableX + 605, // Increased by 10% from 550
+    dif: tableX + 704, // Increased by 10% from 640
+    ptsBgX: tableX + 781, // Increased by 10% from 710
+    pts: tableX + 803, // Increased by 10% from 730
+    rend: tableX + 902, // Increased by 10% from 820
   } as const;
 
   // Header labels
@@ -241,7 +241,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
     // Position number
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
     ctx.fillText(String(r.pos), colPos.num, y);
 
     // VAR arrow (up/down triangle)
@@ -267,16 +267,16 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillStyle = '#ffffff';
 
     // Club name
-    ctx.font = '800 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '800 42px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 38px
     ctx.fillText(r.club.toUpperCase(), colPos.club, y);
 
     // PJ, DIF
-    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 34px
     ctx.fillText(String(r.pj), colPos.pj, y);
     ctx.fillText(String(r.dif), colPos.dif, y);
 
     // PTS with outline
-    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 34px
     ctx.strokeStyle = '#888888';
     ctx.lineWidth = 2;
     ctx.strokeText(String(r.pts), colPos.pts + 4, y);
@@ -284,7 +284,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.fillText(String(r.pts), colPos.pts + 4, y);
 
     // REND (percentage)
-    ctx.font = '700 34px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.font = '700 38px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 34px
     ctx.fillText(`${r.rend}%`, colPos.rend, y);
   }
 

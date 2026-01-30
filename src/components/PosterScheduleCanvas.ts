@@ -120,10 +120,10 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   ctx.font = '500 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
   ctx.fillText(opts.roundTitle.toUpperCase(), 510, 160); // Moved right 40px
 
-  const startY = 300;
-  const rowH = 120;
-  const leftX = 200;
-  const logoSize = 90;
+  const startY = 340; // Moved down 40px (was 300)
+  const rowH = 132; // Increased by 10% from 120 to 132
+  const leftX = 240; // Moved right 40px (was 200)
+  const logoSize = 99; // Increased by 10% from 90 to 99
 
   for (let i = 0; i < matches.length; i++) {
     const m = matches[i];
