@@ -12,26 +12,33 @@ export default defineConfig({
     {
       name: 'spa-fallback',
       configureServer(server: any) {
-        server.middlewares.use((req: any, _res: any, next: any) => {
-          const url = req.url || '';
-          
-          // Skip if it's a file request (has extension), API request, or root
-          if (url.includes('.') || url.startsWith('/api') || url === '/' || url.startsWith('/@')) {
-            return next();
-          }
-          
-          // Only apply fallback to known React routes (not HTML files)
-          const knownRoutes = ['/matches', '/top-scorers', '/login', '/match-updater', '/goal-scorers', 
-                              '/penalties', '/player-roster', '/create-competition', '/roster-manager',
-                              '/competition', '/create-matches', '/create-team', '/users-roles',
-                              '/create-user', '/password-updater', '/competition/'];
-          
-          if (knownRoutes.some(route => url.startsWith(route))) {
-            req.url = '/index.html';
-          }
-          
-          next();
-        });
+        return () => {
+          server.middlewares.use((req: any, _res: any, next: any) => {
+            const url = req.url || '';
+            console.log('SPA Fallback checking URL:', url);
+            
+            // Skip if it's a file request (has extension), API request, or root
+            if (url.includes('.') || url.startsWith('/api') || url === '/' || url.startsWith('/@')) {
+              console.log('SPA Fallback: skipping (file/api/root)');
+              return next();
+            }
+            
+            // Only apply fallback to known React routes (not HTML files)
+            const knownRoutes = ['/matches', '/top-scorers', '/login', '/match-updater', '/goal-scorers', 
+                                '/penalties', '/player-roster', '/create-competition', '/roster-manager',
+                                '/competition', '/create-matches', '/create-team', '/users-roles',
+                                '/create-user', '/password-updater', '/competition/'];
+            
+            if (knownRoutes.some(route => url.startsWith(route))) {
+              console.log('SPA Fallback: rewriting to index.html');
+              req.url = '/index.html';
+            } else {
+              console.log('SPA Fallback: not a known route');
+            }
+            
+            next();
+          });
+        };
       }
     }
   ],
