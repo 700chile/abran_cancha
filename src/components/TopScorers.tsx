@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
+import { renderTopScorersPoster } from './PosterTopScorersCanvas';
 
 interface TopScorer {
     nombre_jugadora: string;
@@ -21,6 +22,7 @@ const TopScorers = () => {
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
+    const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -116,6 +118,79 @@ const TopScorers = () => {
         Promise.all([fetchScorers(), fetchLastUpdateDate()]);
     }, [selectedCompetition]);
 
+    const generatePoster = async () => {
+        if (scorers.length === 0) {
+            alert('No hay datos de goleadoras para generar el póster');
+            return;
+        }
+
+        setIsGeneratingPoster(true);
+        
+        try {
+            // Ask for background image
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            const file = await new Promise<File>((resolve) => {
+                input.onchange = (e) => {
+                    const target = e.target as HTMLInputElement;
+                    if (target.files && target.files[0]) {
+                        resolve(target.files[0]);
+                    }
+                };
+                input.click();
+            });
+
+            if (!file) {
+                setIsGeneratingPoster(false);
+                return;
+            }
+
+            // Ask for credit
+            const credit = prompt('Ingrese el crédito (opcional):') || undefined;
+
+            // Convert file to data URL
+            const bgUrl = await new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target?.result as string);
+                reader.readAsDataURL(file);
+            });
+
+            // Get competition info
+            const competition = competitions.find(c => c.ID === selectedCompetition);
+            const title = 'TABLA DE GOLEADORAS';
+            const subtitle = competition ? `PRIMERA DIVISIÓN ${competition.EDICION}` : 'PRIMERA DIVISIÓN';
+
+            // Map top scorers data for poster
+            const posterData = scorers.slice(0, 10).map(scorer => ({
+                player_name: scorer.nombre_jugadora,
+                team_name: scorer.equipo,
+                goals: scorer.goles
+            }));
+
+            // Generate poster
+            const dataUrl = await renderTopScorersPoster(posterData, {
+                backgroundUrl: bgUrl,
+                title,
+                subtitle,
+                credit,
+            });
+
+            // Download the image
+            const link = document.createElement('a');
+            link.download = `goleadoras-${competition?.EDICION || '2026'}.jpg`;
+            link.href = dataUrl;
+            link.click();
+
+        } catch (error) {
+            console.error('Error generating poster:', error);
+            alert('Error al generar el póster. Por favor, inténtelo de nuevo.');
+        } finally {
+            setIsGeneratingPoster(false);
+        }
+    };
+
     return (
         <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
             <div className="w-full px-0 sm:px-2 lg:px-4">
@@ -138,6 +213,15 @@ const TopScorers = () => {
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div className="flex items-end">
+                        <button
+                            onClick={generatePoster}
+                            disabled={isGeneratingPoster || loading || scorers.length === 0}
+                            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/80 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                            {isGeneratingPoster ? 'Generando...' : 'Generar Póster'}
+                        </button>
                     </div>
                 </div>
 
