@@ -126,7 +126,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     
     // Draw circular logo
     const logoSize = 80;
-    const logoX = width - 150; // Right side positioning
+    const logoX = (width - logoSize) / 2; // Centered horizontally
     const logoY = 320; // Between header (370) and table (470)
     
     // Save context state
@@ -292,41 +292,42 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.font = '600 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillStyle = '#ffffff';
   const legendY = height - 90;
+  const legendX = tableX + 50; // Moved 50px to the right
   const competitionId = opts.competitionId ?? 2;
   
   if (competitionId === 33) {
     // World Cup qualifiers legend - one line each, properly separated
     ctx.fillStyle = '#00D084';
-    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillRect(legendX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2 (CLASIFICAN AL MUNDIAL)', tableX + 20, legendY);
+    ctx.fillText('TOP 2 (CLASIFICAN AL MUNDIAL)', legendX + 20, legendY);
     
     ctx.fillStyle = '#2196F3';
-    ctx.fillRect(tableX, legendY + 25, 6, 24); // Same X coordinate
+    ctx.fillRect(legendX, legendY + 25, 6, 24); // Same X coordinate
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3RO Y 4TO (REPECHAJE)', tableX + 20, legendY + 35); // Same X coordinate
+    ctx.fillText('3RO Y 4TO (REPECHAJE)', legendX + 20, legendY + 35); // Same X coordinate
   } else if (competitionId <= 2) {
     // National competition legend - one line each, properly separated
     ctx.fillStyle = '#00D084';
-    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillRect(legendX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('CLASIFICA A PLAY-OFFS', tableX + 20, legendY);
+    ctx.fillText('CLASIFICA A PLAY-OFFS', legendX + 20, legendY);
     
     ctx.fillStyle = '#FF5C5C';
-    ctx.fillRect(tableX, legendY + 25, 6, 24); // Same X coordinate
+    ctx.fillRect(legendX, legendY + 25, 6, 24); // Same X coordinate
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('DESCIENDE AL ASCENSO 2026', tableX + 20, legendY + 35); // Same X coordinate
+    ctx.fillText('DESCIENDE AL ASCENSO 2026', legendX + 20, legendY + 35); // Same X coordinate
   } else if (competitionId === 32) {
     // Other competition legend - one line each, properly separated
     ctx.fillStyle = '#00D084';
-    ctx.fillRect(tableX, legendY - 10, 6, 24);
+    ctx.fillRect(legendX, legendY - 10, 6, 24);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('TOP 2 (SEMIFINALES)', tableX + 20, legendY);
+    ctx.fillText('TOP 2 (SEMIFINALES)', legendX + 20, legendY);
     
     ctx.fillStyle = '#2196F3';
-    ctx.fillRect(tableX, legendY + 25, 6, 24); // Same X coordinate
+    ctx.fillRect(legendX, legendY + 25, 6, 24); // Same X coordinate
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('3ER (5TO LUGAR)', tableX + 20, legendY + 35); // Same X coordinate
+    ctx.fillText('3ER (5TO LUGAR)', legendX + 20, legendY + 35); // Same X coordinate
   }
 
   // Credit (bottom-right rotated)
