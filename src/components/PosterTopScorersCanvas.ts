@@ -64,14 +64,14 @@ export async function renderTopScorersPoster(
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.title.toUpperCase(), width / 2, 290);
+  ctx.strokeText(opts.title.toUpperCase(), width / 2, 490); // Moved down 200px (was 290)
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.title.toUpperCase(), width / 2, 290);
+  ctx.fillText(opts.title.toUpperCase(), width / 2, 490);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 350);
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 350);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 550); // Moved down 200px (was 350)
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 550);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -87,7 +87,7 @@ export async function renderTopScorersPoster(
     // Draw circular logo
     const logoSize = 80;
     const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 410; // Between header and table
+    const logoY = 610; // Moved down 200px (was 410)
     
     // Save context state
     ctx.save();
@@ -116,9 +116,10 @@ export async function renderTopScorersPoster(
     // Continue without logo if it fails
   }
 
-  // Table header line
-  const tableX = 120;
-  const tableY = 470; // Moved up from 520 to compensate for reduced height
+  // Table header line - center the table in the image
+  const tableWidth = 750; // Approximate total width of the table
+  const tableX = (width - tableWidth) / 2; // Center the table horizontally
+  const tableY = 870; // Moved down 200px (was 670)
   const rowH = 70; // Slightly reduced row height to fit
 
   // Column positions
@@ -134,8 +135,20 @@ export async function renderTopScorersPoster(
   ctx.fillStyle = '#ffffff';
   ctx.fillText('POS', colPos.pos, tableY);
   ctx.fillText('JUGADORA', colPos.name, tableY);
-  ctx.fillText('EQUIPO', colPos.team, tableY);
-  ctx.fillText('GOLES', colPos.goals, tableY);
+  
+  // Center CLUB title
+  const teamColumnWidth = 200; // Same as logo column width
+  const teamColumnCenter = colPos.team + (teamColumnWidth / 2);
+  const teamTitleWidth = ctx.measureText('CLUB').width;
+  const teamTitleX = teamColumnCenter - (teamTitleWidth / 2);
+  ctx.fillText('CLUB', teamTitleX, tableY);
+  
+  // Center GOLES title
+  const goalsColumnWidth = 100; // Same as goals column width
+  const goalsColumnCenter = colPos.goals + (goalsColumnWidth / 2);
+  const goalsTitleWidth = ctx.measureText('GOLES').width;
+  const goalsTitleX = goalsColumnCenter - (goalsTitleWidth / 2);
+  ctx.fillText('GOLES', goalsTitleX, tableY);
 
   // Pink horizontal line beneath column titles
   ctx.strokeStyle = '#FFB3D9';
