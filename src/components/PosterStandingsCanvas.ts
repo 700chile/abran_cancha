@@ -127,7 +127,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     // Draw circular logo
     const logoSize = 80;
     const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 320; // Between header (370) and table (470)
+    const logoY = 380; // Moved down 60px (was 320)
     
     // Save context state
     ctx.save();
@@ -292,7 +292,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   ctx.font = '600 22px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillStyle = '#ffffff';
   const legendY = height - 90;
-  const legendX = tableX + 50; // Moved 50px to the right
+  const legendX = tableX + 150; // Moved 100px more to the right (was 50px)
   const competitionId = opts.competitionId ?? 2;
   
   if (competitionId === 33) {
