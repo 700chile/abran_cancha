@@ -148,7 +148,6 @@ export const renderMatchImage = (
       if (!ctx) return;
       
       // Table setup - positioned much lower
-      const tableX = 120;
       const tableY = 1050; // Moved much lower
       const rowH = 120; // Height for each match
 
