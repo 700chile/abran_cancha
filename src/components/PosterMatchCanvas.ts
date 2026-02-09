@@ -47,7 +47,6 @@ export const renderMatchImage = (
       drawPosterContent();
     };
     bg.onerror = () => {
-      console.log('Background image failed to load, using black background');
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, width, height);
       drawPosterContent();
@@ -58,9 +57,8 @@ export const renderMatchImage = (
       if (!ctx) return;
       
       // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
-      const grad = ctx.createLinearGradient(0, 0, 0, height); // Start gradient from top
-      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at top
-      grad.addColorStop(0.6, 'rgba(0,0,0,0.3)'); // Start darkening at 60%
+      const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
+      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
       grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
@@ -78,8 +76,9 @@ export const renderMatchImage = (
       ctx.fillStyle = '#ffffff';
       ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 850);
 
-      // Competition subtitle with outline - smaller font
+      // Competition subtitle with outline - smaller font, pink color
       ctx.font = '700 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+      ctx.strokeStyle = '#FF69B4'; // Pink color
       ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 930); // Moved lower
       ctx.fillStyle = '#ffffff';
       ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 930);
@@ -95,7 +94,7 @@ export const renderMatchImage = (
         // Draw circular logo
         const logoSize = 100;
         const logoX = (width - logoSize) / 2; // Centered horizontally
-        const logoY = 850; // Positioned above titles
+        const logoY = 1000; // Moved further down
         
         // Save context state
         ctx.save();
@@ -146,23 +145,27 @@ export const renderMatchImage = (
           if (!ctx) return;
           
           if (logosLoaded >= totalLogos) {
-            // Goals display instead of VS
-            ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-            ctx.fillStyle = '#ffffff';
+            // Goals display instead of VS - with outline
+            ctx.font = '800 108px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made 1.5x bigger
+            ctx.strokeStyle = '#888888'; // Gray color
+            ctx.lineWidth = 4;
+            ctx.lineJoin = 'round';
             ctx.textAlign = 'center';
             const localGoals = match.localGoals !== undefined ? match.localGoals.toString() : '0';
             const visitGoals = match.visitGoals !== undefined ? match.visitGoals.toString() : '0';
-            ctx.fillText(`${localGoals} - ${visitGoals}`, width / 2, y + 60);
+            ctx.strokeText(`${localGoals} - ${visitGoals}`, width / 2, y + 60); // Outline first
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(`${localGoals} - ${visitGoals}`, width / 2, y + 60); // Fill text
             
             // Credit (bottom-right rotated)
             if (opts.credit) {
               ctx.save();
-              ctx.translate(width - 10, height - 10); // Start at bottom right corner
+              ctx.translate(width - 5, height - 5); // Closer to edges
               ctx.rotate(-Math.PI / 2);
               ctx.fillStyle = 'rgba(255,255,255,0.9)';
               ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
               const creditText = opts.credit.toUpperCase();
-              ctx.fillText(creditText, 0, 0);
+              ctx.fillText(creditText, 5, 5); // Start text 5px from corner
               ctx.restore();
             }
             
@@ -179,7 +182,7 @@ export const renderMatchImage = (
           if (localLogoUrl) {
             localLogo.onload = () => {
               if (!ctx) return;
-              ctx.drawImage(localLogo, tableX, y + 20, 80, 80);
+              ctx.drawImage(localLogo, tableX, y + 20, 160, 160); // Made twice as big
               logosLoaded++;
               checkAllLogosLoaded();
             };
@@ -206,7 +209,7 @@ export const renderMatchImage = (
           if (visitLogoUrl) {
             visitLogo.onload = () => {
               if (!ctx) return;
-              ctx.drawImage(visitLogo, width - 200, y + 20, 80, 80);
+              ctx.drawImage(visitLogo, width - 280, y + 20, 160, 160); // Made twice as big
               logosLoaded++;
               checkAllLogosLoaded();
             };

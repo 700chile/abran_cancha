@@ -163,14 +163,11 @@ export default function MatchUpdater() {
                 ? `JORNADA ${selectedMatchday}`
                 : `${selectedMatchday.toUpperCase()}`;
             
-            // Add "JORNADA" when content is just a number
-            const finalRoundTitle = isNumericFecha ? `${roundTitle} JORNADA` : roundTitle;
-
             const dataUrl = await renderMatchImage([posterMatch], {
                 backgroundUrl: bgUrl,
                 competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
-                roundTitle: finalRoundTitle,
+                roundTitle: roundTitle,
                 pixelRatio: 2,
                 credit: credit,
                 // Use poster-specific logo mapping for image only
