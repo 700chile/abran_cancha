@@ -1,5 +1,3 @@
-import { getPosterLogo } from '../utils/posterLogos';
-
 interface MatchPosterOptions {
   backgroundUrl?: string;
   competitionTitle: string;
@@ -121,7 +119,7 @@ export const renderMatchImage = (
       ctx.stroke();
     };
     revistaLogo.onerror = () => {
-      console.log('Revista logo not found or failed to load:', error);
+      console.log('Revista logo not found or failed to load:', Error);
       // Continue without logo if it fails
     };
   } catch (error) {
@@ -213,5 +211,7 @@ export const renderMatchImage = (
   }
 
   // Return data URL
-  return canvas.toDataURL('image/png');
+  return new Promise<string>((resolve) => {
+    resolve(canvas.toDataURL('image/png'));
+  });
 };
