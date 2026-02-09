@@ -17,7 +17,7 @@ interface PosterMatch {
   programacion: string;
 }
 
-export const renderMatchImage = async (
+export const renderMatchImage = (
   matches: PosterMatch[],
   opts: MatchPosterOptions
 ): Promise<string> => {
@@ -36,22 +36,23 @@ export const renderMatchImage = async (
   ctx.scale(ratio, ratio);
 
   // Background image or fallback
-  try {
-    if (opts.backgroundUrl) {
-      const bg = new Image();
-      bg.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        bg.onload = resolve;
-        bg.onerror = reject;
-      });
+  if (opts.backgroundUrl) {
+    const bg = new Image();
+    bg.crossOrigin = 'anonymous';
+    bg.onload = () => {
+      // Draw background
       const r = Math.max(width / bg.naturalWidth, height / bg.naturalHeight);
       const bw = bg.naturalWidth * r;
       const bh = bg.naturalHeight * r;
       const bx = (width - bw) / 2;
       const by = (height - bh) / 2;
       ctx.drawImage(bg, bx, by, bw, bh);
-    }
-  } catch {
+    };
+    bg.onerror = () => {
+      console.log('Background image failed to load');
+    };
+    bg.src = opts.backgroundUrl;
+  } else {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
   }
@@ -93,36 +94,36 @@ export const renderMatchImage = async (
   try {
     const revistaLogo = new Image();
     revistaLogo.src = '/revista-logo.jpg';
-    await new Promise((resolve, reject) => {
-      revistaLogo.onload = resolve;
-      revistaLogo.onerror = reject;
-    });
-    
-    // Draw circular logo
-    const logoSize = 100;
-    const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 320;
-    
-    // Save context state
-    ctx.save();
-    
-    // Create circular clipping path
-    ctx.beginPath();
-    ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-    
-    // Draw logo
-    ctx.drawImage(revistaLogo, logoX, logoY, logoSize, logoSize);
-    
-    // Restore context and draw circle outline
-    ctx.restore();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI * 2);
-    ctx.stroke();
-    
+    revistaLogo.onload = () => {
+      // Draw circular logo
+      const logoSize = 100;
+      const logoX = (width - logoSize) / 2; // Centered horizontally
+      const logoY = 320;
+      
+      // Save context state
+      ctx.save();
+      
+      // Create circular clipping path
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      
+      // Draw logo
+      ctx.drawImage(revistaLogo, logoX, logoY, logoSize, logoSize);
+      
+      // Restore context and draw circle outline
+      ctx.restore();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 0, Math.PI * 2);
+      ctx.stroke();
+    };
+    revistaLogo.onerror = () => {
+      console.log('Revista logo not found or failed to load:', error);
+      // Continue without logo if it fails
+    };
   } catch (error) {
     console.log('Revista logo not found or failed to load:', error);
     // Continue without logo if it fails
@@ -147,19 +148,20 @@ export const renderMatchImage = async (
     ctx.fillText(match.local.toUpperCase(), tableX, y + 20);
     
     // Local team logo
-    try {
+    if (opts.getLogoUrl) {
       const localLogo = new Image();
       localLogo.crossOrigin = 'anonymous';
-      const localLogoUrl = opts.getLogoUrl ? opts.getLogoUrl(match.local) : null;
+      const localLogoUrl = opts.getLogoUrl(match.local);
       if (localLogoUrl) {
+        localLogo.onload = () => {
+          ctx.drawImage(localLogo, tableX, y + 60, 80, 80);
+        };
+        localLogo.onerror = () => {
+          console.log('Local team logo not found for:', match.local);
+        };
         localLogo.src = localLogoUrl;
-        await new Promise<void>((resolve, reject) => {
-          localLogo.onload = () => resolve();
-          localLogo.onerror = () => reject(new Error('Failed to load local team logo'));
-        });
-        ctx.drawImage(localLogo, tableX, y + 60, 80, 80);
       }
-    } catch (error) {
+    } else {
       console.log('Local team logo not found for:', match.local);
     }
     
@@ -174,19 +176,20 @@ export const renderMatchImage = async (
     ctx.fillText(match.visita.toUpperCase(), width - 280, y + 20);
     
     // Visit team logo
-    try {
+    if (opts.getLogoUrl) {
       const visitLogo = new Image();
       visitLogo.crossOrigin = 'anonymous';
-      const visitLogoUrl = opts.getLogoUrl ? opts.getLogoUrl(match.visita) : null;
+      const visitLogoUrl = opts.getLogoUrl(match.visita);
       if (visitLogoUrl) {
+        visitLogo.onload = () => {
+          ctx.drawImage(visitLogo, width - 200, y + 60, 80, 80);
+        };
+        visitLogo.onerror = () => {
+          console.log('Visit team logo not found for:', match.visita);
+        };
         visitLogo.src = visitLogoUrl;
-        await new Promise<void>((resolve, reject) => {
-          visitLogo.onload = () => resolve();
-          visitLogo.onerror = () => reject(new Error('Failed to load visit team logo'));
-        });
-        ctx.drawImage(visitLogo, width - 200, y + 60, 80, 80);
       }
-    } catch (error) {
+    } else {
       console.log('Visit team logo not found for:', match.visita);
     }
     
