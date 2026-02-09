@@ -10,7 +10,9 @@ interface MatchPosterOptions {
 
 interface PosterMatch {
   local: string;
+  localGoals?: number;
   visita: string;
+  visitGoals?: number;
   estadio: string;
   programacion: string;
 }
@@ -71,20 +73,20 @@ export const renderMatchImage = (
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 100);
+  ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 300); // Moved down from 100
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 100);
+  ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 300);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.divisionTitle.toUpperCase(), width / 2, 180);
-  ctx.fillText(opts.divisionTitle.toUpperCase(), width / 2, 180);
+  ctx.strokeText(opts.divisionTitle.toUpperCase(), width / 2, 380); // Moved down from 180
+  ctx.fillText(opts.divisionTitle.toUpperCase(), width / 2, 380);
 
   // Round title with outline
   ctx.font = '700 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.roundTitle.toUpperCase(), width / 2, 250);
+  ctx.strokeText(opts.roundTitle.toUpperCase(), width / 2, 450); // Moved down from 250
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 250);
+  ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 450);
 
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -140,11 +142,6 @@ export const renderMatchImage = (
     ctx.fillStyle = 'rgba(255,255,255,0.1)'; // Light yellow background
     ctx.fillRect(tableX - 20, y - 10, width - 240, rowH - 20);
     
-    // Local team info
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(match.local.toUpperCase(), tableX, y + 20);
-    
     // Local team logo
     if (opts.getLogoUrl) {
       const localLogo = new Image();
@@ -163,15 +160,13 @@ export const renderMatchImage = (
       console.log('Local team logo not found for:', match.local);
     }
     
-    // VS text
-    ctx.font = '800 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillStyle = '#888888';
-    ctx.fillText('VS', width / 2, y + 80);
-    
-    // Visit team info
+    // Goals display instead of VS
+    ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '700 36px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(match.visita.toUpperCase(), width - 280, y + 20);
+    ctx.textAlign = 'center';
+    const localGoals = match.localGoals !== undefined ? match.localGoals.toString() : '0';
+    const visitGoals = match.visitGoals !== undefined ? match.visitGoals.toString() : '0';
+    ctx.fillText(`${localGoals} - ${visitGoals}`, width / 2, y + 100);
     
     // Visit team logo
     if (opts.getLogoUrl) {

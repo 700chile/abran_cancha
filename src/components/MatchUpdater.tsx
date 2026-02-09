@@ -3,11 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
-import { renderScheduleImage } from './PosterScheduleCanvas';
 import { renderMatchImage } from './PosterMatchCanvas';
-// If you place the background at src/assets/posters/schedule_bg.png, this import will resolve
-// and Vite will serve the optimized asset URL in production.
-import scheduleBg from '../assets/posters/schedule_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -15,7 +11,9 @@ type SafeString = string | null | undefined;
 // Helper type for match poster
 interface PosterMatch {
     local: string;
+    localGoals?: number;
     visita: string;
+    visitGoals?: number;
     estadio: string;
     programacion: string;
 }
@@ -68,7 +66,6 @@ export default function MatchUpdater() {
     const [visitTeam, setVisitTeam] = useState<string>('');
     const [isUpdatingPositions, setIsUpdatingPositions] = useState<boolean>(false);
     const [updateStatus, setUpdateStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
-    const [isGeneratingPoster, setIsGeneratingPoster] = useState<boolean>(false);
     const [isGeneratingMatchPoster, setIsGeneratingMatchPoster] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
@@ -83,8 +80,9 @@ export default function MatchUpdater() {
         return <img src={logo} alt={teamName} className={className} />;
     };
 
-    const handleGenerateMatchPoster = () => {
-        if (!selectedMatchday || !selectedCompetition || matches.length === 0) return;
+    const handleGenerateMatchPosterForMatch = (match: Match) => {
+        if (!match) return;
+        (window as any).__tempMatchForPoster = match;
         fileInputRef.current?.click();
     };
 
@@ -95,14 +93,23 @@ export default function MatchUpdater() {
             const bgUrl = URL.createObjectURL(file);
             const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
             
-            const posterMatches: PosterMatch[] = matches.map((m) => ({
-                local: m.equipo_local || '',
-                visita: m.equipo_visita || '',
-                estadio: m.recinto || '',
-                programacion: m.programacion || '',
-            }));
+            // Find the currently selected match (stored temporarily)
+            const selectedMatch = (window as any).__tempMatchForPoster;
+            if (!selectedMatch) {
+                alert('No se encontró el partido seleccionado');
+                return;
+            }
+            
+            const posterMatch: PosterMatch = {
+                local: selectedMatch.equipo_local || '',
+                localGoals: selectedMatch.goles_local || 0,
+                visita: selectedMatch.equipo_visita || '',
+                visitGoals: selectedMatch.goles_visita || 0,
+                estadio: selectedMatch.recinto || '',
+                programacion: selectedMatch.programacion || '',
+            };
             // Build header texts per requested rules
-            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const competitionTitle = comp ? comp.NOMBRE : 'CAMPEONATO';
             const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
             const roundTitle = isNumericFecha
                 ? `FECHA ${selectedMatchday}`
@@ -111,14 +118,14 @@ export default function MatchUpdater() {
             // Add "JORNADA" when content is just a number
             const finalRoundTitle = isNumericFecha ? `${roundTitle} JORNADA` : roundTitle;
 
-            const dataUrl = await renderMatchImage(posterMatches, {
+            const dataUrl = await renderMatchImage([posterMatch], {
                 backgroundUrl: bgUrl,
                 competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
                 roundTitle: finalRoundTitle,
                 pixelRatio: 2,
                 credit: credit,
-                // Use poster-specific logo mapping for the image only
+                // Use poster-specific logo mapping for image only
                 getLogoUrl: (name: string) => getPosterLogo(name) || '',
             });
             const a = document.createElement('a');
@@ -134,55 +141,16 @@ export default function MatchUpdater() {
             setIsGeneratingMatchPoster(false);
         }
     };
-
-    const handleGeneratePoster = async () => {
-        setIsGeneratingPoster(true);
-        try {
-            if (!selectedMatchday || !selectedCompetition) return;
-            const comp = competitions.find(c => c.ID === selectedCompetition);
-            const posterMatches: PosterMatch[] = matches.map((m) => ({
-                local: m.equipo_local || '',
-                visita: m.equipo_visita || '',
-                estadio: m.recinto || '',
-                programacion: m.programacion || '',
-            }));
-            // Build header texts per requested rules
-            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
-            const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
-            const roundTitle = isNumericFecha
-                ? `PROGRAMACIÓN FECHA ${selectedMatchday}`
-                : `PROGRAMACIÓN ${selectedMatchday.toUpperCase()}`;
-
-            const dataUrl = await renderScheduleImage(posterMatches, {
-                backgroundUrl: scheduleBg,
-                competitionTitle,
-                divisionTitle: 'PRIMERA DIVISIÓN',
-                roundTitle,
-                pixelRatio: 2,
-                // Use poster-specific logo mapping for the image only
-                getLogoUrl: (name) => getPosterLogo(name || ''),
-            });
-            const a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = `programacion_${selectedMatchday}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        } catch (e) {
-            console.error('Error generando imagen', e);
-            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
-        } finally {
-            setIsGeneratingPoster(false);
-        }
-    };
-
-    const isSuspendedMatch = (match: Match) => {
-        return match.recinto?.toUpperCase().includes('SUSPENDIDO') || false;
-    };
     
     // Helper function to safely get team name with fallback
     const getTeamName = (teamName: string | null | undefined): string => {
         return teamName || 'SIN ASIGNAR';
+    };
+
+    // Helper function to check if match is suspended
+    const isSuspendedMatch = (match: Match): boolean => {
+        // Check if match has null goals which indicates suspension
+        return match.goles_local === null && match.goles_visita === null;
     };
     
     // TeamLogo component is used to safely render team logos with fallback
@@ -532,6 +500,13 @@ export default function MatchUpdater() {
                                                     >
                                                         Goles
                                                     </button>
+                                                    <button
+                                                        onClick={() => handleGenerateMatchPosterForMatch(match)}
+                                                        disabled={isGeneratingMatchPoster}
+                                                        className="text-indigo-500 hover:text-indigo-700 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        Póster
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -720,20 +695,6 @@ export default function MatchUpdater() {
                                     Actualizar Posiciones
                                 </>
                             )}
-                        </button>
-                        <button
-                            onClick={handleGeneratePoster}
-                            disabled={isGeneratingPoster}
-                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
-                        </button>
-                        <button
-                            onClick={handleGenerateMatchPoster}
-                            disabled={isGeneratingMatchPoster || !selectedMatchday || !selectedCompetition || matches.length === 0}
-                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isGeneratingMatchPoster ? 'Generando...' : 'Generar partido'}
                         </button>
                         <input
                             ref={fileInputRef}
