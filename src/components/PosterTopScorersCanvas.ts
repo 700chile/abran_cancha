@@ -64,14 +64,14 @@ export async function renderTopScorersPoster(
   ctx.strokeStyle = '#888888';
   ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  ctx.strokeText('GOLEADORAS', width / 2, 490); // Changed to GOLEADORAS
+  ctx.strokeText('GOLEADORAS', width / 2, 540); // Moved down 50px (was 490)
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('GOLEADORAS', width / 2, 490);
+  ctx.fillText('GOLEADORAS', width / 2, 540);
   
   // Subtitle with outline
   ctx.font = '700 44px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 580); // Moved further down (was 550)
-  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 580);
+  ctx.strokeText(opts.subtitle.toUpperCase(), width / 2, 630); // Moved down 50px (was 580)
+  ctx.fillText(opts.subtitle.toUpperCase(), width / 2, 630);
   
   ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -87,7 +87,7 @@ export async function renderTopScorersPoster(
     // Draw circular logo
     const logoSize = 100; // Increased from 80
     const logoX = (width - logoSize) / 2; // Centered horizontally
-    const logoY = 630; // Moved down 20px (was 610)
+    const logoY = 680; // Moved down 50px (was 630)
     
     // Save context state
     ctx.save();
@@ -119,7 +119,7 @@ export async function renderTopScorersPoster(
   // Table header line - center the table in the image
   const tableWidth = 750; // Approximate total width of the table
   const tableX = (width - tableWidth) / 2; // Center the table horizontally
-  const tableY = 720; // Moved down 50px (was 670)
+  const tableY = 770; // Moved down 50px (was 720)
   const rowH = 60; // Reduced from 70 - lines closer together
 
   // Column positions - adjusted widths
@@ -188,7 +188,7 @@ export async function renderTopScorersPoster(
       });
       
       // Draw team logo centered in column - larger size
-      const logoSize = 75; // Increased from 50
+      const logoSize = 50; // Increased from 50
       const logoColumnWidth = 200; // Approximate width of team column
       const logoColumnCenter = colPos.team + (logoColumnWidth / 2);
       const logoX = logoColumnCenter - (logoSize / 2); // Center the logo

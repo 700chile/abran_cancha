@@ -3,13 +3,23 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
-import { renderScheduleImage, type PosterMatch } from './PosterScheduleCanvas';
+import { renderScheduleImage } from './PosterScheduleCanvas';
+import { renderMatchImage } from './PosterMatchCanvas';
 // If you place the background at src/assets/posters/schedule_bg.png, this import will resolve
 // and Vite will serve the optimized asset URL in production.
 import scheduleBg from '../assets/posters/schedule_bg.png';
+import matchBg from '../assets/posters/match_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
+
+// Helper type for match poster
+interface PosterMatch {
+    local: string;
+    visita: string;
+    estadio: string;
+    programacion: string;
+}
 
 // Helper type for team logo props
 interface TeamLogoProps {
@@ -60,6 +70,7 @@ export default function MatchUpdater() {
     const [isUpdatingPositions, setIsUpdatingPositions] = useState<boolean>(false);
     const [updateStatus, setUpdateStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
     const [isGeneratingPoster, setIsGeneratingPoster] = useState<boolean>(false);
+    const [isGeneratingMatchPoster, setIsGeneratingMatchPoster] = useState<boolean>(false);
     
     // Helper function to safely convert string | null | undefined to string
     const safeString = (value: SafeString): string => value ?? '';
@@ -72,16 +83,60 @@ export default function MatchUpdater() {
         return <img src={logo} alt={teamName} className={className} />;
     };
 
+    const handleGenerateMatchPoster = async () => {
+        setIsGeneratingMatchPoster(true);
+        try {
+            if (!selectedMatchday || !selectedCompetition || matches.length === 0) return;
+            const comp = competitions.find(c => c.ID === selectedCompetition);
+            const posterMatches: PosterMatch[] = matches.map((m) => ({
+                local: m.equipo_local || '',
+                visita: m.equipo_visita || '',
+                estadio: m.recinto || '',
+                programacion: m.programacion || '',
+            }));
+            // Build header texts per requested rules
+            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
+            const roundTitle = isNumericFecha
+                ? `FECHA ${selectedMatchday}`
+                : `${selectedMatchday.toUpperCase()}`;
+            
+            // Add "JORNADA" when content is just a number
+            const finalRoundTitle = isNumericFecha ? `${roundTitle} JORNADA` : roundTitle;
+
+            const dataUrl = await renderMatchImage(posterMatches, {
+                backgroundUrl: matchBg,
+                competitionTitle,
+                divisionTitle: 'PRIMERA DIVISIÓN',
+                roundTitle: finalRoundTitle,
+                pixelRatio: 2,
+                // Use poster-specific logo mapping for the image only
+                getLogoUrl: (name: string) => getPosterLogo(name) || '',
+            });
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `partido_${selectedMatchday}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (e) {
+            console.error('Error generando imagen de partido', e);
+            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+        } finally {
+            setIsGeneratingMatchPoster(false);
+        }
+    };
+
     const handleGeneratePoster = async () => {
         setIsGeneratingPoster(true);
         try {
             if (!selectedMatchday || !selectedCompetition) return;
             const comp = competitions.find(c => c.ID === selectedCompetition);
             const posterMatches: PosterMatch[] = matches.map((m) => ({
-                local: m.equipo_local,
-                visita: m.equipo_visita,
-                estadio: m.recinto,
-                programacion: m.programacion,
+                local: m.equipo_local || '',
+                visita: m.equipo_visita || '',
+                estadio: m.recinto || '',
+                programacion: m.programacion || '',
             }));
             // Build header texts per requested rules
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
@@ -664,6 +719,13 @@ export default function MatchUpdater() {
                             className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
+                        </button>
+                        <button
+                            onClick={handleGenerateMatchPoster}
+                            disabled={isGeneratingMatchPoster || !selectedMatchday || !selectedCompetition || matches.length === 0}
+                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isGeneratingMatchPoster ? 'Generando...' : 'Generar partido'}
                         </button>
                     </div>
                 </div>
