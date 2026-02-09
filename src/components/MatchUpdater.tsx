@@ -3,7 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
+import { renderScheduleImage } from './PosterScheduleCanvas';
 import { renderMatchImage } from './PosterMatchCanvas';
+import scheduleBg from '../assets/posters/schedule_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -14,6 +16,12 @@ interface PosterMatch {
     localGoals?: number;
     visita: string;
     visitGoals?: number;
+}
+
+// Helper type for schedule poster
+interface SchedulePosterMatch {
+    local: string;
+    visita: string;
     estadio: string;
     programacion: string;
 }
@@ -66,6 +74,7 @@ export default function MatchUpdater() {
     const [visitTeam, setVisitTeam] = useState<string>('');
     const [isUpdatingPositions, setIsUpdatingPositions] = useState<boolean>(false);
     const [updateStatus, setUpdateStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
+    const [isGeneratingPoster, setIsGeneratingPoster] = useState<boolean>(false);
     const [isGeneratingMatchPoster, setIsGeneratingMatchPoster] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
@@ -84,6 +93,47 @@ export default function MatchUpdater() {
         if (!match) return;
         (window as any).__tempMatchForPoster = match;
         fileInputRef.current?.click();
+    };
+
+    const handleGeneratePoster = async () => {
+        setIsGeneratingPoster(true);
+        try {
+            if (!selectedMatchday || !selectedCompetition) return;
+            const comp = competitions.find(c => c.ID === selectedCompetition);
+            const posterMatches: SchedulePosterMatch[] = matches.map((m) => ({
+                local: m.equipo_local || '',
+                visita: m.equipo_visita || '',
+                estadio: m.recinto || '',
+                programacion: m.programacion || '',
+            }));
+            // Build header texts per requested rules
+            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
+            const roundTitle = isNumericFecha
+                ? `PROGRAMACIÓN FECHA ${selectedMatchday}`
+                : `PROGRAMACIÓN ${selectedMatchday.toUpperCase()}`;
+
+            const dataUrl = await renderScheduleImage(posterMatches, {
+                backgroundUrl: scheduleBg,
+                competitionTitle,
+                divisionTitle: 'PRIMERA DIVISIÓN',
+                roundTitle: roundTitle,
+                pixelRatio: 2,
+                // Use poster-specific logo mapping for the image only
+                getLogoUrl: (name: string | null) => getPosterLogo(name || '') || '',
+            });
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `programacion_${selectedMatchday}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (e) {
+            console.error('Error generando imagen de programación', e);
+            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+        } finally {
+            setIsGeneratingPoster(false);
+        }
     };
 
     const handleMatchPosterGeneration = async (file: File) => {
@@ -105,14 +155,12 @@ export default function MatchUpdater() {
                 localGoals: selectedMatch.goles_local || 0,
                 visita: selectedMatch.equipo_visita || '',
                 visitGoals: selectedMatch.goles_visita || 0,
-                estadio: selectedMatch.recinto || '',
-                programacion: selectedMatch.programacion || '',
             };
             // Build header texts per requested rules
             const competitionTitle = comp ? comp.NOMBRE : 'CAMPEONATO';
             const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
             const roundTitle = isNumericFecha
-                ? `FECHA ${selectedMatchday}`
+                ? `JORNADA ${selectedMatchday}`
                 : `${selectedMatchday.toUpperCase()}`;
             
             // Add "JORNADA" when content is just a number
@@ -695,6 +743,13 @@ export default function MatchUpdater() {
                                     Actualizar Posiciones
                                 </>
                             )}
+                        </button>
+                        <button
+                            onClick={handleGeneratePoster}
+                            disabled={isGeneratingPoster}
+                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
                         </button>
                         <input
                             ref={fileInputRef}

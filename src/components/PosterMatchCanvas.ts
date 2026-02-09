@@ -13,8 +13,6 @@ interface PosterMatch {
   localGoals?: number;
   visita: string;
   visitGoals?: number;
-  estadio: string;
-  programacion: string;
 }
 
 export const renderMatchImage = (
@@ -60,8 +58,9 @@ export const renderMatchImage = (
       if (!ctx) return;
       
       // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
-      const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
-      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
+      const grad = ctx.createLinearGradient(0, 0, 0, height); // Start gradient from top
+      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at top
+      grad.addColorStop(0.6, 'rgba(0,0,0,0.3)'); // Start darkening at 60%
       grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
@@ -70,20 +69,20 @@ export const renderMatchImage = (
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       
-      // Title with outline
+      // Matchday title (main title) with outline - larger font
       ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
       ctx.strokeStyle = '#888888';
       ctx.lineWidth = 4;
       ctx.lineJoin = 'round';
-      ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 900); // Moved much lower
+      ctx.strokeText(opts.roundTitle.toUpperCase(), width / 2, 850); // Moved higher
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 900);
+      ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 850);
 
-      // Round title with outline
+      // Competition subtitle with outline - smaller font
       ctx.font = '700 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.strokeText(opts.roundTitle.toUpperCase(), width / 2, 980); // Moved much lower
+      ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 930); // Moved lower
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 980);
+      ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 930);
 
       ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -139,10 +138,6 @@ export const renderMatchImage = (
       matches.forEach((match, index) => {
         const y = tableY + (index * rowH);
         
-        // Match background
-        ctx.fillStyle = 'rgba(255,255,255,0.1)'; // Light yellow background
-        ctx.fillRect(tableX - 20, y - 10, width - 240, rowH - 20);
-        
         // Load and draw team logos
         let logosLoaded = 0;
         const totalLogos = 2;
@@ -159,18 +154,10 @@ export const renderMatchImage = (
             const visitGoals = match.visitGoals !== undefined ? match.visitGoals.toString() : '0';
             ctx.fillText(`${localGoals} - ${visitGoals}`, width / 2, y + 60);
             
-            // Match details
-            ctx.font = '400 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-            ctx.fillStyle = '#cccccc';
-            ctx.textAlign = 'left';
-            ctx.fillText(match.estadio || '', tableX, y + 110);
-            ctx.textAlign = 'right';
-            ctx.fillText(match.programacion || '', width - 120, y + 110);
-            
             // Credit (bottom-right rotated)
             if (opts.credit) {
               ctx.save();
-              ctx.translate(width - 20, height - 20);
+              ctx.translate(width - 10, height - 10); // Start at bottom right corner
               ctx.rotate(-Math.PI / 2);
               ctx.fillStyle = 'rgba(255,255,255,0.9)';
               ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
