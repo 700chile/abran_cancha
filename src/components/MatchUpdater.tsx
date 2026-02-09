@@ -1,5 +1,5 @@
 // src/components/MatchUpdater.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
@@ -8,7 +8,6 @@ import { renderMatchImage } from './PosterMatchCanvas';
 // If you place the background at src/assets/posters/schedule_bg.png, this import will resolve
 // and Vite will serve the optimized asset URL in production.
 import scheduleBg from '../assets/posters/schedule_bg.png';
-import matchBg from '../assets/posters/match_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -71,6 +70,7 @@ export default function MatchUpdater() {
     const [updateStatus, setUpdateStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
     const [isGeneratingPoster, setIsGeneratingPoster] = useState<boolean>(false);
     const [isGeneratingMatchPoster, setIsGeneratingMatchPoster] = useState<boolean>(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     
     // Helper function to safely convert string | null | undefined to string
     const safeString = (value: SafeString): string => value ?? '';
@@ -83,11 +83,18 @@ export default function MatchUpdater() {
         return <img src={logo} alt={teamName} className={className} />;
     };
 
-    const handleGenerateMatchPoster = async () => {
+    const handleGenerateMatchPoster = () => {
+        if (!selectedMatchday || !selectedCompetition || matches.length === 0) return;
+        fileInputRef.current?.click();
+    };
+
+    const handleMatchPosterGeneration = async (file: File) => {
         setIsGeneratingMatchPoster(true);
         try {
-            if (!selectedMatchday || !selectedCompetition || matches.length === 0) return;
             const comp = competitions.find(c => c.ID === selectedCompetition);
+            const bgUrl = URL.createObjectURL(file);
+            const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
+            
             const posterMatches: PosterMatch[] = matches.map((m) => ({
                 local: m.equipo_local || '',
                 visita: m.equipo_visita || '',
@@ -105,11 +112,12 @@ export default function MatchUpdater() {
             const finalRoundTitle = isNumericFecha ? `${roundTitle} JORNADA` : roundTitle;
 
             const dataUrl = await renderMatchImage(posterMatches, {
-                backgroundUrl: matchBg,
+                backgroundUrl: bgUrl,
                 competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
                 roundTitle: finalRoundTitle,
                 pixelRatio: 2,
+                credit: credit,
                 // Use poster-specific logo mapping for the image only
                 getLogoUrl: (name: string) => getPosterLogo(name) || '',
             });
@@ -727,6 +735,17 @@ export default function MatchUpdater() {
                         >
                             {isGeneratingMatchPoster ? 'Generando...' : 'Generar partido'}
                         </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                await handleMatchPosterGeneration(file);
+                            }}
+                        />
                     </div>
                 </div>
             )}
