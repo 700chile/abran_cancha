@@ -43,6 +43,13 @@ export const renderMatchImage = (
       const by = (height - bh) / 2;
       ctx.drawImage(bg, bx, by, bw, bh);
       
+      // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
+      const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
+      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
+      grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+      
       // Continue with rest of drawing
       drawPosterContent();
     };
@@ -56,32 +63,25 @@ export const renderMatchImage = (
     function drawPosterContent() {
       if (!ctx) return;
       
-      // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
-      const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
-      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
-      grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-
       // Header
       ctx.textBaseline = 'top';
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left'; // Aligned to left
       
-      // Matchday title (main title) with outline - larger font
-      ctx.font = '800 72px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+      // Matchday title (main title) with outline - smaller font
+      ctx.font = '800 60px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made smaller
       ctx.strokeStyle = '#888888';
       ctx.lineWidth = 4;
       ctx.lineJoin = 'round';
-      ctx.strokeText(opts.roundTitle.toUpperCase(), width / 2, 850); // Moved higher
+      ctx.strokeText(opts.roundTitle.toUpperCase(), 120, 850); // Aligned to left
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.roundTitle.toUpperCase(), width / 2, 850);
+      ctx.fillText(opts.roundTitle.toUpperCase(), 120, 850);
 
       // Competition subtitle with outline - smaller font, pink color
-      ctx.font = '700 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+      ctx.font = '700 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made smaller
       ctx.strokeStyle = '#FF69B4'; // Pink color
-      ctx.strokeText(opts.competitionTitle.toUpperCase(), width / 2, 930); // Moved lower
+      ctx.strokeText(opts.competitionTitle.toUpperCase(), 120, 910); // Aligned to left
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.competitionTitle.toUpperCase(), width / 2, 930);
+      ctx.fillText(opts.competitionTitle.toUpperCase(), 120, 910);
 
       ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -91,10 +91,18 @@ export const renderMatchImage = (
       revistaLogo.onload = () => {
         if (!ctx) return;
         
+        // Draw green horizontal line behind logo, aligned with titles
+        ctx.strokeStyle = '#4CAF50'; // Green color
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(120, 1000); // Same x as titles
+        ctx.lineTo(width - 120, 1000); // End line
+        ctx.stroke();
+        
         // Draw circular logo
         const logoSize = 100;
         const logoX = (width - logoSize) / 2; // Centered horizontally
-        const logoY = 1000; // Moved further down
+        const logoY = 950; // Positioned above the line
         
         // Save context state
         ctx.save();
