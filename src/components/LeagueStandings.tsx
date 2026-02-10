@@ -87,9 +87,11 @@ const LeagueStandings = () => {
 
             if (groupsError) throw groupsError;
             setGroups(groupsData || []);
-            // Auto-select first group if none selected
-            if (groupsData && groupsData.length > 0 && !selectedGroup) {
-                setSelectedGroup(groupsData[0].NOMBRE);
+            // Auto-select first group if none selected OR if competition has only one group
+            if (groupsData && groupsData.length > 0) {
+                if (!selectedGroup || groupsData.length === 1) {
+                    setSelectedGroup(groupsData[0].NOMBRE);
+                }
             }
 
             // Fetch standings for each group
@@ -250,7 +252,7 @@ const LeagueStandings = () => {
                                 const dataUrl = await renderStandingsPoster(rows, {
                                   backgroundUrl: bgUrl,
                                   title: 'TABLA DE POSICIONES',
-                                  subtitle: comp ? `PRIMERA DIVISIÓN ${comp.EDICION}` : 'PRIMERA DIVISIÓN',
+                                  subtitle: comp ? `${comp.NOMBRE} ${comp.EDICION}` : 'TABLA DE POSICIONES',
                                   credit,
                                   competitionId: selectedCompetition,
                                   totalTeams: groupStandings.length,

@@ -21,6 +21,8 @@ export const getTeamLogo = (teamName: string): string | null => {
         'u. de chile': 'UChile.png',
         'universidad de concepción': 'Ude-Concepcion.svg',
         'u. de concepción': 'Ude-Concepcion.svg',
+        'universidad de concepcion': 'Ude-Concepcion.svg',
+        'u. de concepcion': 'Ude-Concepcion.svg',
         'universidad católica': 'catolica.png',
         'u. católica': 'catolica.png',
         'u. catolica': 'catolica.png',
