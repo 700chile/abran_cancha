@@ -50,7 +50,7 @@ const LeagueStandings = () => {
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
-    const [selectedGroup, setSelectedGroup] = useState<string>('ZONA A');
+    const [selectedGroup, setSelectedGroup] = useState<string>(''); // Remove hardcoded default, let auto-selection handle it
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
