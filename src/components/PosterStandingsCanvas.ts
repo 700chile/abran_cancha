@@ -119,8 +119,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
   try {
     const revistaLogo = new Image();
     revistaLogo.src = '/revista-logo.jpg'; // Will need to be served from public folder
-    await new Promise((resolve, reject) => {
-      revistaLogo.onload = resolve;
+    await new Promise<void>((resolve, reject) => {
+      revistaLogo.onload = () => resolve();
       revistaLogo.onerror = reject;
     });
     
