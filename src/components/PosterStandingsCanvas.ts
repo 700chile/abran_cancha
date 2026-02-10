@@ -31,6 +31,8 @@ function loadImage(url: string): Promise<HTMLImageElement> {
 
 export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: StandingsOptions): Promise<string> {
   console.log('[StandingsPoster] Starting render with rows:', rows.length, 'opts:', opts);
+  console.log('[StandingsPoster] Rows data:', JSON.stringify(rows, null, 2));
+  console.log('[StandingsPoster] First row details:', rows[0] ? JSON.stringify(rows[0], null, 2) : 'No rows');
   
   const width = opts.width ?? 1200; // Changed from 1080 to 1200
   const height = opts.height ?? 1500; // Changed from 1350 to 1500 for exact 4:5 ratio

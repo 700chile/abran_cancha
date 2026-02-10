@@ -221,7 +221,11 @@ const LeagueStandings = () => {
                                 const bgUrl = URL.createObjectURL(file);
                                 const comp = competitions.find(c => c.ID === selectedCompetition);
                                 const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
+                                console.log('[LeagueStandings] Total standings:', standings.length);
+                                console.log('[LeagueStandings] Selected group:', selectedGroup);
                                 const groupStandings = standings.filter(s => s.grupo === selectedGroup);
+                                console.log('[LeagueStandings] Group standings after filter:', groupStandings.length);
+                                console.log('[LeagueStandings] All groups:', [...new Set(standings.map(s => s.grupo))]);
                                 const rows: StandingsPosterRow[] = groupStandings
                                   .sort((a, b) => a.pos - b.pos)
                                   .map((r) => {
@@ -242,6 +246,7 @@ const LeagueStandings = () => {
                                       var: r.var,
                                     };
                                   });
+                                console.log('[LeagueStandings] Final rows for poster:', rows.length);
                                 const dataUrl = await renderStandingsPoster(rows, {
                                   backgroundUrl: bgUrl,
                                   title: 'TABLA DE POSICIONES',
