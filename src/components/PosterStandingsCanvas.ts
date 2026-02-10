@@ -30,15 +30,22 @@ function loadImage(url: string): Promise<HTMLImageElement> {
 }
 
 export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: StandingsOptions): Promise<string> {
+  console.log('[StandingsPoster] Starting render with rows:', rows.length, 'opts:', opts);
+  
   const width = opts.width ?? 1200; // Changed from 1080 to 1200
   const height = opts.height ?? 1500; // Changed from 1350 to 1500 for exact 4:5 ratio
   const pixelRatio = opts.pixelRatio ?? 2;
+  
+  console.log('[StandingsPoster] Canvas dimensions:', width, 'x', height, 'pixelRatio:', pixelRatio);
+  
   const canvas = document.createElement('canvas');
   canvas.width = width * pixelRatio;
   canvas.height = height * pixelRatio;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('No 2D context');
   ctx.scale(pixelRatio, pixelRatio);
+
+  console.log('[StandingsPoster] Canvas context created and scaled');
 
   // Ensure custom font (Ruda) is loaded if available before drawing text
   if ((document as any).fonts && typeof (document as any).fonts.load === 'function') {
@@ -75,15 +82,20 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Background
   try {
+    console.log('[StandingsPoster] Loading background image:', opts.backgroundUrl);
     const bg = await loadImage(opts.backgroundUrl);
+    console.log('[StandingsPoster] Background loaded, dimensions:', bg.naturalWidth, 'x', bg.naturalHeight);
+    
     // Cover behavior
     const r = Math.max(width / bg.naturalWidth, height / bg.naturalHeight);
     const bw = bg.naturalWidth * r;
     const bh = bg.naturalHeight * r;
     const bx = (width - bw) / 2;
     const by = (height - bh) / 2;
+    console.log('[StandingsPoster] Drawing background at:', bx, by, 'size:', bw, 'x', bh);
     ctx.drawImage(bg, bx, by, bw, bh);
-  } catch {
+  } catch (error) {
+    console.error('[StandingsPoster] Background failed to load:', error);
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
   }
@@ -117,17 +129,26 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Revista logo (circular) between header and table
   try {
+    console.log('[StandingsPoster] Loading Revista logo');
     const revistaLogo = new Image();
     revistaLogo.src = '/revista-logo.jpg'; // Will need to be served from public folder
     await new Promise<void>((resolve, reject) => {
-      revistaLogo.onload = () => resolve();
-      revistaLogo.onerror = reject;
+      revistaLogo.onload = () => {
+        console.log('[StandingsPoster] Revista logo loaded successfully');
+        resolve();
+      };
+      revistaLogo.onerror = (error) => {
+        console.error('[StandingsPoster] Revista logo failed to load:', error);
+        reject(error);
+      };
     });
     
     // Draw circular logo
     const logoSize = 90;
     const logoX = (width - logoSize) / 2; // Centered horizontally
     const logoY = 480; // Moved up 20px (was 500)
+    
+    console.log('[StandingsPoster] Drawing Revista logo at:', logoX, logoY, 'size:', logoSize);
     
     // Save context state
     ctx.save();
@@ -152,7 +173,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.stroke();
     
   } catch (error) {
-    console.log('Revista logo not found or failed to load:', error);
+    console.error('[StandingsPoster] Revista logo error:', error);
     // Continue without logo if it fails
   }
 
@@ -198,9 +219,13 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Rows
   const maxRows = Math.min(rows.length, 14);
+  console.log('[StandingsPoster] Processing', maxRows, 'of', rows.length, 'rows');
+  
   for (let i = 0; i < maxRows; i++) {
     const r = rows[i];
     const y = tableY + 50 + i * rowH;
+    
+    console.log(`[StandingsPoster] Drawing row ${i}: pos=${r.pos}, club=${r.club}, pts=${r.pts}`);
 
     // PTS pill background (continuous with header)
     ctx.fillStyle = '#FFB3D9'; // Lighter pink
@@ -337,6 +362,7 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
 
   // Credit (bottom-right rotated)
   if (opts.credit) {
+    console.log('[StandingsPoster] Drawing credit:', opts.credit);
     ctx.save();
     ctx.translate(width - 20, height - 20);
     ctx.rotate(-Math.PI / 2);
@@ -348,5 +374,8 @@ export async function renderStandingsPoster(rows: StandingsPosterRow[], opts: St
     ctx.restore();
   }
 
-  return canvas.toDataURL('image/png');
+  console.log('[StandingsPoster] About to return canvas data URL');
+  const dataUrl = canvas.toDataURL('image/png');
+  console.log('[StandingsPoster] Canvas data URL length:', dataUrl.length);
+  return dataUrl;
 }
