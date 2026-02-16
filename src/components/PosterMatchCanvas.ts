@@ -68,21 +68,15 @@ export const renderMatchImage = (
       ctx.textBaseline = 'top';
       ctx.textAlign = 'left'; // Aligned to left
       
-      // Matchday title (main title) with outline - smaller font
-      ctx.font = '800 60px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made smaller
-      ctx.strokeStyle = '#888888';
-      ctx.lineWidth = 4;
-      ctx.lineJoin = 'round';
-      ctx.strokeText(opts.roundTitle.toUpperCase(), 120, 850); // Aligned to left
+      // Matchday title (main title) - white text only
+      ctx.font = '800 60px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.roundTitle.toUpperCase(), 120, 850);
+      ctx.fillText(opts.roundTitle.toUpperCase(), 120, 900);
 
-      // Competition subtitle with outline - smaller font, pink color
-      ctx.font = '700 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made smaller
-      ctx.strokeStyle = '#FF69B4'; // Pink color
-      ctx.strokeText(opts.competitionTitle.toUpperCase(), 120, 910); // Aligned to left
+      // Competition subtitle - white text only
+      ctx.font = '700 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(opts.competitionTitle.toUpperCase(), 120, 910);
+      ctx.fillText(opts.competitionTitle.toUpperCase(), 120, 960);
 
       ctx.textAlign = 'left'; // Reset to left for rest of content
 
@@ -96,25 +90,25 @@ export const renderMatchImage = (
         ctx.strokeStyle = '#00D084'; // Exact green from standings poster
         ctx.lineWidth = 6; // Same width as standings poster
         ctx.beginPath();
-        ctx.moveTo(120, 1000); // Same x as titles
-        ctx.lineTo(width - 120, 1000); // End line
+        ctx.moveTo(120, 1050); // Moved down 50px
+        ctx.lineTo(width - 120, 1050); // End line
         ctx.stroke();
         
         // Draw small vertical lines at the ends
         ctx.beginPath();
-        ctx.moveTo(120, 990); // Start vertical line 10px above
-        ctx.lineTo(120, 1010); // End vertical line 10px below
+        ctx.moveTo(120, 1040); // Start vertical line 10px above
+        ctx.lineTo(120, 1060); // End vertical line 10px below
         ctx.stroke();
         
         ctx.beginPath();
-        ctx.moveTo(width - 120, 990); // Start vertical line 10px above
-        ctx.lineTo(width - 120, 1010); // End vertical line 10px below
+        ctx.moveTo(width - 120, 1040); // Start vertical line 10px above
+        ctx.lineTo(width - 120, 1060); // End vertical line 10px below
         ctx.stroke();
         
         // Draw circular logo
-        const logoSize = 100;
+        const logoSize = 120; // Increased from 100 to 120
         const logoX = (width - logoSize) / 2; // Centered horizontally
-        const logoY = 950; // Positioned above the line
+        const logoY = 1000; // Moved down 50px
         
         // Save context state
         ctx.save();
@@ -187,13 +181,13 @@ export const renderMatchImage = (
               // Draw credits after all content is complete
               if (opts.credit) {
                 ctx.save();
-                ctx.translate(width - 20, height - 60); // Move further from edges
-                ctx.rotate(-Math.PI / 2);
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
                 const creditText = opts.credit.toUpperCase();
                 const creditWithCopyright = creditText.startsWith('©') ? creditText : `© ${creditText}`;
-                ctx.fillText(creditWithCopyright, 0, 0);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(creditWithCopyright, width - 20, height - 20);
                 ctx.restore();
               }
               
