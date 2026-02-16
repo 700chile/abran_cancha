@@ -138,9 +138,11 @@ export default function MatchUpdater() {
 
     const handleMatchPosterGeneration = async (file: File) => {
         setIsGeneratingMatchPoster(true);
+        let bgUrl: string = '';
+        
         try {
             const comp = competitions.find(c => c.ID === selectedCompetition);
-            const bgUrl = URL.createObjectURL(file);
+            bgUrl = URL.createObjectURL(file);
             const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
             
             // Find the currently selected match (stored temporarily)
@@ -184,6 +186,8 @@ export default function MatchUpdater() {
             alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
         } finally {
             setIsGeneratingMatchPoster(false);
+            // Clean up blob URL to prevent memory leak
+            URL.revokeObjectURL(bgUrl);
         }
     };
     

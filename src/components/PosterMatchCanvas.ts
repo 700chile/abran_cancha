@@ -43,10 +43,11 @@ export const renderMatchImage = (
       const by = (height - bh) / 2;
       ctx.drawImage(bg, bx, by, bw, bh);
       
-      // Gradient dark overlay for better text readability (0% at top, 75% at bottom)
-      const grad = ctx.createLinearGradient(0, 300, 0, height); // Start gradient from 300px down
-      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 300px mark
-      grad.addColorStop(1, 'rgba(0,0,0,0.75)'); // 75% dark at bottom
+      // Gradient dark overlay for better text readability (stronger at bottom)
+      const grad = ctx.createLinearGradient(0, height * 0.6, 0, height); // Start darkening from 60% down
+      grad.addColorStop(0, 'rgba(0,0,0,0)'); // No darkening at 60% mark
+      grad.addColorStop(0.7, 'rgba(0,0,0,0.3)'); // 30% dark at 70%
+      grad.addColorStop(1, 'rgba(0,0,0,0.8)'); // 80% dark at bottom
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
       
@@ -186,12 +187,13 @@ export const renderMatchImage = (
               // Draw credits after all content is complete
               if (opts.credit) {
                 ctx.save();
-                ctx.translate(width - 5, height - 5); // Closer to edges
+                ctx.translate(width - 20, height - 20); // Better positioning
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 ctx.font = '600 18px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
                 const creditText = opts.credit.toUpperCase();
-                ctx.fillText(creditText, 5, 5); // Start text 5px from corner
+                const creditWithCopyright = creditText.startsWith('©') ? creditText : `© ${creditText}`;
+                ctx.fillText(creditWithCopyright, 0, 0);
                 ctx.restore();
               }
               
