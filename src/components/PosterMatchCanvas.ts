@@ -143,7 +143,7 @@ export const renderMatchImage = (
       if (!ctx) return;
       
       // Table setup - positioned much lower
-      const tableY = 1050; // Moved much lower
+      const tableY = 1100; // Moved down 50px from 1050 to 1100
       const rowH = 120; // Height for each match
 
       let totalMatchesProcessed = 0;
@@ -165,8 +165,7 @@ export const renderMatchImage = (
             // Goals display instead of VS - with outline
             ctx.font = '800 108px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Made 1.5x bigger
             ctx.strokeStyle = '#888888'; // Gray color
-            ctx.lineWidth = 6; // Made thicker
-            ctx.lineJoin = 'round';
+            ctx.lineWidth = 10; // Made thicker
             ctx.textAlign = 'center';
             const localGoals = match.localGoals !== undefined ? match.localGoals.toString() : '0';
             const visitGoals = match.visitGoals !== undefined ? match.visitGoals.toString() : '0';
@@ -185,9 +184,11 @@ export const renderMatchImage = (
                 ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
                 const creditText = opts.credit.toUpperCase();
                 const creditWithCopyright = creditText.startsWith('©') ? creditText : `© ${creditText}`;
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(creditWithCopyright, width - 20, height - 20);
+                ctx.translate(width - 20, height - 20);
+                ctx.rotate(-Math.PI / 2); // Rotate 90 degrees counter-clockwise
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText(creditWithCopyright, 0, 0);
                 ctx.restore();
               }
               
