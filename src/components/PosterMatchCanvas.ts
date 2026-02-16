@@ -73,9 +73,9 @@ export const renderMatchImage = (
       ctx.fillStyle = '#ffffff';
       ctx.fillText(opts.roundTitle.toUpperCase(), 120, 900);
 
-      // Competition subtitle - white text only
+      // Competition subtitle - pink text only
       ctx.font = '700 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#ff9dceff'; // Pink color
       ctx.fillText(opts.competitionTitle.toUpperCase(), 120, 960);
 
       ctx.textAlign = 'left'; // Reset to left for rest of content
