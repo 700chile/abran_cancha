@@ -111,11 +111,11 @@ export default function MatchUpdater() {
                 programacion: m.programacion || ''
             }));
 
-            // Add idle teams as "matches" with empty string for visita
+            // Add idle teams as "matches" with "LIBRE" for visita
             const idleTeamMatches: SchedulePosterMatch[] = idleTeams.map(team => ({
                 local: team,
-                visita: '', // Empty string instead of null for type compatibility
-                estadio: 'DESCANSO',
+                visita: 'LIBRE', // Use "LIBRE" as specified
+                estadio: 'LIBRE',
                 programacion: new Date().toISOString()
             }));
 
@@ -215,31 +215,18 @@ export default function MatchUpdater() {
     // Helper function to get idle teams (teams assigned to matchday but without matches)
     const getIdleTeams = async (competitionId: number, matchday: string): Promise<string[]> => {
         try {
-            // Get all teams assigned to this matchday
-            const { data: assignedTeams } = await supabase.rpc('get_teams_by_matchday', {
-                competition_id: competitionId,
-                matchday: matchday
+            // Use the new get_games_by_gameday function which includes idle teams
+            const { data: allGames } = await supabase.rpc('get_games_by_gameday', {
+                fecha_param: matchday,
+                torneo_param: competitionId
             });
 
-            // Get teams that have matches in this matchday
-            const { data: matches } = await supabase
-                .from('partido')
-                .select('equipo_local, equipo_visita')
-                .eq('nombre_grupo', matchday);
+            if (!allGames) return [];
 
-            if (!assignedTeams || !matches) return [];
-
-            // Extract team names from matches
-            const teamsWithMatches = new Set<string>();
-            matches.forEach(match => {
-                if (match.equipo_local) teamsWithMatches.add(match.equipo_local);
-                if (match.equipo_visita) teamsWithMatches.add(match.equipo_visita);
-            });
-
-            // Find idle teams (assigned but no matches)
-            const idleTeams = assignedTeams
-                .filter((team: any) => !teamsWithMatches.has(team.NOMBRE))
-                .map((team: any) => team.NOMBRE);
+            // Filter for idle teams (where EQUIPO_VISITA is 'LIBRE')
+            const idleTeams = allGames
+                .filter((game: any) => game.EQUIPO_VISITA === 'LIBRE')
+                .map((game: any) => game.EQUIPO_LOCAL);
 
             return idleTeams;
         } catch (error) {

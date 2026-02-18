@@ -137,12 +137,12 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
       try { const li = await loadImage(lUrl); ctx.drawImage(li, leftX, y, logoSize, logoSize); } catch {}
     }
     
-    // Handle idle teams (no opponent)
-    if (!m.visita || m.visita === '') {
-      // Draw "DESCANSO" text instead of visitor logo
+    // Handle idle teams (LIBRE as opponent)
+    if (m.visita === 'LIBRE') {
+      // Draw "LIBRE" text instead of visitor logo
       ctx.fillStyle = '#FFB3D9'; // Pink color for idle teams
       ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.fillText('DESCANSO', leftX + logoSize + 16, y + logoSize/2 - 12);
+      ctx.fillText('LIBRE', leftX + logoSize + 16, y + logoSize/2 - 12);
     } else if (vUrl) {
       // Draw visitor team logo for regular matches
       try { const vi = await loadImage(vUrl); ctx.drawImage(vi, leftX + logoSize + 16, y, logoSize, logoSize); } catch {}
