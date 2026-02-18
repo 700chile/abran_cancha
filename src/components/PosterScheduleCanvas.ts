@@ -132,33 +132,45 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     const lUrl = opts.getLogoUrl(m.local);
     const vUrl = opts.getLogoUrl(m.visita);
     
-    // Draw local team logo
-    if (lUrl) {
-      try { const li = await loadImage(lUrl); ctx.drawImage(li, leftX, y, logoSize, logoSize); } catch {}
-    }
-    
-    // Handle idle teams (LIBRE as opponent)
+    // Handle idle teams (LIBRE as opponent) - completely different layout
     if (m.visita === 'LIBRE') {
-      // Draw "LIBRE" text instead of visitor logo
+      // Draw team logo centered between home and away positions
+      if (lUrl) {
+        try { 
+          const li = await loadImage(lUrl); 
+          const centeredLogoX = leftX + logoSize/2 + 8; // Center between home and away positions
+          ctx.drawImage(li, centeredLogoX, y, logoSize, logoSize); 
+        } catch {}
+      }
+      
+      // Draw "LIBRE" text where match details (time, date, venue) would be
       ctx.fillStyle = '#FFB3D9'; // Pink color for idle teams
-      ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.fillText('LIBRE', leftX + logoSize + 16, y + logoSize/2 - 12);
-    } else if (vUrl) {
-      // Draw visitor team logo for regular matches
-      try { const vi = await loadImage(vUrl); ctx.drawImage(vi, leftX + logoSize + 16, y, logoSize, logoSize); } catch {}
+      ctx.font = '800 116px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Double the time font size (58px * 2)
+      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + 40); // Position where time/date/venue would be
+    } else {
+      // Regular match layout
+      // Draw local team logo
+      if (lUrl) {
+        try { const li = await loadImage(lUrl); ctx.drawImage(li, leftX, y, logoSize, logoSize); } catch {}
+      }
+      
+      // Draw visitor team logo
+      if (vUrl) {
+        try { const vi = await loadImage(vUrl); ctx.drawImage(vi, leftX + logoSize + 16, y, logoSize, logoSize); } catch {}
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 52px
+      ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
+
+      ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
+      ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
+
+      ctx.font = '600 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
+      const estadio = (m.estadio ?? '').toUpperCase();
+      const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
+      wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
     }
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 52px
-    ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
-
-    ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
-    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
-
-    ctx.font = '600 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 26px
-    const estadio = (m.estadio ?? '').toUpperCase();
-    const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
-    wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
   }
 
   return canvas.toDataURL('image/png');
