@@ -131,10 +131,20 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
 
     const lUrl = opts.getLogoUrl(m.local);
     const vUrl = opts.getLogoUrl(m.visita);
+    
+    // Draw local team logo
     if (lUrl) {
       try { const li = await loadImage(lUrl); ctx.drawImage(li, leftX, y, logoSize, logoSize); } catch {}
     }
-    if (vUrl) {
+    
+    // Handle idle teams (no opponent)
+    if (!m.visita || m.visita === '') {
+      // Draw "DESCANSO" text instead of visitor logo
+      ctx.fillStyle = '#FFB3D9'; // Pink color for idle teams
+      ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+      ctx.fillText('DESCANSO', leftX + logoSize + 16, y + logoSize/2 - 12);
+    } else if (vUrl) {
+      // Draw visitor team logo for regular matches
       try { const vi = await loadImage(vUrl); ctx.drawImage(vi, leftX + logoSize + 16, y, logoSize, logoSize); } catch {}
     }
 

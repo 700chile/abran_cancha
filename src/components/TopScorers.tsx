@@ -7,6 +7,7 @@ import { renderTopScorersPoster } from './PosterTopScorersCanvas';
 interface TopScorer {
     nombre_jugadora: string;
     equipo: string;
+    tipo: string;
     goles: number;
 }
 
@@ -94,6 +95,7 @@ const TopScorers = () => {
                 const mappedData = data.map((row: any) => ({
                     nombre_jugadora: row.jugadora || 'Sin nombre',
                     equipo: row.equipo || 'Sin equipo',
+                    tipo: row.tipo || 'CLUB',
                     goles: parseInt(row.goles) || 0
                 }));
 
@@ -160,12 +162,13 @@ const TopScorers = () => {
             // Get competition info
             const competition = competitions.find(c => c.ID === selectedCompetition);
             const title = 'TABLA DE GOLEADORAS';
-            const subtitle = competition ? `PRIMERA DIVISIÓN ${competition.EDICION}` : 'PRIMERA DIVISIÓN';
+            const subtitle = competition ? `${competition.NOMBRE} ${competition.EDICION}` : 'TABLA DE GOLEADORAS';
 
             // Map top scorers data for poster
             const posterData = scorers.slice(0, 10).map(scorer => ({
                 player_name: scorer.nombre_jugadora,
                 team_name: scorer.equipo,
+                team_type: scorer.tipo,
                 goals: scorer.goles
             }));
 

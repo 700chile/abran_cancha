@@ -3,6 +3,7 @@ import { getTeamLogo } from '../utils/teamLogos';
 interface TopScorer {
   player_name: string;
   team_name: string;
+  team_type: string;
   goals: number;
   team_id?: string;
 }
@@ -130,18 +131,23 @@ export async function renderTopScorersPoster(
     goals: tableX + 700, // Moved left (was 650) - last two columns narrower
   } as const;
 
+  // Determine column header based on team type data
+  const firstScorer = topScorers[0];
+  const isNationalTeam = firstScorer && firstScorer.team_type === 'SELECCION_NACIONAL';
+  
   // Table headers
   ctx.font = '700 28px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
   ctx.fillStyle = '#ffffff';
   ctx.fillText('POS', colPos.pos, tableY);
   ctx.fillText('JUGADORA', colPos.name, tableY);
   
-  // Center CLUB title
+  // Center team column title
   const teamColumnWidth = 200; // Same as logo column width
   const teamColumnCenter = colPos.team + (teamColumnWidth / 2);
-  const teamTitleWidth = ctx.measureText('CLUB').width;
+  const teamTitle = isNationalTeam ? 'PAÍS' : 'CLUB';
+  const teamTitleWidth = ctx.measureText(teamTitle).width;
   const teamTitleX = teamColumnCenter - (teamTitleWidth / 2);
-  ctx.fillText('CLUB', teamTitleX, tableY);
+  ctx.fillText(teamTitle, teamTitleX, tableY);
   
   // Center GOLES title
   const goalsColumnWidth = 100; // Same as goals column width

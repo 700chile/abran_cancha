@@ -100,12 +100,28 @@ export default function MatchUpdater() {
         try {
             if (!selectedMatchday || !selectedCompetition) return;
             const comp = competitions.find(c => c.ID === selectedCompetition);
+            
+            // Get idle teams for this matchday
+            const idleTeams = await getIdleTeams(selectedCompetition, selectedMatchday);
+            
             const posterMatches: SchedulePosterMatch[] = matches.map((m) => ({
                 local: m.equipo_local || '',
                 visita: m.equipo_visita || '',
                 estadio: m.recinto || '',
-                programacion: m.programacion || '',
+                programacion: m.programacion || ''
             }));
+
+            // Add idle teams as "matches" with empty string for visita
+            const idleTeamMatches: SchedulePosterMatch[] = idleTeams.map(team => ({
+                local: team,
+                visita: '', // Empty string instead of null for type compatibility
+                estadio: 'DESCANSO',
+                programacion: new Date().toISOString()
+            }));
+
+            // Combine regular matches with idle team "matches"
+            const allMatches = [...posterMatches, ...idleTeamMatches];
+            
             // Build header texts per requested rules
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
             const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
@@ -113,7 +129,7 @@ export default function MatchUpdater() {
                 ? `PROGRAMACIÓN FECHA ${selectedMatchday}`
                 : `PROGRAMACIÓN ${selectedMatchday.toUpperCase()}`;
 
-            const dataUrl = await renderScheduleImage(posterMatches, {
+            const dataUrl = await renderScheduleImage(allMatches, {
                 backgroundUrl: scheduleBg,
                 competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
@@ -196,10 +212,48 @@ export default function MatchUpdater() {
         return teamName || 'SIN ASIGNAR';
     };
 
+    // Helper function to get idle teams (teams assigned to matchday but without matches)
+    const getIdleTeams = async (competitionId: number, matchday: string): Promise<string[]> => {
+        try {
+            // Get all teams assigned to this matchday
+            const { data: assignedTeams } = await supabase.rpc('get_teams_by_matchday', {
+                competition_id: competitionId,
+                matchday: matchday
+            });
+
+            // Get teams that have matches in this matchday
+            const { data: matches } = await supabase
+                .from('partido')
+                .select('equipo_local, equipo_visita')
+                .eq('nombre_grupo', matchday);
+
+            if (!assignedTeams || !matches) return [];
+
+            // Extract team names from matches
+            const teamsWithMatches = new Set<string>();
+            matches.forEach(match => {
+                if (match.equipo_local) teamsWithMatches.add(match.equipo_local);
+                if (match.equipo_visita) teamsWithMatches.add(match.equipo_visita);
+            });
+
+            // Find idle teams (assigned but no matches)
+            const idleTeams = assignedTeams
+                .filter((team: any) => !teamsWithMatches.has(team.NOMBRE))
+                .map((team: any) => team.NOMBRE);
+
+            return idleTeams;
+        } catch (error) {
+            console.error('Error getting idle teams:', error);
+            return [];
+        }
+    };
+
     // Helper function to check if match is suspended
     const isSuspendedMatch = (match: Match): boolean => {
-        // Check if match has null goals which indicates suspension
-        return match.goles_local === null && match.goles_visita === null;
+        // Check if match has null goals AND venue contains "suspendido" (case-insensitive)
+        return match.goles_local === null && 
+               match.goles_visita === null && 
+               match.recinto?.toLowerCase().includes('suspendido') === true;
     };
     
     // TeamLogo component is used to safely render team logos with fallback

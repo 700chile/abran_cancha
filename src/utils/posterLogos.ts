@@ -15,6 +15,12 @@ export const getPosterLogo = (teamName: string): string | null => {
 
   // Helper: resolve a filename (case-insensitive) to its emitted URL
   const resolveUrl = (fileName: string): string | null => {
+    // Handle absolute paths for national team logos
+    if (fileName.startsWith('/logos/')) {
+      return fileName; // Return as-is for absolute paths
+    }
+    
+    // Handle relative paths for club logos
     const lower = fileName.toLowerCase();
     for (const [path, url] of Object.entries(images)) {
       const end = path.split('/').pop()?.toLowerCase();
@@ -47,17 +53,18 @@ export const getPosterLogo = (teamName: string): string | null => {
     'palestino': 'palestino.png',
     'unión española': 'union_espanola.png',
     'union española': 'union_espanola.png',
-    'argentina': 'ARG.png',
-    'bolivia': 'BOL.png',
-    'brasil': 'BRA.png',
-    'chile': 'CHI.png',
-    'colombia': 'COL.png',
-    'ecuador': 'ECU.png',
-    'paraguay': 'PAR.png',
-    'perú': 'PER.png',
-    'peru': 'PER.png',
-    'uruguay': 'URU.png',
-    'venezuela': 'VEN.png',
+    // National teams - reference existing logos from /logos/ directory
+    'argentina': '/logos/ARG.png',
+    'bolivia': '/logos/BOL.png',
+    'brasil': '/logos/BRA.png',
+    'chile': '/logos/CHI.png',
+    'colombia': '/logos/COL.png',
+    'ecuador': '/logos/ECU.png',
+    'paraguay': '/logos/PAR.png',
+    'perú': '/logos/PER.png',
+    'peru': '/logos/PER.png',
+    'uruguay': '/logos/URU.png',
+    'venezuela': '/logos/VEN.png',
   };
 
   for (const [key, logoName] of Object.entries(logoMap)) {
