@@ -111,16 +111,17 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
     }
   }
 
+  // Title section with increased font sizes and spacing
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
-  ctx.font = '700 42px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 38px
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 80); // Moved right 40px
-  ctx.font = '500 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 120); // Moved right 40px
-  ctx.font = '500 40px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 36px
-  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 160); // Moved right 40px
+  ctx.font = '800 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 42px
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 70); // Moved up 10px and increased font
+  ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 40px
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 130); // Added 10px spacing
+  ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 40px
+  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 190); // Added 10px spacing
 
-  const startY = 340; // Moved down 40px (was 300)
+  const startY = 360; // Moved down 20px (was 340)
   const rowH = 132; // Increased by 10% from 120 to 132
   const leftX = 240; // Moved right 40px (was 200)
   const logoSize = 99; // Increased by 10% from 90 to 99
@@ -144,9 +145,9 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
       }
       
       // Draw "LIBRE" text where match details (time, date, venue) would be
-      ctx.fillStyle = '#FFB3D9'; // Pink color for idle teams
+      ctx.fillStyle = '#ffffff'; // White color for idle teams
       ctx.font = '800 116px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Double the time font size (58px * 2)
-      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + 40); // Position where time/date/venue would be
+      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 58); // Aligned with logo center
     } else {
       // Regular match layout
       // Draw local team logo
