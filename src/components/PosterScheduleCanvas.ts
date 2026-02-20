@@ -115,13 +115,13 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#000000';
   ctx.font = '800 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 42px
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 80); // Back to original position
+  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 85); // Moved down 5px
   ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 40px
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 125); // Only 5px down from original
+  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 130); // Moved down 5px
   ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Increased from 40px
-  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 175); // Only 5px down from original
+  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 180); // Moved down 5px
 
-  const startY = 350; // Only 10px down from original 340
+  const startY = 355; // Moved down 5px
   const rowH = 132; // Increased by 10% from 120 to 132
   const leftX = 240; // Moved right 40px (was 200)
   const logoSize = 99; // Increased by 10% from 90 to 99

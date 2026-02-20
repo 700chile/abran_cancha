@@ -1,5 +1,7 @@
 // src/components/MatchUpdater.tsx
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from './AuthProvider';
+import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
@@ -58,6 +60,8 @@ interface Match {
 }
 
 export default function MatchUpdater() {
+    const { user } = useAuth();
+    const { has: hasPermission } = usePermissions();
     const [selectedMatchday, setSelectedMatchday] = useState<string>('');
     const [selectedCompetition, setSelectedCompetition] = useState<number | null>(2);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
@@ -786,13 +790,15 @@ export default function MatchUpdater() {
                                 </>
                             )}
                         </button>
-                        <button
-                            onClick={handleGeneratePoster}
-                            disabled={isGeneratingPoster}
-                            className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
-                        </button>
+                        {hasPermission('images:create') && (
+                            <button
+                                onClick={handleGeneratePoster}
+                                disabled={isGeneratingPoster}
+                                className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
+                            </button>
+                        )}
                         <input
                             ref={fileInputRef}
                             type="file"

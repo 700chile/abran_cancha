@@ -14,7 +14,8 @@ export type PermissionKey =
   | 'teams:select'
   | 'users:create'
   | 'permissions:admin'
-  | 'users:manage';
+  | 'users:manage'
+  | 'images:create';
 
 export type RoleKey = 'admin' | 'editor' | 'viewer';
 
@@ -30,7 +31,8 @@ const PERMISSION_IDS: Record<PermissionKey, number> = {
   'teams:select': 18,            // Seleccionar equipos
   'users:create': 19,            // Crear usuario
   'permissions:admin': 20,       // Administrar permisos
-  'users:manage': 20             // Treat users:manage as admin-permissions too (or adjust if separate)
+  'users:manage': 20,            // Treat users:manage as admin-permissions too (or adjust if separate)
+  'images:create': 21             // Crear imágenes
 };
 
 type PermissionContextValue = {

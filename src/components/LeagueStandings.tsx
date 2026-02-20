@@ -1,6 +1,8 @@
 // src/components/LeagueStandings.jsx
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from './AuthProvider';
+import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderStandingsPoster, type StandingsPosterRow } from './PosterStandingsCanvas';
@@ -44,6 +46,8 @@ interface Group {
 }
 
 const LeagueStandings = () => {
+    const { user } = useAuth();
+    const { has: hasPermission } = usePermissions();
     const [standings, setStandings] = useState<TeamStanding[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
@@ -181,7 +185,7 @@ const LeagueStandings = () => {
                             ))}
                         </select>
                     </div>
-                    {groups.length > 1 && (
+                    {hasPermission('images:create') && groups.length > 1 && (
                         <div>
                             <label htmlFor="group" className="text-xs font-semibold text-gray-600 uppercase">GRUPO</label>
                             <select
@@ -200,6 +204,7 @@ const LeagueStandings = () => {
                     )}
                 </div>
                 <div className="flex justify-end mb-4">
+                    {hasPermission('images:create') && (
                     <button
                         className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isGeneratingPoster || !groups.length || !selectedGroup}
@@ -210,6 +215,7 @@ const LeagueStandings = () => {
                     >
                         {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
                     </button>
+                    )}
                     <input
                         ref={fileInputRef}
                         type="file"

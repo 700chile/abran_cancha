@@ -1,5 +1,7 @@
 // src/components/TopScorers.tsx
 import { useState, useEffect } from 'react';
+import { useAuth } from './AuthProvider';
+import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderTopScorersPoster } from './PosterTopScorersCanvas';
@@ -18,6 +20,8 @@ interface Competition {
 }
 
 const TopScorers = () => {
+    const { user } = useAuth();
+    const { has: hasPermission } = usePermissions();
     const [scorers, setScorers] = useState<TopScorer[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
@@ -218,6 +222,7 @@ const TopScorers = () => {
                         </select>
                     </div>
                     <div className="flex items-end">
+                        {hasPermission('images:create') && (
                         <button
                             onClick={generatePoster}
                             disabled={isGeneratingPoster || loading || scorers.length === 0}
@@ -225,6 +230,7 @@ const TopScorers = () => {
                         >
                             {isGeneratingPoster ? 'Generando...' : 'Generar Imagen'}
                         </button>
+                        )}
                     </div>
                 </div>
 
