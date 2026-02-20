@@ -592,13 +592,15 @@ export default function MatchUpdater() {
                                                     >
                                                         Goles
                                                     </button>
+                                                    {hasPermission('images:create') && (
                                                     <button
                                                         onClick={() => handleGenerateMatchPosterForMatch(match)}
                                                         disabled={isGeneratingMatchPoster}
                                                         className="text-indigo-500 hover:text-indigo-700 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
-                                                        Póster
+                                                        Imagen
                                                     </button>
+                                                )}
                                                 </td>
                                             </tr>
                                         ))}
@@ -794,7 +796,7 @@ export default function MatchUpdater() {
                                 disabled={isGeneratingPoster}
                                 className="px-6 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isGeneratingPoster ? 'Generando...' : 'Generar imagen'}
+                                {isGeneratingPoster ? 'Generando...' : 'Imagen programación'}
                             </button>
                         )}
                         <input
