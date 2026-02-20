@@ -1,7 +1,6 @@
 // src/components/LeagueStandings.jsx
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from './AuthProvider';
 import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
@@ -46,7 +45,6 @@ interface Group {
 }
 
 const LeagueStandings = () => {
-    const { user } = useAuth();
     const { has: hasPermission } = usePermissions();
     const [standings, setStandings] = useState<TeamStanding[]>([]);
     const [loading, setLoading] = useState(true);

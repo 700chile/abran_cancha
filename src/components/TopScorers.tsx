@@ -1,6 +1,5 @@
 // src/components/TopScorers.tsx
 import { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
 import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
@@ -20,7 +19,6 @@ interface Competition {
 }
 
 const TopScorers = () => {
-    const { user } = useAuth();
     const { has: hasPermission } = usePermissions();
     const [scorers, setScorers] = useState<TopScorer[]>([]);
     const [loading, setLoading] = useState(true);

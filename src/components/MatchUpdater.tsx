@@ -1,6 +1,5 @@
 // src/components/MatchUpdater.tsx
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from './AuthProvider';
 import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
@@ -60,7 +59,6 @@ interface Match {
 }
 
 export default function MatchUpdater() {
-    const { user } = useAuth();
     const { has: hasPermission } = usePermissions();
     const [selectedMatchday, setSelectedMatchday] = useState<string>('');
     const [selectedCompetition, setSelectedCompetition] = useState<number | null>(2);
