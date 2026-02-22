@@ -234,16 +234,21 @@ const MatchCreator: React.FC = () => {
   const competitionId = pathSegments[pathSegments.indexOf('competition') + 1];
   const roundId = searchParams.get('round');
   
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [gamedays, setGamedays] = useState<Gameday[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [competitionName, setCompetitionName] = useState('');
-  const [roundName, setRoundName] = useState('');
-  const [validationErrors, setValidationErrors] = useState<{groupId: string; message: string}[]>([]);
-  
-  // Log the extracted values
-  useEffect(() => {
-    console.log('Extracted values:', { competitionId, roundId });
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<{ [key: number]: boolean }>({});
+  const [groups, setGroups] = useState<GroupConfig[]>([]);
+  const [firstRoundId, setFirstRoundId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
+  const [selectedRound, setSelectedRound] = useState<number | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+  const [matchday, setMatchday] = useState<string>('');
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [isGeneratingMatches, setIsGeneratingMatches] = useState<boolean>(false);
+
+  console.log('Extracted values:', { competitionId, roundId });
   }, [competitionId, roundId]);
   
   // Fetch competition and round data

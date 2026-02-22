@@ -146,9 +146,10 @@ export default function MatchUpdater() {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        } catch (e) {
+        } catch (e: any) {
             console.error('Error generando imagen de programación', e);
-            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+            const errorMessage = e?.message || 'No se pudo generar la imagen. Por favor, intenta nuevamente.';
+            alert(errorMessage);
         } finally {
             setIsGeneratingPoster(false);
         }
@@ -199,9 +200,10 @@ export default function MatchUpdater() {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        } catch (e) {
+        } catch (e: any) {
             console.error('Error generando imagen de partido', e);
-            alert('No se pudo generar la imagen. Revisa la consola para más detalles.');
+            const errorMessage = e?.message || 'No se pudo generar la imagen. Por favor, intenta nuevamente.';
+            alert(errorMessage);
         } finally {
             setIsGeneratingMatchPoster(false);
             // Clean up blob URL to prevent memory leak

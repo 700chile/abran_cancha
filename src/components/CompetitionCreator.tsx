@@ -12,6 +12,15 @@ interface Message {
 
 export const CompetitionCreator = () => {
     const navigate = useNavigate();
+    
+    // Helper function to convert UI values to database-compatible values
+    const mapVueltasForDatabase = (vueltas: RoundVueltas): string => {
+        if (vueltas === 'FINAL ÚNICA') {
+            return 'FINAL UNICA'; // Remove accent for database compatibility
+        }
+        return vueltas; // Return as-is for other values
+    };
+    
     const [formData, setFormData] = useState<CompetitionFormState>({
         competition: {
             NOMBRE: '',
@@ -140,7 +149,7 @@ export const CompetitionCreator = () => {
         const roundsData = formData.rounds.map(round => ({
             NOMBRE: round.NOMBRE,
             TIPO: round.TIPO,
-            VUELTAS: round.VUELTAS,
+            VUELTAS: mapVueltasForDatabase(round.VUELTAS), // Convert UI value to database value
             GRUPOS_CANT: round.GRUPOS_CANT,
             ORDINAL: round.ORDINAL ?? 1,
             GRUPOS: round.GRUPOS.map(group => ({
@@ -185,10 +194,30 @@ export const CompetitionCreator = () => {
             
             // Redirect to team selection page with competition ID and minimum round ID
             navigate(`/competition/${competition.ID}/round/${minRoundId}/select-teams`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating competition:', error);
-            setMessage({ type: 'error', text: 'Error al crear la competencia' });
-            setTimeout(() => setMessage(null), 3000);
+            
+            // Extract meaningful error message for user
+            let errorMessage = 'Error al crear la competencia';
+            
+            if (error?.message) {
+                // Handle specific database constraint errors
+                if (error.message.includes('grupo_VUELTAS_check')) {
+                    errorMessage = 'Error: El valor "FINAL ÚNICA" no es válido para la base de datos. Por favor contacte al administrador.';
+                } else if (error.message.includes('unique constraint')) {
+                    errorMessage = 'Error: Ya existe una competencia con este nombre.';
+                } else if (error.message.includes('check constraint')) {
+                    errorMessage = 'Error: Uno de los valores proporcionados no es válido.';
+                } else {
+                    // Use the actual error message if it's user-friendly
+                    errorMessage = error.message.includes('Error creating competition:') 
+                        ? error.message 
+                        : `Error: ${error.message}`;
+                }
+            }
+            
+            setMessage({ type: 'error', text: errorMessage });
+            setTimeout(() => setMessage(null), 5000); // Show for 5 seconds for important errors
         }
     };
 
@@ -416,10 +445,33 @@ export const CompetitionCreator = () => {
 
             {/* Message Display */}
             {message && (
-                <div className={`mt-4 p-4 rounded-md ${
-                    message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                <div className={`mt-4 p-4 rounded-md border flex justify-between items-center ${
+                    message.type === 'success' 
+                        ? 'bg-green-100 text-green-700 border-green-300' 
+                        : 'bg-red-100 text-red-700 border-red-300'
                 }`}>
-                    {message.text}
+                    <div className="flex items-center">
+                        {message.type === 'error' && (
+                            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        {message.type === 'success' && (
+                            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        <span>{message.text}</span>
+                    </div>
+                    <button
+                        onClick={() => setMessage(null)}
+                        className="ml-4 text-current hover:opacity-70"
+                        aria-label="Cerrar mensaje"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
             )}
         </div>
