@@ -249,7 +249,6 @@ const MatchCreator: React.FC = () => {
   const [isGeneratingMatches, setIsGeneratingMatches] = useState<boolean>(false);
 
   console.log('Extracted values:', { competitionId, roundId });
-  }, [competitionId, roundId]);
   
   // Fetch competition and round data
   useEffect(() => {
