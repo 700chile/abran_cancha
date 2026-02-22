@@ -216,10 +216,17 @@ export default function MatchCreator() {
     // Check if all groups have valid VUELTAS and TIPO
     for (const group of groups) {
       const vueltas = normalizeVueltas(group.VUELTAS);
-      const tipo = (group.TIPO || '').toUpperCase();
+      const tipo = (group.TIPO || '').trim();
       
-      if (tipo && !tipo.includes('LIGA') && !tipo.includes('ROUND') && !tipo.includes('GRUPO')) {
-        setMessage({ type: 'error', text: `El grupo "${group.NOMBRE}" no es de tipo liga/grupos (TIPO=${group.TIPO ?? 'N/A'}).` });
+      // Only accept the two exact TIPO values
+      if (tipo && tipo !== 'TODOS CONTRA TODOS' && tipo !== 'ELIMINACION DIRECTA') {
+        setMessage({ type: 'error', text: `El grupo "${group.NOMBRE}" tiene un tipo no válido (TIPO=${group.TIPO ?? 'N/A'}). Valores permitidos: "TODOS CONTRA TODOS" o "ELIMINACION DIRECTA".` });
+        return;
+      }
+
+      // For elimination brackets, we need special handling
+      if (tipo === 'ELIMINACION DIRECTA') {
+        setMessage({ type: 'error', text: `El grupo "${group.NOMBRE}" es de eliminación directa. Esta funcionalidad no está implementada aún. Solo se soporta "TODOS CONTRA TODOS".` });
         return;
       }
 
