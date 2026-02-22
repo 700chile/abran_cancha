@@ -13,8 +13,6 @@ interface Competition {
 interface Round {
   ID: number;
   NOMBRE: string;
-  VUELTAS?: string | null;
-  TIPO?: string | null;
 }
 
 interface Group {
@@ -22,6 +20,8 @@ interface Group {
   NOMBRE: string;
   ID_RONDA: number;
   EQUIPOS_CANT?: number | null;
+  VUELTAS?: string | null;
+  TIPO?: string | null;
 }
 
 interface Team {
@@ -152,7 +152,7 @@ export default function MatchCreator() {
 
         const { data: roundData, error: roundError } = await supabase
           .from('ronda')
-          .select('ID, NOMBRE, VUELTAS, TIPO')
+          .select('ID, NOMBRE')
           .eq('ID', roundId)
           .single();
 
@@ -161,7 +161,7 @@ export default function MatchCreator() {
 
         const { data: groupsData, error: groupsError } = await supabase
           .from('grupo')
-          .select('ID, NOMBRE, ID_RONDA, EQUIPOS_CANT')
+          .select('ID, NOMBRE, ID_RONDA, EQUIPOS_CANT, VUELTAS, TIPO')
           .eq('ID_RONDA', roundId)
           .order('ID');
 
@@ -213,21 +213,27 @@ export default function MatchCreator() {
       return;
     }
 
-    const vueltas = normalizeVueltas(round.VUELTAS);
-    const tipo = (round.TIPO || '').toUpperCase();
-    if (tipo && !tipo.includes('LIGA') && !tipo.includes('ROUND') && !tipo.includes('GRUPO')) {
-      setMessage({ type: 'error', text: `Esta ronda no es de tipo liga/grupos (TIPO=${round.TIPO ?? 'N/A'}).` });
-      return;
+    // Check if all groups have valid VUELTAS and TIPO
+    for (const group of groups) {
+      const vueltas = normalizeVueltas(group.VUELTAS);
+      const tipo = (group.TIPO || '').toUpperCase();
+      
+      if (tipo && !tipo.includes('LIGA') && !tipo.includes('ROUND') && !tipo.includes('GRUPO')) {
+        setMessage({ type: 'error', text: `El grupo "${group.NOMBRE}" no es de tipo liga/grupos (TIPO=${group.TIPO ?? 'N/A'}).` });
+        return;
+      }
+
+      if (vueltas === 'UNKNOWN') {
+        setMessage({ type: 'error', text: `No se reconoce VUELTAS=${group.VUELTAS ?? 'N/A'} en el grupo "${group.NOMBRE}".` });
+        return;
+      }
     }
 
-    if (vueltas === 'UNKNOWN') {
-      setMessage({ type: 'error', text: `No se reconoce VUELTAS=${round.VUELTAS ?? 'N/A'}.` });
-      return;
-    }
-
+    // Generate fixtures for each group using its own VUELTAS setting
     const next: FixturesByGroup = {};
     groups.forEach((g) => {
       const teamIds = teamIdsByGroup[g.ID] || [];
+      const vueltas = normalizeVueltas(g.VUELTAS);
       next[g.ID] = generateRoundRobinFixtures(teamIds, vueltas, g.ID);
     });
 
@@ -279,7 +285,10 @@ export default function MatchCreator() {
         <h2 className="text-2xl font-bold mb-4">Crear Partidos</h2>
 
         <div className="bg-white rounded-lg shadow p-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div className="text-sm text-gray-600 mb-2">
+            <strong>Grupos y configuración:</strong>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm mb-4">
             <div>
               <span className="font-semibold">Competencia:</span>{' '}
               {competition ? `${competition.NOMBRE} (${competition.EDICION})` : 'Cargando...'}
@@ -288,14 +297,19 @@ export default function MatchCreator() {
               <span className="font-semibold">Ronda:</span>{' '}
               {round ? `${round.NOMBRE}` : 'Cargando...'}
             </div>
-            <div>
-              <span className="font-semibold">VUELTAS:</span>{' '}
-              {round?.VUELTAS ?? 'N/A'}
-            </div>
-            <div>
-              <span className="font-semibold">Grupos:</span>{' '}
-              {groups.length}
-            </div>
+          </div>
+          
+          <div className="space-y-2 text-sm">
+            {groups.map((g) => (
+              <div key={g.ID} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="font-medium">{g.NOMBRE}</span>
+                <div className="text-xs text-gray-600">
+                  <span className="mr-3">Equipos: {teamIdsByGroup[g.ID]?.length || 0}</span>
+                  <span className="mr-3">VUELTAS: {g.VUELTAS ?? 'N/A'}</span>
+                  <span>TIPO: {g.TIPO ?? 'N/A'}</span>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="mt-4 flex gap-2">
