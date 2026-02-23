@@ -51,11 +51,11 @@ export const getTeamLogo = (teamName: string): string | null => {
         'venezuela': 'VEN.png'
     };
 
-    // Resolver a la carpeta pública /LOGOS/ para el resto de la app
+    // Resolver a la carpeta pública /logos/ para el resto de la app
     for (const [key, logoName] of Object.entries(logoMap)) {
         if (teamNameLower.includes(key)) {
             console.log('Found logo:', logoName, 'for team:', teamName);
-            return `/LOGOS/${logoName}`;
+            return `/logos/${logoName}`;
         }
     }
 
