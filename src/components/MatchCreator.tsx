@@ -238,6 +238,7 @@ const MatchCreator: React.FC = () => {
   const [gamedays, setGamedays] = useState<Gameday[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [competitionName, setCompetitionName] = useState('');
+  const [competitionEdition, setCompetitionEdition] = useState('');
   const [roundName, setRoundName] = useState('');
   const [validationErrors, setValidationErrors] = useState<{groupId: string; message: string}[]>([]);
   
@@ -263,9 +264,9 @@ const MatchCreator: React.FC = () => {
         console.log('Fetching competition data for ID:', competitionId);
         const { data: competitionData, error: competitionError } = await supabase
           .from('campeonato')
-          .select('NOMBRE')
+          .select('NOMBRE, EDICION')
           .eq('ID', competitionId)
-          .single<{ NOMBRE: string }>();
+          .single<{ NOMBRE: string; EDICION: string }>();
           
         if (competitionError) {
           console.error('Error fetching competition:', competitionError);
@@ -274,6 +275,7 @@ const MatchCreator: React.FC = () => {
         console.log('Competition data:', competitionData);
         if (competitionData) {
           setCompetitionName(competitionData.NOMBRE);
+          setCompetitionEdition(competitionData.EDICION);
         }
         
         // Fetch round name
@@ -672,7 +674,7 @@ const MatchCreator: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">
-        {competitionName} - {roundName}
+        {competitionName} {competitionEdition && `(${competitionEdition})`} - {roundName}
       </h1>
 
       {/* Validation Error Banner */}

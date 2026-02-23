@@ -51,7 +51,7 @@ const LeagueStandings = () => {
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [groups, setGroups] = useState<Group[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
+    const [selectedCompetition, setSelectedCompetition] = useState<number>(37); // 2026 edition
     const [selectedGroup, setSelectedGroup] = useState<string>(''); // Remove hardcoded default, let auto-selection handle it
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -331,8 +331,8 @@ const LeagueStandings = () => {
                                                                         <span className="absolute left-0 top-0 h-full w-2 bg-blue-500"></span>
                                                                     )}
                                                                 </>
-                                                            ) : selectedCompetition <= 2 ? (
-                                                                // National competition logic
+                                                            ) : (selectedCompetition <= 2 || selectedCompetition === 37) ? (
+                                                                // National competition logic (2026 edition ID 37)
                                                                 <>
                                                                     {row.pos <= 8 && (
                                                                         <span className="absolute left-0 top-0 h-full w-2 bg-green-500"></span>
@@ -356,7 +356,7 @@ const LeagueStandings = () => {
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="flex items-center gap-2">
                                                                 <img 
-                                                                    src={new URL(getTeamLogo(row.nombre) || '', import.meta.url).href} 
+                                                                    src={getTeamLogo(row.nombre) || '/default-team-logo.png'} 
                                                                     alt={row.nombre} 
                                                                     className="w-6 h-6 flex-shrink-0" 
                                                                     onError={(e) => {
@@ -397,8 +397,8 @@ const LeagueStandings = () => {
                                     <span className="text-sm text-gray-600">3ro y 4to (Clasifican al repechaje intercontinental)</span>
                                 </div>
                             </>
-                        ) : selectedCompetition <= 2 ? (
-                            // National competition legend
+                        ) : (selectedCompetition <= 2 || selectedCompetition === 37) ? (
+                            // National competition legend (2026 edition ID 37)
                             <>
                                 <div className="flex items-center gap-2">
                                     <div className="bg-green-500 w-2 h-2 rounded-full"></div>
