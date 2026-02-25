@@ -38,10 +38,12 @@ BEGIN
             INSERT INTO ronda (
                 "ID_CAMPEONATO",
                 "NOMBRE",
+                "ORDINAL",
                 "GRUPOS_CANT"
             ) VALUES (
                 competition_id,
                 v_round->>'NOMBRE',
+                v_round->>'ORDINAL',
                 (v_round->>'GRUPOS_CANT')::INTEGER
             ) RETURNING "ID" INTO round_id;
 
