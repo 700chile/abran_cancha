@@ -382,7 +382,7 @@ export default function MatchUpdater() {
                 const { data } = await supabase.from('campeonato').select('ID, NOMBRE, EDICION');
                 if (data) {
                     setCompetitions(data);
-                    setSelectedCompetition(2);
+                    setSelectedCompetition(37);
                 }
             } catch (error) {
                 console.error('Error fetching competitions:', error);

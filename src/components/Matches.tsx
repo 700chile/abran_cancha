@@ -155,9 +155,9 @@ const Matches: React.FC = () => {
                 if (error) throw error;
                 setCompetitions(data || []);
                 
-                // Set default competition to ID 2 if it exists, otherwise use the first one
+                // Set default competition to ID 37 if it exists, otherwise use the first one
                 if (data && data.length > 0) {
-                    const defaultComp = data.find(c => c.ID === 2) || data[0];
+                    const defaultComp = data.find(c => c.ID === 37) || data[0];
                     setSelectedCompetition(defaultComp.ID);
                 }
             } catch (error) {

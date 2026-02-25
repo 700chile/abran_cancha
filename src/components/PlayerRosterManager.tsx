@@ -34,7 +34,7 @@ export default function PlayerRosterManager() {
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
     const [competitions, setCompetitions] = useState<Torneo[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(2);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
 
     useEffect(() => {
         const fetchCompetitions = async () => {
