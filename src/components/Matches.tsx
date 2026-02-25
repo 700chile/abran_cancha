@@ -47,7 +47,7 @@ const Matches: React.FC = () => {
     // State management
     const [matches, setMatches] = useState<Match[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
     const [selectedMatchday, setSelectedMatchday] = useState<string | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [matchdays, setMatchdays] = useState<Matchday[]>([]);

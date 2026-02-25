@@ -61,7 +61,7 @@ interface Match {
 export default function MatchUpdater() {
     const { has: hasPermission } = usePermissions();
     const [selectedMatchday, setSelectedMatchday] = useState<string>('');
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(2);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [matchdays, setMatchdays] = useState<Matchday[]>([]);
     const [matches, setMatches] = useState<Match[]>([]);

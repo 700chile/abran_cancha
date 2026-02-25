@@ -34,7 +34,7 @@ const GoalScorerUpdater = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loadingPlayers, setLoadingPlayers] = useState(false);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(2);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
     const [selectedEventType, setSelectedEventType] = useState<'GOL' | 'AUTOGOL'>('GOL');
 
     // Fetch competitions

@@ -40,7 +40,7 @@ const POSITION_OPTIONS = [
 
 export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) => {
     const [competitions, setCompetitions] = useState<Torneo[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
     const [teams, setTeams] = useState<Team[]>([]);
     const [players, setPlayers] = useState<PlayerInput[]>(() => {
         const initialPlayers = [];

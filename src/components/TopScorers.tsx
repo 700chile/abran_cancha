@@ -23,7 +23,7 @@ const TopScorers = () => {
     const [scorers, setScorers] = useState<TopScorer[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
-    const [selectedCompetition, setSelectedCompetition] = useState<number>(2);
+    const [selectedCompetition, setSelectedCompetition] = useState<number>(37);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
 
