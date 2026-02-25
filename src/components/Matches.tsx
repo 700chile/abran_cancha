@@ -29,6 +29,7 @@ interface Match {
     EQUIPO_VISITA: string;
     PROGRAMACION: string | null;
     RECINTO: string | null;
+    transmision: string | null;
     programacion?: string | null;
     recinto?: string | null;
     scorers?: Scorer[];
@@ -226,6 +227,7 @@ const Matches: React.FC = () => {
                         NOMBRE_GRUPO: match.nombre_grupo || match.NOMBRE_GRUPO || 'Sin Grupo',
                         RECINTO: match.recinto || match.RECINTO || null,
                         PROGRAMACION: match.programacion || match.PROGRAMACION || null,
+                        transmision: match.transmision || null,
                         goles_local: match.goles_local !== null ? Number(match.goles_local) : null,
                         goles_visita: match.goles_visita !== null ? Number(match.goles_visita) : null,
                     };
@@ -439,6 +441,15 @@ const Matches: React.FC = () => {
                                                                     {match.PROGRAMACION 
                                                                         ? new Date(match.PROGRAMACION).toLocaleDateString('es-CL', {day: '2-digit', month: '2-digit', year: '2-digit'})
                                                                         : 'Por confirmar'}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div>
+                                                                <div className="font-medium">Transmisión:</div>
+                                                                <div>
+                                                                    {match.transmision 
+                                                                        ? match.transmision.toLowerCase()
+                                                                        : 'Sin información'}
                                                                 </div>
                                                             </div>
                                                         </div>
