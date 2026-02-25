@@ -56,6 +56,7 @@ interface Match {
     programacion: string;
     recinto: string | null;
     nombre_grupo: string;
+    transmision: string | null;
 }
 
 export default function MatchUpdater() {
@@ -69,6 +70,7 @@ export default function MatchUpdater() {
     const [showScoresModal, setShowScoresModal] = useState(false);
     const [recinto, setRecinto] = useState<string>('');
     const [programacion, setProgramacion] = useState<string>('');
+    const [transmision, setTransmision] = useState<string>('');
     const [localGoals, setLocalGoals] = useState<string>('0');
     const [visitGoals, setVisitGoals] = useState<string>('0');
     const [selectedMatchForUpdate, setSelectedMatchForUpdate] = useState<Match | null>(null);
@@ -273,6 +275,7 @@ export default function MatchUpdater() {
         setSelectedMatchForUpdate(match);
         setRecinto(safeString(match.recinto));
         setProgramacion(safeString(match.programacion));
+        setTransmision(safeString(match.transmision));
         setLocalTeam(safeString(match.equipo_local));
         setVisitTeam(safeString(match.equipo_visita));
         setShowDetailsModal(true);
@@ -330,7 +333,8 @@ export default function MatchUpdater() {
                 .from('partido')
                 .update({
                     RECINTO: recinto,
-                    PROGRAMACION: programacion
+                    PROGRAMACION: programacion,
+                    TRANSMISION: transmision || null
                     // Remove team updates as they should be handled separately
                     // and the columns expect integer IDs, not team names
                 })
@@ -341,6 +345,7 @@ export default function MatchUpdater() {
             setShowDetailsModal(false);
             setRecinto('');
             setProgramacion('');
+            setTransmision('');
             setLocalTeam('');
             setVisitTeam('');
             setSelectedMatchForUpdate(null);
@@ -366,7 +371,8 @@ export default function MatchUpdater() {
                 ...match,
                 nombre_grupo: match.nombre_grupo || 'Sin Grupo',
                 equipo_local: match.equipo_local || 'SIN ASIGNAR',
-                equipo_visita: match.equipo_visita || 'SIN ASIGNAR'
+                equipo_visita: match.equipo_visita || 'SIN ASIGNAR',
+                transmision: match.transmision || null
             })) || [];
 
             setMatches(transformedData);
@@ -654,12 +660,23 @@ export default function MatchUpdater() {
                                         className="w-full p-2 border rounded"
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Transmisión</label>
+                                    <input
+                                        type="text"
+                                        value={transmision}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTransmision(e.target.value)}
+                                        placeholder="Canal de transmisión (TV/streaming)"
+                                        className="w-full p-2 border rounded"
+                                    />
+                                </div>
                                 <div className="flex justify-end space-x-2">
                                     <button
                                         onClick={() => {
                                             setShowDetailsModal(false);
                                             setRecinto('');
                                             setProgramacion('');
+                                            setTransmision('');
                                             setLocalTeam('');
                                             setVisitTeam('');
                                         }}
