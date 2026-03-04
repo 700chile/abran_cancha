@@ -115,13 +115,13 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
 
   // Title section
   ctx.textBaseline = 'top';
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#ffffff'; // White color for title
   ctx.font = '800 50px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.competitionTitle.toUpperCase(), 510, 85);
+  ctx.fillText('PRIMERA DIVISIÓN', 240, 85); // Moved to left, simplified title
+  
+  ctx.fillStyle = '#ffb3d9'; // Light pink color for subtitle
   ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.divisionTitle.toUpperCase(), 510, 130);
-  ctx.font = '600 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-  ctx.fillText(opts.roundTitle.toUpperCase(), 510, 180);
+  ctx.fillText(`TRANSMISIÓN ${opts.roundTitle}`, 240, 130); // Moved to left, added "TRANSMISIÓN" prefix
 
   const startY = 355;
   const rowH = 132;
@@ -157,11 +157,11 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
     wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
 
-    // Add broadcasting information if transmision exists
+    // Add broadcasting information if transmision exists (without "TRANSMISIÓN:" prefix)
     if (m.transmision) {
       ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
       ctx.fillStyle = '#ffcc00'; // Yellow color for broadcasting info
-      const transmisionText = `TRANSMISIÓN: ${m.transmision.toUpperCase()}`;
+      const transmisionText = m.transmision.toUpperCase();
       const transmisionMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
       wrapFillText(ctx, transmisionText, leftX + logoSize*2 + 48, y + 106, transmisionMaxWidth, 22);
     }
