@@ -117,11 +117,11 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#ffffff'; // White color for title
   ctx.font = '800 80px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Much larger
-  ctx.fillText('PRIMERA DIVISIÓN', 120, 85); // Moved further left
+  ctx.fillText('PRIMERA DIVISIÓN', 120, 120); // Moved lower, closer to subtitle
   
   ctx.fillStyle = '#ffb3d9'; // Light pink color for subtitle
   ctx.font = '600 60px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Larger
-  ctx.fillText(`TRANSMISIÓN ${opts.roundTitle}`, 120, 175); // Moved further left
+  ctx.fillText(`TRANSMISIÓN ${opts.roundTitle}`, 120, 175);
 
   const startY = 355;
   const rowH = 132;
@@ -151,17 +151,34 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
 
     // Add broadcasting information to the right of time (200px to the right)
     if (m.transmision) {
-      ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.fillStyle = '#ffcc00'; // Yellow color for broadcasting info
       const transmisionText = m.transmision.toUpperCase();
       const transmisionX = leftX + logoSize*2 + 48 + 200; // 200px to the right of time
-      ctx.fillText(transmisionText, transmisionX, y);
+      
+      // Check if transmission is YOUTUBE and replace with logo
+      if (transmisionText === 'YOUTUBE') {
+        try {
+          const youtubeLogo = await loadImage('/YouTube_full-color_icon_(2017).svg.png');
+          ctx.drawImage(youtubeLogo, transmisionX, y - 5, 120, 24); // Adjust size to match text height
+        } catch (e) {
+          // Fallback to text if logo fails to load
+          ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+          ctx.fillStyle = '#ffffff'; // White color for broadcasting info
+          ctx.fillText(transmisionText, transmisionX, y);
+        }
+      } else {
+        // Regular text for non-YouTube channels
+        ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+        ctx.fillStyle = '#ffffff'; // White color for broadcasting info
+        ctx.fillText(transmisionText, transmisionX, y);
+      }
     }
 
     ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.fillStyle = '#ffffff'; // White color for date
     ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
 
     ctx.font = '600 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+    ctx.fillStyle = '#ffffff'; // White color for stadium
     const estadio = (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
     wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
