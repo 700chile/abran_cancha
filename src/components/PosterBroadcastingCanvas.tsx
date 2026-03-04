@@ -121,7 +121,7 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
   
   ctx.fillStyle = '#ffb3d9'; // Light pink color for subtitle
   ctx.font = '600 60px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Larger
-  ctx.fillText(`TRANSMISIÓN ${opts.roundTitle}`, 120, 175);
+  ctx.fillText(`TRANSMISIÓN ${opts.roundTitle}`, 120, 180); // Moved 5px down
 
   const startY = 355;
   const rowH = 132;
@@ -149,27 +149,36 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
     ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
-    // Add broadcasting information to the right of time (200px to the right)
+    // Add broadcasting information to the right of time (400px to the right)
     if (m.transmision) {
       const transmisionText = m.transmision.toUpperCase();
-      const transmisionX = leftX + logoSize*2 + 48 + 200; // 200px to the right of time
+      const transmisionX = leftX + logoSize*2 + 48 + 400; // 400px to the right of time
       
-      // Check if transmission is YOUTUBE and replace with logo
-      if (transmisionText === 'YOUTUBE') {
+      // Check if transmission contains YOUTUBE and replace that part with logo
+      if (transmisionText.includes('YOUTUBE')) {
         try {
           const youtubeLogo = await loadImage('/YouTube_full-color_icon_(2017).svg.png');
-          ctx.drawImage(youtubeLogo, transmisionX, y - 5, 120, 24); // Adjust size to match text height
+          // Draw logo at the beginning position
+          ctx.drawImage(youtubeLogo, transmisionX, y, 120, 24); // Moved 5px down
+          
+          // Draw the rest of the text after YOUTUBE
+          const remainingText = transmisionText.replace('YOUTUBE', '').trim();
+          if (remainingText) {
+            ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+            ctx.fillStyle = '#ffffff'; // White color for broadcasting info
+            ctx.fillText(remainingText, transmisionX + 130, y); // Position after logo
+          }
         } catch (e) {
-          // Fallback to text if logo fails to load
+          // Fallback to full text if logo fails to load
           ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
           ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-          ctx.fillText(transmisionText, transmisionX, y);
+          ctx.fillText(transmisionText, transmisionX, y); // Moved 5px down
         }
       } else {
         // Regular text for non-YouTube channels
         ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
         ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-        ctx.fillText(transmisionText, transmisionX, y);
+        ctx.fillText(transmisionText, transmisionX, y); // Moved 5px down
       }
     }
 
