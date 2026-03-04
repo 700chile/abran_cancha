@@ -6,7 +6,9 @@ import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
 import { renderScheduleImage } from './PosterScheduleCanvas';
 import { renderMatchImage } from './PosterMatchCanvas';
+import { renderBroadcastingImage } from './PosterBroadcastingCanvas';
 import scheduleBg from '../assets/posters/schedule_bg.png';
+import broadcastingBg from '../assets/posters/broadcasting_bg.png';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -210,6 +212,55 @@ export default function MatchUpdater() {
             setIsGeneratingMatchPoster(false);
             // Clean up blob URL to prevent memory leak
             URL.revokeObjectURL(bgUrl);
+        }
+    };
+
+    const handleGenerateBroadcastingPoster = async () => {
+        setIsGeneratingPoster(true);
+        try {
+            if (!selectedMatchday || !selectedCompetition) return;
+            const comp = competitions.find(c => c.ID === selectedCompetition);
+            
+            // Filter matches to exclude "LIBRE" teams
+            const validMatches = matches.filter(m => 
+                m.equipo_local && m.equipo_local !== 'LIBRE' && 
+                m.equipo_visita && m.equipo_visita !== 'LIBRE'
+            );
+            
+            // Build header texts
+            const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const roundTitle = selectedMatchday.includes('Fecha') 
+                ? selectedMatchday 
+                : `FECHA ${selectedMatchday}`;
+            
+            const dataUrl = await renderBroadcastingImage(validMatches.map(m => ({
+                local: m.equipo_local || '',
+                visita: m.equipo_visita || '',
+                estadio: m.recinto || '',
+                programacion: m.programacion,
+                transmision: m.transmision || '',
+            })), {
+                backgroundUrl: broadcastingBg,
+                competitionTitle,
+                divisionTitle: 'PRIMERA DIVISIÓN',
+                roundTitle,
+                pixelRatio: 2,
+                // Use poster-specific logo mapping for image only
+                getLogoUrl: (name: string | null) => getPosterLogo(name || '') || '',
+            });
+            
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `transmision_${selectedMatchday}_${comp?.EDICION || 'edicion'}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (e: any) {
+            console.error('Error generando imagen de transmisión', e);
+            const errorMessage = e?.message || 'No se pudo generar la imagen de transmisión. Por favor, intenta nuevamente.';
+            alert(errorMessage);
+        } finally {
+            setIsGeneratingPoster(false);
         }
     };
     
