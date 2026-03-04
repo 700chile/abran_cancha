@@ -869,6 +869,15 @@ export default function MatchUpdater() {
                                 {isGeneratingPoster ? 'Generando...' : 'Imagen programación'}
                             </button>
                         )}
+                        {hasPermission('images:create') && (
+                            <button
+                                onClick={handleGenerateBroadcastingPoster}
+                                disabled={isGeneratingPoster}
+                                className="px-6 py-2 rounded-lg text-white shadow bg-purple-600 hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGeneratingPoster ? 'Generando...' : 'Imagen transmisión'}
+                            </button>
+                        )}
                         <input
                             ref={fileInputRef}
                             type="file"
