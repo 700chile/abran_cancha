@@ -340,7 +340,13 @@ const Matches: React.FC = () => {
                             <div key={groupName} className="mb-8">
                                 <h2 className="text-xl font-bold mb-4 text-brand-primary">{groupName}</h2>
                                 <div className="space-y-3">
-                                    {groupMatches.map((match) => (
+                                    {groupMatches
+                                    .filter((match) => {
+                                        const localTeam = match.EQUIPO_LOCAL || match.equipo_local || '';
+                                        const visitTeam = match.EQUIPO_VISITA || match.equipo_visita || '';
+                                        return localTeam !== 'LIBRE' && visitTeam !== 'LIBRE';
+                                    })
+                                    .map((match) => (
                                         <div 
                                             key={match.ID} 
                                             className="bg-white rounded-lg shadow overflow-hidden"

@@ -174,6 +174,22 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
           ctx.fillStyle = '#ffffff'; // White color for broadcasting info
           ctx.fillText(transmisionText, transmisionX, y); // Moved 5px down
         }
+      } else if (transmisionText.includes('SIN TRANSMISIÓN')) {
+        try {
+          const sinTransmisionLogo = await loadImage('/Sin transmision.jpg');
+          // Draw sin transmisión logo
+          ctx.drawImage(sinTransmisionLogo, transmisionX, y, 24, 24); // Same size as YouTube logo
+          
+          // Draw "SIN TRANSMISIÓN" text after logo
+          ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+          ctx.fillStyle = '#ffffff'; // White color for broadcasting info
+          ctx.fillText('SIN TRANSMISIÓN', transmisionX + 30, y); // Position after logo
+        } catch (e) {
+          // Fallback to full text if logo fails to load
+          ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+          ctx.fillStyle = '#ffffff'; // White color for broadcasting info
+          ctx.fillText(transmisionText, transmisionX, y);
+        }
       } else {
         // Regular text for non-YouTube channels
         ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';

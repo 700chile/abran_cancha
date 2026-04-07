@@ -636,30 +636,38 @@ export default function MatchUpdater() {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-2">{match.recinto || 'SIN ASIGNAR'}</td>
-                                                <td className="px-4 py-2">{formatTime(match.programacion)}</td>
                                                 <td className="px-4 py-2">
-                                                    <button
-                                                        onClick={() => handleUpdateDetails(match)}
-                                                        className="text-blue-500 hover:text-blue-700 px-2"
-                                                    >
-                                                        Detalles
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleUpdateScores(match)}
-                                                        className="text-green-500 hover:text-green-700 px-2"
-                                                    >
-                                                        Goles
-                                                    </button>
-                                                    {hasPermission('images:create') && (
-                                                    <button
-                                                        onClick={() => handleGenerateMatchPosterForMatch(match)}
-                                                        disabled={isGeneratingMatchPoster}
-                                                        className="text-indigo-500 hover:text-indigo-700 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    >
-                                                        Imagen
-                                                    </button>
-                                                )}
+                                                    {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') ? (match.recinto || 'SIN ASIGNAR') : ''}
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') ? formatTime(match.programacion) : ''}
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleUpdateDetails(match)}
+                                                                className="text-blue-500 hover:text-blue-700 px-2"
+                                                            >
+                                                                Detalles
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateScores(match)}
+                                                                className="text-green-500 hover:text-green-700 px-2"
+                                                            >
+                                                                Goles
+                                                            </button>
+                                                            {hasPermission('images:create') && (
+                                                            <button
+                                                                onClick={() => handleGenerateMatchPosterForMatch(match)}
+                                                                disabled={isGeneratingMatchPoster}
+                                                                className="text-indigo-500 hover:text-indigo-700 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                Imagen
+                                                            </button>
+                                                        )}
+                                                        </>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
