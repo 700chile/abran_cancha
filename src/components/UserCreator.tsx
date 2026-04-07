@@ -83,6 +83,7 @@ export default function UserCreator() {
   };
 
   const resendConfirmation = async () => {
+    console.log('🔄 [DEBUG] Starting resendConfirmation for email:', email);
     setError(null);
     setMessage(null);
     if (!email) {
@@ -91,15 +92,21 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      const { error } = await supabase.auth.resend({
+      console.log('🔄 [DEBUG] Calling supabase.auth.resend with:', { type: 'signup', email });
+      const { error, data } = await supabase.auth.resend({
         type: 'signup',
         email,
         options: { emailRedirectTo: `${window.location.origin}/password-updater` },
       });
-      if (error) throw error;
+      console.log('🔄 [DEBUG] Resend response:', { error, data });
+      if (error) {
+        console.error('❌ [DEBUG] Supabase resend error:', error);
+        throw error;
+      }
+      console.log('✅ [DEBUG] Resend successful');
       setMessage('Se reenvió el correo de confirmación. Pide al usuario revisar su bandeja y spam.');
     } catch (e: any) {
-      console.error('[Auth] resend confirmation error', e);
+      console.error('❌ [DEBUG] Complete resend confirmation error:', e);
       setError(e?.message || 'No se pudo reenviar el correo de confirmación');
     } finally {
       setResendLoading(false);
