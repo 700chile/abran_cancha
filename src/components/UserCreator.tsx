@@ -83,7 +83,7 @@ export default function UserCreator() {
   };
 
   const resendConfirmation = async () => {
-    console.log('🔄 [DEBUG] Starting password reset for email:', email);
+    console.log('Starting password reset for email:', email);
     setError(null);
     setMessage(null);
     if (!email) {
@@ -92,21 +92,61 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      console.log('🔄 [DEBUG] Calling supabase.auth.resetPasswordForEmail with:', email);
+      console.log('Calling supabase.auth.resetPasswordForEmail with:', email);
       const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/password-updater`,
       });
-      console.log('🔄 [DEBUG] Password reset response:', { error, data });
+      console.log('Password reset response:', { error, data });
       
       if (error) {
-        console.error('❌ [DEBUG] Password reset error:', error);
+        console.error('Password reset error:', error);
         throw error;
       }
-      console.log('✅ [DEBUG] Password reset email sent');
+      console.log('Password reset email sent');
       setMessage('Se envió correo para restablecer contraseña. Pide al usuario revisar su bandeja y spam.');
     } catch (e: any) {
-      console.error('❌ [DEBUG] Complete password reset error:', e);
+      console.error('Complete password reset error:', e);
       setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
+    } finally {
+      setResendLoading(false);
+      setTimeout(() => setMessage(null), 4000);
+    }
+  };
+
+  const resendSignupConfirmation = async () => {
+    console.log('Starting signup confirmation resend for email:', email);
+    setError(null);
+    setMessage(null);
+    if (!email) {
+      setError('Ingresa un email válido');
+      return;
+    }
+    setResendLoading(true);
+    try {
+      console.log('Calling supabase.auth.resend with:', { type: 'signup', email });
+      const { error, data } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/password-updater` },
+      });
+      console.log('Signup confirmation resend response:', { error, data });
+      
+      // Check if user already confirmed
+      if (data && data.user === null && data.session === null && error === null) {
+        console.log('User already confirmed - no signup email needed');
+        setError('Este usuario ya está confirmado. Use "Restablecer contraseña" si necesita acceso.');
+        return;
+      }
+      
+      if (error) {
+        console.error('Signup confirmation resend error:', error);
+        throw error;
+      }
+      console.log('Signup confirmation email sent');
+      setMessage('Se reenvió el correo de confirmación. Pide al usuario revisar su bandeja y spam.');
+    } catch (e: any) {
+      console.error('Complete signup confirmation resend error:', e);
+      setError(e?.message || 'No se pudo reenviar el correo de confirmación');
     } finally {
       setResendLoading(false);
       setTimeout(() => setMessage(null), 4000);
@@ -184,6 +224,13 @@ export default function UserCreator() {
           </div>
 
           <div className="flex justify-end gap-2">
+            <button
+              onClick={resendSignupConfirmation}
+              disabled={resendLoading || !email}
+              className="px-4 py-2 bg-purple-600 text-white rounded disabled:opacity-60"
+            >
+              {resendLoading ? 'Enviando...' : 'Reenviar confirmación'}
+            </button>
             <button
               onClick={resendConfirmation}
               disabled={resendLoading || !email}
