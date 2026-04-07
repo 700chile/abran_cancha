@@ -83,7 +83,7 @@ export default function UserCreator() {
   };
 
   const resendConfirmation = async () => {
-    console.log('🔄 [DEBUG] Starting resendConfirmation for email:', email);
+    console.log('🔄 [DEBUG] Starting password reset for email:', email);
     setError(null);
     setMessage(null);
     if (!email) {
@@ -94,20 +94,21 @@ export default function UserCreator() {
     try {
       console.log('🔄 [DEBUG] Calling supabase.auth.resend with:', { type: 'signup', email });
       const { error, data } = await supabase.auth.resend({
-        type: 'signup',
+        type: 'signup', // Keep as signup - only valid type
         email,
         options: { emailRedirectTo: `${window.location.origin}/password-updater` },
       });
-      console.log('🔄 [DEBUG] Resend response:', { error, data });
+      console.log('🔄 [DEBUG] Password reset response:', { error, data });
+      
       if (error) {
-        console.error('❌ [DEBUG] Supabase resend error:', error);
+        console.error('❌ [DEBUG] Password reset error:', error);
         throw error;
       }
-      console.log('✅ [DEBUG] Resend successful');
-      setMessage('Se reenvió el correo de confirmación. Pide al usuario revisar su bandeja y spam.');
+      console.log('✅ [DEBUG] Password reset email sent');
+      setMessage('Se envió correo para restablecer contraseña. Pide al usuario revisar su bandeja y spam.');
     } catch (e: any) {
-      console.error('❌ [DEBUG] Complete resend confirmation error:', e);
-      setError(e?.message || 'No se pudo reenviar el correo de confirmación');
+      console.error('❌ [DEBUG] Complete password reset error:', e);
+      setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
     } finally {
       setResendLoading(false);
       setTimeout(() => setMessage(null), 4000);
@@ -190,7 +191,7 @@ export default function UserCreator() {
               disabled={resendLoading || !email}
               className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60"
             >
-              {resendLoading ? 'Reenviando...' : 'Reenviar confirmación'}
+              {resendLoading ? 'Enviando...' : 'Restablecer contraseña'}
             </button>
             <button
               onClick={sendInvite}
