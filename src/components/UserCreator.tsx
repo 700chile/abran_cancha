@@ -92,11 +92,9 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      console.log('🔄 [DEBUG] Calling supabase.auth.resend with:', { type: 'signup', email });
-      const { error, data } = await supabase.auth.resend({
-        type: 'signup', // Keep as signup - only valid type
-        email,
-        options: { emailRedirectTo: `${window.location.origin}/password-updater` },
+      console.log('🔄 [DEBUG] Calling supabase.auth.resetPasswordForEmail with:', email);
+      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/password-updater`,
       });
       console.log('🔄 [DEBUG] Password reset response:', { error, data });
       
