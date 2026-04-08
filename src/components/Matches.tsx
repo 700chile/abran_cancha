@@ -127,7 +127,7 @@ const Matches: React.FC = () => {
             }
             
             // If opening a new match, fetch scorers if needed
-            const match = matches.find(m => (m.ID || m.id) === matchId);
+            const match = matches.find(m => (m.ID || m.id) === selectedMatchId);
             console.log('Found match:', match);
             
             if (match) {
@@ -351,25 +351,10 @@ const Matches: React.FC = () => {
                                             key={match.ID} 
                                             className="bg-white rounded-lg shadow overflow-hidden"
                                         >
-                                            <div 
-                                                className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                                                onClick={() => handleMatchClick(match.id || match.ID)}
-                                            >
-                                                <div className="flex justify-between items-center">
-                                                    <div className="flex-1 flex items-center justify-end">
-                                                        <div className="text-right mr-2">
-                                                            <div className="font-medium">{match.EQUIPO_LOCAL || 'Equipo local'}</div>
-                                                        </div>
-                                                        <img 
-                                                            src={getTeamLogo(match.EQUIPO_LOCAL || '') || ''} 
-                                                            alt={match.EQUIPO_LOCAL || 'Equipo local'} 
-                                                            className="h-6 w-6 object-contain"
-                                                            onError={(e) => {
-                                                                const target = e.target as HTMLImageElement;
-                                                                target.src = '';
-                                                                target.className = 'h-6 w-6 bg-gray-200 rounded-full';
-                                                            }}
-                                                        />
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center justify-end">
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold">Transmisión:</span> {match.transmision || 'Sin información'}
                                                     </div>
                                                     
                                                     <div className="mx-2 flex flex-col items-center">
