@@ -46,7 +46,7 @@ export default function UserCreator() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/password-updater`,
+          emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
         },
       });
       if (error) throw error;
@@ -94,7 +94,7 @@ export default function UserCreator() {
     try {
       console.log('Calling supabase.auth.resetPasswordForEmail with:', email);
       const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/password-updater`,
+        redirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
       });
       console.log('Password reset response:', { error, data });
       
@@ -127,7 +127,7 @@ export default function UserCreator() {
       const { error, data } = await supabase.auth.resend({
         type: 'signup',
         email,
-        options: { emailRedirectTo: `${window.location.origin}/password-updater` },
+        options: { emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater' },
       });
       console.log('Signup confirmation resend response:', { error, data });
       
