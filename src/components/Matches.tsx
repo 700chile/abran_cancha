@@ -353,17 +353,16 @@ const Matches: React.FC = () => {
                                             onClick={() => handleMatchClick(match.id || match.ID)}
                                         >
                                             <div className="flex justify-between items-center">
-                                                <div className="flex items-center justify-end">
-                                                    <div className="flex items-center">
-                                                        <img 
-                                                            src={getTeamLogo(match.EQUIPO_LOCAL || '') || ''} 
-                                                            alt={match.EQUIPO_LOCAL || 'Equipo local'} 
-                                                            className="h-6 w-6 object-contain"
-                                                        />
-                                                        <span className="ml-2 font-medium">{match.EQUIPO_LOCAL || 'Equipo local'}</span>
-                                                    </div>
-                                                    
-                                                    <div className="mx-2 flex flex-col items-center">
+                                                <div className="flex items-center">
+                                                    <img 
+                                                        src={getTeamLogo(match.EQUIPO_LOCAL || '') || ''} 
+                                                        alt={match.EQUIPO_LOCAL || 'Equipo local'} 
+                                                        className="h-6 w-6 object-contain"
+                                                    />
+                                                    <span className="ml-2 font-medium">{match.EQUIPO_LOCAL || 'Equipo local'}</span>
+                                                </div>
+                                                
+                                                <div className="mx-2 flex flex-col items-center">
                                                     {match.penalties && (
                                                         <div className="text-[10px] font-semibold text-gray-700 bg-yellow-100 px-2 py-0.5 rounded mb-1">
                                                             {`PENALES: ${match.penalties.home}-${match.penalties.away}`}
@@ -373,20 +372,19 @@ const Matches: React.FC = () => {
                                                         {match.goles_local !== null ? match.goles_local : '-'} - {match.goles_visita !== null ? match.goles_visita : '-'}
                                                     </div>
                                                 </div>
-                                                    
-                                                    <div className="flex-1 flex items-center">
-                                                        <img 
-                                                            src={getTeamLogo(match.EQUIPO_VISITA || '') || ''} 
-                                                            alt={match.EQUIPO_VISITA || 'Equipo visita'} 
-                                                            className="h-6 w-6 object-contain mr-2"
-                                                            onError={(e) => {
-                                                                const target = e.target as HTMLImageElement;
-                                                                target.src = '';
-                                                                target.className = 'h-6 w-6 bg-gray-200 rounded-full';
-                                                            }}
-                                                        />
-                                                        <div className="font-medium">{match.EQUIPO_VISITA || 'Equipo visita'}</div>
-                                                    </div>
+                                                
+                                                <div className="flex items-center">
+                                                    <span className="mr-2 font-medium">{match.EQUIPO_VISITA || 'Equipo visita'}</span>
+                                                    <img 
+                                                        src={getTeamLogo(match.EQUIPO_VISITA || '') || ''} 
+                                                        alt={match.EQUIPO_VISITA || 'Equipo visita'} 
+                                                        className="h-6 w-6 object-contain"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = '';
+                                                            target.className = 'h-6 w-6 bg-gray-200 rounded-full';
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                             
