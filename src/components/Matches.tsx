@@ -3,6 +3,20 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 
+// Helper type for team logo props
+interface TeamLogoProps {
+    teamName: string | null;
+    className?: string;
+}
+
+// TeamLogo component to safely render team logos with fallback
+const TeamLogo: React.FC<TeamLogoProps> = ({ teamName, className = 'w-6 h-6 rounded-full' }) => {
+    if (!teamName) return <div className={className} />;
+    const logo = getTeamLogo(teamName);
+    if (!logo) return <div className={className} />;
+    return <img src={logo} alt={teamName} className={className} />;
+};
+
 interface Competition {
     ID: number;
     NOMBRE: string;
@@ -353,13 +367,10 @@ const Matches: React.FC = () => {
                                             onClick={() => handleMatchClick(match.id || match.ID)}
                                         >
                                             <div className="flex justify-between items-center">
-                                                <div className="flex items-center">
-                                                    <img 
-                                                        src={getTeamLogo(match.EQUIPO_LOCAL || '') || ''} 
-                                                        alt={match.EQUIPO_LOCAL || 'Equipo local'} 
-                                                        className="h-6 w-6 object-contain"
-                                                    />
-                                                    <span className="ml-2 font-medium">{match.EQUIPO_LOCAL || 'Equipo local'}</span>
+                                                <div className="flex items-center justify-end">
+                                                    <div className="relative">
+                                                        <TeamLogo teamName={match.EQUIPO_LOCAL || ''} />
+                                                    </div>
                                                 </div>
                                                 
                                                 <div className="mx-2 flex flex-col items-center">
@@ -375,16 +386,9 @@ const Matches: React.FC = () => {
                                                 
                                                 <div className="flex items-center">
                                                     <span className="mr-2 font-medium">{match.EQUIPO_VISITA || 'Equipo visita'}</span>
-                                                    <img 
-                                                        src={getTeamLogo(match.EQUIPO_VISITA || '') || ''} 
-                                                        alt={match.EQUIPO_VISITA || 'Equipo visita'} 
-                                                        className="h-6 w-6 object-contain"
-                                                        onError={(e) => {
-                                                            const target = e.target as HTMLImageElement;
-                                                            target.src = '';
-                                                            target.className = 'h-6 w-6 bg-gray-200 rounded-full';
-                                                        }}
-                                                    />
+                                                    <div className="relative">
+                                                        <TeamLogo teamName={match.EQUIPO_VISITA || ''} />
+                                                    </div>
                                                 </div>
                                             </div>
                                             
