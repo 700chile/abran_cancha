@@ -454,8 +454,8 @@ const Matches: React.FC = () => {
                                                                 <div className="font-medium">Transmisión:</div>
                                                                 <div>
                                                                     {match.transmision 
-                                                                        ? match.transmision.toLowerCase()
-                                                                        : 'Sin información'}
+                                                                        ? match.transmision.toUpperCase()
+                                                                        : 'SIN INFORMACIÓN'}
                                                                 </div>
                                                             </div>
                                                         </div>
