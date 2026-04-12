@@ -3,20 +3,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 
-// Helper type for team logo props
-interface TeamLogoProps {
-    teamName: string | null;
-    className?: string;
-}
-
-// TeamLogo component to safely render team logos with fallback
-const TeamLogo: React.FC<TeamLogoProps> = ({ teamName, className = 'w-6 h-6 rounded-full' }) => {
-    if (!teamName) return <div className={className} />;
-    const logo = getTeamLogo(teamName);
-    if (!logo) return <div className={className} />;
-    return <img src={logo} alt={teamName} className={className} />;
-};
-
 interface Competition {
     ID: number;
     NOMBRE: string;
@@ -368,12 +354,11 @@ const Matches: React.FC = () => {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center justify-end">
-                                                    <div className="relative">
-                                                        <TeamLogo teamName={match.EQUIPO_LOCAL || ''} />
+                                                    <div className="text-sm">
+                                                        <span className="font-semibold">Transmisión:</span> {match.transmision || 'Sin información'}
                                                     </div>
-                                                </div>
-                                                
-                                                <div className="mx-2 flex flex-col items-center">
+                                                    
+                                                    <div className="mx-2 flex flex-col items-center">
                                                     {match.penalties && (
                                                         <div className="text-[10px] font-semibold text-gray-700 bg-yellow-100 px-2 py-0.5 rounded mb-1">
                                                             {`PENALES: ${match.penalties.home}-${match.penalties.away}`}
@@ -383,11 +368,19 @@ const Matches: React.FC = () => {
                                                         {match.goles_local !== null ? match.goles_local : '-'} - {match.goles_visita !== null ? match.goles_visita : '-'}
                                                     </div>
                                                 </div>
-                                                
-                                                <div className="flex items-center">
-                                                    <span className="mr-2 font-medium">{match.EQUIPO_VISITA || 'Equipo visita'}</span>
-                                                    <div className="relative">
-                                                        <TeamLogo teamName={match.EQUIPO_VISITA || ''} />
+                                                    
+                                                    <div className="flex-1 flex items-center">
+                                                        <img 
+                                                            src={getTeamLogo(match.EQUIPO_VISITA || '') || ''} 
+                                                            alt={match.EQUIPO_VISITA || 'Equipo visita'} 
+                                                            className="h-6 w-6 object-contain mr-2"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.src = '';
+                                                                target.className = 'h-6 w-6 bg-gray-200 rounded-full';
+                                                            }}
+                                                        />
+                                                        <div className="font-medium">{match.EQUIPO_VISITA || 'Equipo visita'}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -447,8 +440,8 @@ const Matches: React.FC = () => {
                                                                 <div className="font-medium">Transmisión:</div>
                                                                 <div>
                                                                     {match.transmision 
-                                                                        ? match.transmision.toUpperCase()
-                                                                        : 'SIN INFORMACIÓN'}
+                                                                        ? match.transmision.toLowerCase()
+                                                                        : 'Sin información'}
                                                                 </div>
                                                             </div>
                                                         </div>
