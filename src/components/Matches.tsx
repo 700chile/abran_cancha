@@ -354,8 +354,13 @@ const Matches: React.FC = () => {
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center justify-end">
-                                                    <div className="text-sm">
-                                                        <span className="font-semibold">Transmisión:</span> {match.transmision?.toUpperCase() || 'SIN INFORMACIÓN'}
+                                                    <div className="flex items-center">
+                                                        <img 
+                                                            src={getTeamLogo(match.EQUIPO_LOCAL || '') || ''} 
+                                                            alt={match.EQUIPO_LOCAL || 'Equipo local'} 
+                                                            className="h-6 w-6 object-contain"
+                                                        />
+                                                        <span className="ml-2 font-medium">{match.EQUIPO_LOCAL || 'Equipo local'}</span>
                                                     </div>
                                                     
                                                     <div className="mx-2 flex flex-col items-center">
