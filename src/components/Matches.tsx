@@ -349,12 +349,13 @@ const Matches: React.FC = () => {
                                     .map((match) => (
                                         <div 
                                             key={match.ID} 
-                                            className="bg-white rounded-lg shadow overflow-hidden"
+                                            className="bg-white rounded-lg shadow overflow-hidden cursor-pointer hover:bg-gray-50 transition-colors"
+                                            onClick={() => handleMatchClick(match.id || match.ID)}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center justify-end">
                                                     <div className="text-sm">
-                                                        <span className="font-semibold">Transmisión:</span> {match.transmision || 'Sin información'}
+                                                        <span className="font-semibold">Transmisión:</span> {match.transmision?.toUpperCase() || 'SIN INFORMACIÓN'}
                                                     </div>
                                                     
                                                     <div className="mx-2 flex flex-col items-center">
@@ -439,8 +440,8 @@ const Matches: React.FC = () => {
                                                                 <div className="font-medium">Transmisión:</div>
                                                                 <div>
                                                                     {match.transmision 
-                                                                        ? match.transmision.toLowerCase()
-                                                                        : 'Sin información'}
+                                                                        ? match.transmision.toUpperCase()
+                                                                        : 'SIN INFORMACIÓN'}
                                                                 </div>
                                                             </div>
                                                         </div>
