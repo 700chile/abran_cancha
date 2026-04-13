@@ -226,7 +226,7 @@ const LeagueStandings = () => {
                             try {
                                 const bgUrl = URL.createObjectURL(file);
                                 const comp = competitions.find(c => c.ID === selectedCompetition);
-                                const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
+                                const credit = prompt('Crédito/Fuente de la foto (opcional, presione Enter para omitir):') || '';
                                 console.log('[LeagueStandings] Total standings:', standings.length);
                                 console.log('[LeagueStandings] Selected group:', selectedGroup);
                                 const groupStandings = standings.filter(s => s.grupo === selectedGroup);

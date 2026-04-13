@@ -166,7 +166,7 @@ export default function MatchUpdater() {
         try {
             const comp = competitions.find(c => c.ID === selectedCompetition);
             bgUrl = URL.createObjectURL(file);
-            const credit = prompt('Crédito/Fuente de la foto (ej: @fotógrafo):') || '';
+            const credit = prompt('Crédito/Fuente de la foto (opcional, presione Enter para omitir):') || '';
             
             // Find the currently selected match (stored temporarily)
             const selectedMatch = (window as any).__tempMatchForPoster;

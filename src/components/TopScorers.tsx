@@ -151,8 +151,8 @@ const TopScorers = () => {
                 return;
             }
 
-            // Ask for credit
-            const credit = prompt('Ingrese el crédito (opcional):') || undefined;
+            // Ask for credit (optional)
+            const credit = prompt('Ingrese el crédito (opcional, presione Enter para omitir):') || undefined;
 
             // Convert file to data URL
             const bgUrl = await new Promise<string>((resolve) => {
