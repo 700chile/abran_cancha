@@ -53,6 +53,8 @@ export const getPosterLogo = (teamName: string): string | null => {
     'palestino': 'palestino.png',
     'unión española': 'union_espanola.png',
     'union española': 'union_espanola.png',
+    'magallanes': 'magallanes.png',
+    'deportes temuco': 'deportes_temuco.png',
     // National teams - reference existing logos from /logos/ directory
     'argentina': '/logos/ARG.png',
     'bolivia': '/logos/BOL.png',
