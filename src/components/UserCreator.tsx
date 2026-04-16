@@ -92,18 +92,21 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      console.log('Calling supabase.auth.resetPasswordForEmail with:', email);
-      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
+      console.log('Calling supabase.auth.signInWithOtp with:', email);
+      const { error, data } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
+        }
       });
-      console.log('Password reset response:', { error, data });
+      console.log('Magic link response:', { error, data });
       
       if (error) {
-        console.error('Password reset error:', error);
+        console.error('Magic link error:', error);
         throw error;
       }
-      console.log('Password reset email sent');
-      setMessage('Se envió correo para restablecer contraseña. Pide al usuario revisar su bandeja y spam.');
+      console.log('Magic link email sent');
+      setMessage('Se envió un enlace mágico al correo. Pide al usuario revisar su bandeja y spam para acceder a la página de restablecimiento.');
     } catch (e: any) {
       console.error('Complete password reset error:', e);
       setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
@@ -236,7 +239,7 @@ export default function UserCreator() {
               disabled={resendLoading || !email}
               className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60"
             >
-              {resendLoading ? 'Enviando...' : 'Restablecer contraseña'}
+              {resendLoading ? 'Enviando...' : 'Enviar enlace mágico'}
             </button>
             <button
               onClick={sendInvite}
