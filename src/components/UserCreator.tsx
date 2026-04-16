@@ -106,7 +106,7 @@ export default function UserCreator() {
         throw error;
       }
       console.log('Magic link email sent');
-      setMessage('Se envió un enlace mágico al correo. Pide al usuario revisar su bandeja y spam para acceder a la página de restablecimiento.');
+      setMessage('Se envió un enlace para restablecer contraseña al correo especificado. Revisa tu correo y haz clic en el enlace para acceder.');
     } catch (e: any) {
       console.error('Complete password reset error:', e);
       setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
@@ -239,7 +239,7 @@ export default function UserCreator() {
               disabled={resendLoading || !email}
               className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60"
             >
-              {resendLoading ? 'Enviando...' : 'Enviar enlace mágico'}
+              {resendLoading ? 'Enviando...' : 'Restablecer contraseña'}
             </button>
             <button
               onClick={sendInvite}
