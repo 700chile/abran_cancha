@@ -137,21 +137,21 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
     const lUrl = opts.getLogoUrl(m.local);
     const vUrl = opts.getLogoUrl(m.visita);
     
-    // Handle idle teams (LIBRE as opponent)
-    if (m.local === 'LIBRE' || m.visita === 'LIBRE') {
-      const idleTeamLogoUrl = m.local === 'LIBRE' ? vUrl : lUrl;
-      if (idleTeamLogoUrl) {
-        try {
-          const img = await loadImage(idleTeamLogoUrl);
-          // Draw idle team logo in the away/visitor column (right column)
-          ctx.drawImage(img, leftX + logoSize + 16, y, logoSize, logoSize);
+    // Handle idle teams (LIBRE as opponent) - similar to schedule poster
+    if (m.visita === 'LIBRE') {
+      // Draw team logo centered between home and away positions
+      if (lUrl) {
+        try { 
+          const li = await loadImage(lUrl); 
+          const centeredLogoX = leftX + logoSize/2 + 8; // Center between home and away positions
+          ctx.drawImage(li, centeredLogoX, y, logoSize, logoSize); 
         } catch {}
       }
       
-      // Draw "LIBRE" text next to the logo (in the details area)
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 29);
+      // Draw "LIBRE" text where match details (time, date, venue) would be
+      ctx.fillStyle = '#ffffff'; // White color for idle teams
+      ctx.font = '800 116px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Double the time font size (58px * 2)
+      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 58); // Aligned with logo center
       
       continue;
     }
