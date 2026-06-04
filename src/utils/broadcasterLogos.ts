@@ -26,10 +26,10 @@ export function resolveBroadcaster(transmision: string): BroadcasterResolution {
 
   // 1. Check exact matches first
   if (cleanText === 'MEGA') {
-    return { logoUrl: BROADCASTER_LOGOS['MEGA'], remainingText: '', logoHeight: 48 };
+    return { logoUrl: BROADCASTER_LOGOS['MEGA'], remainingText: '', logoHeight: 60 };
   }
   if (cleanText === 'MEGA 2') {
-    return { logoUrl: BROADCASTER_LOGOS['MEGA 2'], remainingText: '', logoHeight: 48 };
+    return { logoUrl: BROADCASTER_LOGOS['MEGA 2'], remainingText: '', logoHeight: 60 };
   }
   if (cleanText === 'PASSLINE') {
     return { logoUrl: BROADCASTER_LOGOS['PASSLINE'], remainingText: '' };
