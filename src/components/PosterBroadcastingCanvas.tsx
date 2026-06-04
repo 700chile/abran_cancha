@@ -137,6 +137,25 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
     const lUrl = opts.getLogoUrl(m.local);
     const vUrl = opts.getLogoUrl(m.visita);
     
+    // Handle idle teams (LIBRE as opponent)
+    if (m.local === 'LIBRE' || m.visita === 'LIBRE') {
+      const idleTeamLogoUrl = m.local === 'LIBRE' ? vUrl : lUrl;
+      if (idleTeamLogoUrl) {
+        try {
+          const img = await loadImage(idleTeamLogoUrl);
+          // Draw idle team logo in the away/visitor column (right column)
+          ctx.drawImage(img, leftX + logoSize + 16, y, logoSize, logoSize);
+        } catch {}
+      }
+      
+      // Draw "LIBRE" text next to the logo (in the details area)
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
+      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 29);
+      
+      continue;
+    }
+    
     // Draw local team logo
     if (lUrl) {
       try { const li = await loadImage(lUrl); ctx.drawImage(li, leftX, y, logoSize, logoSize); } catch {}

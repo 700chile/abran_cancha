@@ -221,6 +221,9 @@ export default function MatchUpdater() {
             if (!selectedMatchday || !selectedCompetition) return;
             const comp = competitions.find(c => c.ID === selectedCompetition);
             
+            // Get idle teams for this matchday
+            const idleTeams = await getIdleTeams(selectedCompetition, selectedMatchday);
+
             // Filter matches to exclude "LIBRE" teams
             const validMatches = matches.filter(m => 
                 m.equipo_local && m.equipo_local !== 'LIBRE' && 
@@ -246,13 +249,28 @@ export default function MatchUpdater() {
                 }
             }
             
-            const dataUrl = await renderBroadcastingImage(validMatches.map(m => ({
+            // Map regular matches
+            const regularMatchesMapped = validMatches.map(m => ({
                 local: m.equipo_local || '',
                 visita: m.equipo_visita || '',
                 estadio: m.recinto || '',
                 programacion: m.programacion,
                 transmision: m.transmision || '',
-            })), {
+            }));
+
+            // Map idle teams as matches (local = LIBRE, visita = idle team)
+            // They will be appended at the bottom of the list
+            const idleMatchesMapped = idleTeams.map(team => ({
+                local: 'LIBRE',
+                visita: team,
+                estadio: 'LIBRE',
+                programacion: new Date().toISOString(),
+                transmision: '',
+            }));
+
+            const allPosterMatches = [...regularMatchesMapped, ...idleMatchesMapped];
+
+            const dataUrl = await renderBroadcastingImage(allPosterMatches, {
                 backgroundUrl: broadcastingBg,
                 competitionTitle,
                 divisionTitle: 'PRIMERA DIVISIÓN',
