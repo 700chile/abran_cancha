@@ -1,3 +1,5 @@
+import { resolveBroadcaster } from '../utils/broadcasterLogos';
+
 export type BroadcastingMatch = {
   local: string | null;
   visita: string | null;
@@ -154,25 +156,26 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
       const transmisionText = m.transmision.toUpperCase();
       const transmisionX = leftX + logoSize*2 + 48 + 300; // 300px to the right of time
       
-      // Check if transmission contains YOUTUBE and replace that part with logo
-      if (transmisionText.includes('YOUTUBE')) {
+      const resolution = resolveBroadcaster(m.transmision);
+      if (resolution.logoUrl) {
         try {
-          const youtubeLogo = await loadImage('/YouTube_full-color_icon_(2017).svg.png');
-          // Draw logo with original square proportions but narrower (24x24px)
-          ctx.drawImage(youtubeLogo, transmisionX, y, 24, 24); // Keep original height, make square
+          const logoImg = await loadImage(resolution.logoUrl);
+          const aspect = logoImg.naturalWidth / logoImg.naturalHeight;
+          const drawHeight = 24;
+          const drawWidth = drawHeight * aspect;
+          ctx.drawImage(logoImg, transmisionX, y, drawWidth, drawHeight);
           
-          // Draw the rest of the text after YOUTUBE
-          const remainingText = transmisionText.replace('YOUTUBE', '').trim();
-          if (remainingText) {
+          // Draw the rest of the text if present
+          if (resolution.remainingText) {
             ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
             ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-            ctx.fillText(remainingText, transmisionX + 30, y); // Position after logo (closer)
+            ctx.fillText(resolution.remainingText.toUpperCase(), transmisionX + drawWidth + 12, y);
           }
         } catch (e) {
           // Fallback to full text if logo fails to load
           ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
           ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-          ctx.fillText(transmisionText, transmisionX, y); // Moved 5px down
+          ctx.fillText(transmisionText, transmisionX, y);
         }
       } else if (transmisionText.includes('SIN TRANSMISIÓN')) {
         try {
@@ -191,10 +194,10 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
           ctx.fillText(transmisionText, transmisionX, y);
         }
       } else {
-        // Regular text for non-YouTube channels
+        // Regular text for other channels
         ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
         ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-        ctx.fillText(transmisionText, transmisionX, y); // Moved 5px down
+        ctx.fillText(transmisionText, transmisionX, y);
       }
     }
 

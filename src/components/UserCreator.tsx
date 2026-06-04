@@ -106,7 +106,7 @@ export default function UserCreator() {
         throw error;
       }
       console.log('Magic link email sent');
-      setMessage('Se envió un enlace para restablecer contraseña al correo especificado. Revisa tu correo y haz clic en el enlace para acceder.');
+      setMessage('Se envió un enlace para restablecer contraseña al correo especificado. Pide al usuario que revise su correo.');
     } catch (e: any) {
       console.error('Complete password reset error:', e);
       setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
