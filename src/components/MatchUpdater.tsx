@@ -229,9 +229,22 @@ export default function MatchUpdater() {
             
             // Build header texts
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
-            const roundTitle = selectedMatchday.includes('Fecha') 
-                ? selectedMatchday 
-                : `FECHA ${selectedMatchday}`;
+            // Parse round title according to the rules:
+            // - If numeric (e.g., "11"): "FECHA X"
+            // - If text + number (e.g., "Jornada 11"): extract number and show "FECHA X"
+            // - If only text (e.g., "FINAL"): show text as-is in uppercase
+            let roundTitle = '';
+            const cleanFecha = selectedMatchday.trim();
+            if (/^\d+$/.test(cleanFecha)) {
+                roundTitle = `FECHA ${cleanFecha}`;
+            } else {
+                const numMatch = cleanFecha.match(/\d+/);
+                if (numMatch) {
+                    roundTitle = `FECHA ${numMatch[0]}`;
+                } else {
+                    roundTitle = cleanFecha.toUpperCase();
+                }
+            }
             
             const dataUrl = await renderBroadcastingImage(validMatches.map(m => ({
                 local: m.equipo_local || '',
