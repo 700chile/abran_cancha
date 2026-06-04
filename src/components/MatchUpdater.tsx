@@ -258,11 +258,11 @@ export default function MatchUpdater() {
                 transmision: m.transmision || '',
             }));
 
-            // Map idle teams as matches (local = LIBRE, visita = idle team)
+            // Map idle teams as matches (local = idle team, visita = LIBRE)
             // They will be appended at the bottom of the list
             const idleMatchesMapped = idleTeams.map(team => ({
-                local: 'LIBRE',
-                visita: team,
+                local: team,
+                visita: 'LIBRE',
                 estadio: 'LIBRE',
                 programacion: new Date().toISOString(),
                 transmision: '',
