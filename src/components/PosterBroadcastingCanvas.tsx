@@ -139,12 +139,11 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
     
     // Handle idle teams (LIBRE as opponent) - similar to schedule poster
     if (m.visita === 'LIBRE') {
-      // Draw team logo centered between home and away positions
+      // Draw team logo in the away/visitor column (right column)
       if (lUrl) {
         try { 
           const li = await loadImage(lUrl); 
-          const centeredLogoX = leftX + logoSize/2 + 8; // Center between home and away positions
-          ctx.drawImage(li, centeredLogoX, y, logoSize, logoSize); 
+          ctx.drawImage(li, leftX + logoSize + 16, y, logoSize, logoSize); 
         } catch {}
       }
       
