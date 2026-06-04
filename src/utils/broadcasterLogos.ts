@@ -1,6 +1,7 @@
 export interface BroadcasterResolution {
   logoUrl: string | null;
   remainingText: string;
+  logoHeight?: number;
 }
 
 export const BROADCASTER_LOGOS: Record<string, string> = {
@@ -25,10 +26,10 @@ export function resolveBroadcaster(transmision: string): BroadcasterResolution {
 
   // 1. Check exact matches first
   if (cleanText === 'MEGA') {
-    return { logoUrl: BROADCASTER_LOGOS['MEGA'], remainingText: '' };
+    return { logoUrl: BROADCASTER_LOGOS['MEGA'], remainingText: '', logoHeight: 48 };
   }
   if (cleanText === 'MEGA 2') {
-    return { logoUrl: BROADCASTER_LOGOS['MEGA 2'], remainingText: '' };
+    return { logoUrl: BROADCASTER_LOGOS['MEGA 2'], remainingText: '', logoHeight: 48 };
   }
   if (cleanText === 'PASSLINE') {
     return { logoUrl: BROADCASTER_LOGOS['PASSLINE'], remainingText: '' };
@@ -44,6 +45,7 @@ export function resolveBroadcaster(transmision: string): BroadcasterResolution {
     return {
       logoUrl: BROADCASTER_LOGOS['YOUTUBE'],
       remainingText: remaining,
+      logoHeight: 48,
     };
   }
 

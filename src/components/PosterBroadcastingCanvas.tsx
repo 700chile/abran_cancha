@@ -161,7 +161,7 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
         try {
           const logoImg = await loadImage(resolution.logoUrl);
           const aspect = logoImg.naturalWidth / logoImg.naturalHeight;
-          const drawHeight = 24;
+          const drawHeight = resolution.logoHeight ?? 24;
           const drawWidth = drawHeight * aspect;
           ctx.drawImage(logoImg, transmisionX, y, drawWidth, drawHeight);
           
@@ -169,7 +169,8 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
           if (resolution.remainingText) {
             ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
             ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-            ctx.fillText(resolution.remainingText.toUpperCase(), transmisionX + drawWidth + 12, y);
+            const textY = y + (drawHeight - 24) / 2;
+            ctx.fillText(resolution.remainingText.toUpperCase(), transmisionX + drawWidth + 12, textY);
           }
         } catch (e) {
           // Fallback to full text if logo fails to load
