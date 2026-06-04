@@ -199,7 +199,7 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
         }
       } else if (transmisionText.includes('SIN TRANSMISIÓN')) {
         try {
-          const sinTransmisionLogo = await loadImage('/Sin transmision.jpg');
+          const sinTransmisionLogo = await loadImage('/logos/broadcaster/sin-transmision.png');
           // Draw sin transmisión logo
           ctx.drawImage(sinTransmisionLogo, transmisionX, y, 24, 24); // Same size as YouTube logo
           
