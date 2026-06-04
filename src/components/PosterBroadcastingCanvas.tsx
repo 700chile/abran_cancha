@@ -201,12 +201,12 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
         try {
           const sinTransmisionLogo = await loadImage('/logos/broadcaster/sin-transmision.png');
           // Draw sin transmisión logo
-          ctx.drawImage(sinTransmisionLogo, transmisionX, y, 24, 24); // Same size as YouTube logo
+          ctx.drawImage(sinTransmisionLogo, transmisionX, y, 48, 48); // Twice as big (48x48)
           
           // Draw "SIN TRANSMISIÓN" text after logo
           ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
           ctx.fillStyle = '#ffffff'; // White color for broadcasting info
-          ctx.fillText('SIN TRANSMISIÓN', transmisionX + 30, y); // Position after logo
+          ctx.fillText('SIN TRANSMISIÓN', transmisionX + 54, y + 12); // Position after larger logo
         } catch (e) {
           // Fallback to full text if logo fails to load
           ctx.font = '600 24px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
