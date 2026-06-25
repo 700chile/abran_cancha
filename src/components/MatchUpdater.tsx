@@ -631,7 +631,7 @@ export default function MatchUpdater() {
                                             <th className="px-4 py-2">Local</th>
                                             <th className="px-4 py-2">Resultado</th>
                                             <th className="px-4 py-2">Visitante</th>
-                                            <th className="px-4 py-2">Recinto</th>
+                                            <th className="px-4 py-2">Recinto/Transmisión</th>
                                             <th className="px-4 py-2">Programación</th>
                                             <th className="px-4 py-2">Acciones</th>
                                         </tr>
@@ -669,7 +669,12 @@ export default function MatchUpdater() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2">
-                                                    {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') ? (match.recinto || 'SIN ASIGNAR') : ''}
+                                                    {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') ? (
+                                                        <div>
+                                                            <div>{match.recinto || 'SIN ASIGNAR'}</div>
+                                                            <div className="text-sm text-gray-600">{match.transmision || ''}</div>
+                                                        </div>
+                                                    ) : ''}
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     {(match.equipo_local !== 'LIBRE' && match.equipo_visita !== 'LIBRE') ? formatTime(match.programacion) : ''}
