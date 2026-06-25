@@ -9,6 +9,8 @@ import { renderMatchImage } from './PosterMatchCanvas';
 import { renderBroadcastingImage } from './PosterBroadcastingCanvas';
 import scheduleBg from '../assets/posters/schedule_bg.png';
 import broadcastingBg from '../assets/posters/broadcasting_bg.png';
+import VenueAutocomplete from './VenueAutocomplete';
+import BroadcasterAutocomplete from './BroadcasterAutocomplete';
 
 // Helper type to handle string | null | undefined
 type SafeString = string | null | undefined;
@@ -34,7 +36,6 @@ interface TeamLogoProps {
     teamName: string | null;  // Updated to only allow string or null
     className?: string;
 }
-import VenueAutocomplete from './VenueAutocomplete';
 
 
 interface Competition {
@@ -752,12 +753,10 @@ export default function MatchUpdater() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">Transmisión</label>
-                                    <input
-                                        type="text"
+                                    <BroadcasterAutocomplete
                                         value={transmision}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTransmision(e.target.value)}
+                                        onChange={setTransmision}
                                         placeholder="Canal de transmisión (TV/streaming)"
-                                        className="w-full p-2 border rounded"
                                     />
                                 </div>
                                 <div className="flex justify-end space-x-2">
