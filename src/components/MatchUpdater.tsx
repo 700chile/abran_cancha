@@ -42,6 +42,7 @@ interface Competition {
     ID: number;
     NOMBRE: string;
     EDICION: string;
+    APODO: string | null;
 }
 
 interface Matchday {
@@ -131,6 +132,7 @@ export default function MatchUpdater() {
             
             // Build header texts per requested rules
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const divisionTitle = comp?.APODO || 'PRIMERA DIVISIÓN';
             const isNumericFecha = /^\d+$/.test(selectedMatchday.trim());
             const roundTitle = isNumericFecha
                 ? `PROGRAMACIÓN FECHA ${selectedMatchday}`
@@ -139,7 +141,7 @@ export default function MatchUpdater() {
             const dataUrl = await renderScheduleImage(allMatches, {
                 backgroundUrl: scheduleBg,
                 competitionTitle,
-                divisionTitle: 'PRIMERA DIVISIÓN',
+                divisionTitle,
                 roundTitle: roundTitle,
                 pixelRatio: 2,
                 // Use poster-specific logo mapping for the image only
@@ -233,6 +235,7 @@ export default function MatchUpdater() {
             
             // Build header texts
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
+            const divisionTitle = comp?.APODO || 'PRIMERA DIVISIÓN';
             // Parse round title according to the rules:
             // - If numeric (e.g., "11"): "FECHA X"
             // - If text + number (e.g., "Jornada 11"): extract number and show "FECHA X"
@@ -274,7 +277,7 @@ export default function MatchUpdater() {
             const dataUrl = await renderBroadcastingImage(allPosterMatches, {
                 backgroundUrl: broadcastingBg,
                 competitionTitle,
-                divisionTitle: 'PRIMERA DIVISIÓN',
+                divisionTitle,
                 roundTitle,
                 pixelRatio: 2,
                 // Use poster-specific logo mapping for image only
@@ -468,7 +471,7 @@ export default function MatchUpdater() {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data } = await supabase.from('campeonato').select('ID, NOMBRE, EDICION');
+                const { data } = await supabase.from('campeonato').select('ID, NOMBRE, EDICION, APODO');
                 if (data) {
                     setCompetitions(data);
                     setSelectedCompetition(37);
