@@ -145,8 +145,8 @@ export async function renderScheduleImage(matches: PosterMatch[], opts: RenderOp
       
       // Draw "LIBRE" text where match details (time, date, venue) would be
       ctx.fillStyle = '#ffffff'; // White color for idle teams
-      ctx.font = '800 116px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Double the time font size (58px * 2)
-      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 58); // Aligned with logo center
+      ctx.font = '800 48px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto'; // Smaller than time (58px)
+      ctx.fillText('LIBRE', leftX + logoSize*2 + 48, y + logoSize/2 - 24); // Adjusted for smaller font
     } else {
       // Regular match layout
       // Draw local team logo
