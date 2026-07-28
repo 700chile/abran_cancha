@@ -25,6 +25,7 @@ export const CompetitionCreator = () => {
         competition: {
             NOMBRE: '',
             EDICION: '',
+            APODO: '',
             RONDAS_CANT: 0,
             EQUIPOS_CANT: 0,
             TIPO: COMPETITION_TYPES[0],
@@ -137,6 +138,7 @@ export const CompetitionCreator = () => {
         const competitionData = {
             NOMBRE: formData.competition.NOMBRE,
             EDICION: formData.competition.EDICION,
+            APODO: formData.competition.APODO,
             RONDAS_CANT: formData.competition.RONDAS_CANT,
             EQUIPOS_CANT: formData.competition.EQUIPOS_CANT,
             TIPO: formData.competition.TIPO,
@@ -243,7 +245,7 @@ export const CompetitionCreator = () => {
                     <h2 className="text-xl font-semibold mb-2">Información de la Competencia</h2>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="NOMBRE" className="block text-sm font-medium mb-1">Nombre</label>
+                            <label htmlFor="NOMBRE" className="block text-sm font-medium mb-1">Competencia (ej: PRIMERA DIVISIÓN CHILE)</label>
                             <input
                                 type="text"
                                 id="NOMBRE"
@@ -264,6 +266,17 @@ export const CompetitionCreator = () => {
                                 onChange={handleCompetitionChange}
                                 className="w-full px-3 py-2 border rounded-md"
                                 required
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="APODO" className="block text-sm font-medium mb-1">Nombre</label>
+                            <input
+                                type="text"
+                                id="APODO"
+                                name="APODO"
+                                value={formData.competition.APODO}
+                                onChange={handleCompetitionChange}
+                                className="w-full px-3 py-2 border rounded-md"
                             />
                         </div>
                         <div>

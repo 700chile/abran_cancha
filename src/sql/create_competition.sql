@@ -19,6 +19,7 @@ BEGIN
         INSERT INTO campeonato (
             "NOMBRE",
             "EDICION",
+            "APODO",
             "RONDAS_CANT",
             "EQUIPOS_CANT",
             "TIPO",
@@ -26,6 +27,7 @@ BEGIN
         ) VALUES (
             competition_data->>'NOMBRE',
             (competition_data->>'EDICION')::INTEGER,
+            competition_data->>'APODO',
             (competition_data->>'RONDAS_CANT')::INTEGER,
             (competition_data->>'EQUIPOS_CANT')::INTEGER,
             competition_data->>'TIPO',

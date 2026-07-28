@@ -54,6 +54,7 @@ export interface Team {
 export interface Competition {
     NOMBRE: string;
     EDICION: string;
+    APODO: string;
     RONDAS_CANT: number;
     EQUIPOS_CANT: number;
     TIPO: CompetitionType;
