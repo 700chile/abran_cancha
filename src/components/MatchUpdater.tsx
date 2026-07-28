@@ -227,12 +227,15 @@ export default function MatchUpdater() {
             // Get idle teams for this matchday
             const idleTeams = await getIdleTeams(selectedCompetition, selectedMatchday);
 
-            // Filter matches to exclude "LIBRE" teams
-            const validMatches = matches.filter(m => 
-                m.equipo_local && m.equipo_local !== 'LIBRE' && 
-                m.equipo_visita && m.equipo_visita !== 'LIBRE'
-            );
-            
+            // Map all matches (including LIBRE teams - canvas will handle display)
+            const regularMatchesMapped = matches.map(m => ({
+                local: m.equipo_local || '',
+                visita: m.equipo_visita || '',
+                estadio: m.recinto || '',
+                programacion: m.programacion,
+                transmision: m.transmision || '',
+            }));
+
             // Build header texts
             const competitionTitle = comp ? `CAMPEONATO ${comp.EDICION}` : 'CAMPEONATO';
             const divisionTitle = comp?.APODO || 'PRIMERA DIVISIÓN';
@@ -252,15 +255,6 @@ export default function MatchUpdater() {
                     roundTitle = cleanFecha.toUpperCase();
                 }
             }
-            
-            // Map regular matches
-            const regularMatchesMapped = validMatches.map(m => ({
-                local: m.equipo_local || '',
-                visita: m.equipo_visita || '',
-                estadio: m.recinto || '',
-                programacion: m.programacion,
-                transmision: m.transmision || '',
-            }));
 
             // Map idle teams as matches (local = idle team, visita = LIBRE)
             // They will be appended at the bottom of the list
