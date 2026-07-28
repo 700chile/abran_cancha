@@ -165,12 +165,16 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
       try { const vi = await loadImage(vUrl); ctx.drawImage(vi, leftX + logoSize + 16, y, logoSize, logoSize); } catch {}
     }
 
+    // Check if match is suspended (venue is "SUSPENDIDO")
+    const isSuspended = m.estadio?.toUpperCase() === 'SUSPENDIDO';
+
     ctx.fillStyle = '#ffffff';
     ctx.font = '800 58px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
-    ctx.fillText(fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
+    ctx.fillText(isSuspended ? '-' : fmtTime(m.programacion), leftX + logoSize*2 + 48, y);
 
     // Add broadcasting information to the right of time (300px to the right)
-    if (m.transmision) {
+    // Only show broadcasting info if not suspended
+    if (!isSuspended && m.transmision) {
       const transmisionText = m.transmision.toUpperCase();
       const transmisionX = leftX + logoSize*2 + 48 + 300; // 300px to the right of time
       
@@ -222,11 +226,11 @@ export async function renderBroadcastingImage(matches: BroadcastingMatch[], opts
 
     ctx.font = '700 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillStyle = '#ffffff'; // White color for date
-    ctx.fillText(fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
+    ctx.fillText(isSuspended ? 'POR PROGRAMAR' : fmtDateLine(m.programacion), leftX + logoSize*2 + 48, y + 46);
 
     ctx.font = '600 30px Ruda, Inter, system-ui, -apple-system, Segoe UI, Roboto';
     ctx.fillStyle = '#ffffff'; // White color for stadium
-    const estadio = (m.estadio ?? '').toUpperCase();
+    const estadio = isSuspended ? '-' : (m.estadio ?? '').toUpperCase();
     const estadioMaxWidth = width - (leftX + logoSize*2 + 48) - 60;
     wrapFillText(ctx, `${estadio}`, leftX + logoSize*2 + 48, y + 76, estadioMaxWidth, 26);
   }
