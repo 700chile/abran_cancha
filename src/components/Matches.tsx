@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
+import EmbedCodeGenerator from './EmbedCodeGenerator';
+import { usePermissions } from './PermissionProvider';
 
 interface Competition {
     ID: number;
@@ -45,6 +47,7 @@ interface Matchday {
 }
 
 const Matches: React.FC = () => {
+    const { has: hasPermission } = usePermissions();
     // State management
     const [matches, setMatches] = useState<Match[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -54,6 +57,7 @@ const Matches: React.FC = () => {
     const [matchdays, setMatchdays] = useState<Matchday[]>([]);
     const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
     const [loadingScorers, setLoadingScorers] = useState<boolean>(false);
+    const [showEmbedModal, setShowEmbedModal] = useState(false);
 
     // Group matches by group name
     const groupedMatches = useMemo(() => {
@@ -324,6 +328,17 @@ const Matches: React.FC = () => {
                         </select>
                     </div>
                 </div>
+                
+                <div className="flex justify-end mb-4">
+                    {hasPermission('embed:create') && (
+                    <button
+                        className="px-4 py-2 rounded-lg text-white shadow bg-green-600 hover:bg-green-700"
+                        onClick={() => setShowEmbedModal(true)}
+                    >
+                        Código de incrustación
+                    </button>
+                    )}
+                </div>
 
                 {loading ? (
                     <div className="text-center py-8">
@@ -492,6 +507,18 @@ const Matches: React.FC = () => {
                     </div>
                 )}
             </div>
+            
+            {/* Embed Modal */}
+            {showEmbedModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+                        <EmbedCodeGenerator 
+                            defaultType="matches"
+                            onClose={() => setShowEmbedModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

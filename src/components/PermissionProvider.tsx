@@ -15,7 +15,8 @@ export type PermissionKey =
   | 'users:create'
   | 'permissions:admin'
   | 'users:manage'
-  | 'images:create';
+  | 'images:create'
+  | 'embed:create';
 
 export type RoleKey = 'admin' | 'editor' | 'viewer';
 
@@ -32,7 +33,8 @@ const PERMISSION_IDS: Record<PermissionKey, number> = {
   'users:create': 19,            // Crear usuario
   'permissions:admin': 20,       // Administrar permisos
   'users:manage': 20,            // Treat users:manage as admin-permissions too (or adjust if separate)
-  'images:create': 21             // Crear imágenes
+  'images:create': 21,            // Crear imágenes
+  'embed:create': 22              // Generar código de incrustación
 };
 
 type PermissionContextValue = {

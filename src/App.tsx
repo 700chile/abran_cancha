@@ -8,6 +8,7 @@ import { PermissionProvider, usePermissions } from './components/PermissionProvi
 import PermissionGate from './components/PermissionGate';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthPage from './components/AuthPage';
+import EmbedPage from './components/EmbedPage';
 
 // Wrapper component to extract competition and round IDs from URL
 const TeamSelectorWrapper: FC = () => {
@@ -30,6 +31,18 @@ import PenalesUpdater from './components/PenalesUpdater';
 import UserCreator from './components/UserCreator';
 import PasswordUpdater from './components/PasswordUpdater';
 import { supabase } from './supabase';
+
+// Embed layout - renders content without navigation
+const EmbedLayout: FC = () => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Routes>
+        <Route path="/:type" element={<EmbedPage />} />
+      </Routes>
+    </div>
+  );
+};
+
 const UserMenu: FC = () => {
   const { user, signOut } = useAuth();
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -110,6 +123,7 @@ const ProtectedNavGroups: FC = () => {
       'users:create': has('users:create'),
       'permissions:admin': has('permissions:admin'),
       'users:manage': has('users:manage'),
+      'embed:create': has('embed:create'),
     },
   });
   return (
@@ -189,70 +203,78 @@ function App() {
     <AuthProvider>
       <PermissionProvider>
       <Router>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <nav className="bg-white shadow-md w-full">
-          <div className="w-full px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-start py-4">
-              <div className="flex items-center">
-                <Link to="/" className="text-brand-primary font-bold text-xl">
-                  Abran Cancha
-                </Link>
-              </div>
-              <div className="flex flex-col ml-8 space-y-2">
-                <div className="flex space-x-2">
-                  <Link 
-                    to="/"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
-                  >
-                    Tabla de Posiciones
-                  </Link>
-                  <Link 
-                    to="/matches"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
-                  >
-                    Partidos
-                  </Link>
-                  <Link 
-                    to="/top-scorers"
-                    className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
-                  >
-                    Goleadoras
-                  </Link>
+        <Routes>
+          {/* Embed routes - no navigation */}
+          <Route path="/embed/*" element={<EmbedLayout />} />
+          
+          {/* Main app routes - with navigation */}
+          <Route path="*" element={
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+              <nav className="bg-white shadow-md w-full">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
+                  <div className="flex justify-between items-start py-4">
+                    <div className="flex items-center">
+                      <Link to="/" className="text-brand-primary font-bold text-xl">
+                        Abran Cancha
+                      </Link>
+                    </div>
+                    <div className="flex flex-col ml-8 space-y-2">
+                      <div className="flex space-x-2">
+                        <Link 
+                          to="/"
+                          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+                        >
+                          Tabla de Posiciones
+                        </Link>
+                        <Link 
+                          to="/matches"
+                          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+                        >
+                          Partidos
+                        </Link>
+                        <Link 
+                          to="/top-scorers"
+                          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+                        >
+                          Goleadoras
+                        </Link>
+                      </div>
+                      <ProtectedNavGroups />
+                    </div>
+                    <div className="flex items-center">
+                      <UserMenu />
+                    </div>
+                  </div>
                 </div>
-                <ProtectedNavGroups />
-              </div>
-              <div className="flex items-center">
-                <UserMenu />
-              </div>
-            </div>
-          </div>
-        </nav>
+              </nav>
 
-        <main className="flex-1 py-6">
-          <Routes>
-            <Route path="/" element={<LeagueStandings />} />
-            <Route path="/matches" element={<Matches />} />
-            <Route path="/top-scorers" element={<TopScorers />} />
-            <Route path="/login" element={<AuthPage />} />
-            <Route path="/match-updater" element={<ProtectedRoute need="matches:update"><MatchUpdater /></ProtectedRoute>} />
-            <Route path="/goal-scorers" element={<ProtectedRoute need="goals:create"><GoalScorerUpdater /></ProtectedRoute>} />
-            <Route path="/penalties" element={<ProtectedRoute need="goals:create"><PenalesUpdater /></ProtectedRoute>} />
-            <Route path="/player-roster" element={<ProtectedRoute need="players:create"><PlayerRosterManager /></ProtectedRoute>} />
-            <Route path="/create-competition" element={<ProtectedRoute need="competitions:create"><CompetitionCreator /></ProtectedRoute>} />
-            <Route path="/roster-manager" element={<ProtectedRoute need="roster:manage"><RosterManager /></ProtectedRoute>} />
-            <Route path="/competition" element={<CompetitionList />} />
-            <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
-              <ProtectedRoute need="matches:create"><TeamSelectorWrapper /></ProtectedRoute>
-            } />
-            <Route path="/competition/:id/build-matches" element={<ProtectedRoute need="matches:create"><MatchCreator /></ProtectedRoute>} />
-            <Route path="/create-matches" element={<ProtectedRoute need="matches:create"><CompetitionRoundSelector /></ProtectedRoute>} />
-            <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
-            <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />
-            <Route path="/create-user" element={<ProtectedRoute need="users:manage"><UserCreator /></ProtectedRoute>} />
-            <Route path="/password-updater" element={<ProtectedRoute><PasswordUpdater /></ProtectedRoute>} />
-          </Routes>
-        </main>
-      </div>
+              <main className="flex-1 py-6">
+                <Routes>
+                  <Route path="/" element={<LeagueStandings />} />
+                  <Route path="/matches" element={<Matches />} />
+                  <Route path="/top-scorers" element={<TopScorers />} />
+                  <Route path="/login" element={<AuthPage />} />
+                  <Route path="/match-updater" element={<ProtectedRoute need="matches:update"><MatchUpdater /></ProtectedRoute>} />
+                  <Route path="/goal-scorers" element={<ProtectedRoute need="goals:create"><GoalScorerUpdater /></ProtectedRoute>} />
+                  <Route path="/penalties" element={<ProtectedRoute need="goals:create"><PenalesUpdater /></ProtectedRoute>} />
+                  <Route path="/player-roster" element={<ProtectedRoute need="players:create"><PlayerRosterManager /></ProtectedRoute>} />
+                  <Route path="/create-competition" element={<ProtectedRoute need="competitions:create"><CompetitionCreator /></ProtectedRoute>} />
+                  <Route path="/roster-manager" element={<ProtectedRoute need="roster:manage"><RosterManager /></ProtectedRoute>} />
+                  <Route path="/competition" element={<CompetitionList />} />
+                  <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
+                    <ProtectedRoute need="matches:create"><TeamSelectorWrapper /></ProtectedRoute>
+                  } />
+                  <Route path="/competition/:id/build-matches" element={<ProtectedRoute need="matches:create"><MatchCreator /></ProtectedRoute>} />
+                  <Route path="/create-matches" element={<ProtectedRoute need="matches:create"><CompetitionRoundSelector /></ProtectedRoute>} />
+                  <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
+                  <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />
+                  <Route path="/create-user" element={<ProtectedRoute need="users:manage"><UserCreator /></ProtectedRoute>} />
+                  <Route path="/password-updater" element={<ProtectedRoute><PasswordUpdater /></ProtectedRoute>} />
+                </Routes>
+              </main>
+            </div>
+          } />
+        </Routes>
       </Router>
       </PermissionProvider>
     </AuthProvider>

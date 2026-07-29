@@ -4,6 +4,7 @@ import { usePermissions } from './PermissionProvider';
 import { supabase } from '../lib/supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderTopScorersPoster } from './PosterTopScorersCanvas';
+import EmbedCodeGenerator from './EmbedCodeGenerator';
 
 interface TopScorer {
     nombre_jugadora: string;
@@ -26,6 +27,7 @@ const TopScorers = () => {
     const [selectedCompetition, setSelectedCompetition] = useState<number>(37);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
+    const [showEmbedModal, setShowEmbedModal] = useState(false);
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -219,7 +221,7 @@ const TopScorers = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="flex items-end">
+                    <div className="flex items-end gap-2">
                         {hasPermission('images:create') && (
                         <button
                             onClick={generatePoster}
@@ -227,6 +229,14 @@ const TopScorers = () => {
                             className="px-4 py-2 rounded-lg text-white shadow bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                         >
                             {isGeneratingPoster ? 'Generando...' : 'Generar Imagen'}
+                        </button>
+                        )}
+                        {hasPermission('embed:create') && (
+                        <button
+                            className="px-4 py-2 rounded-lg text-white shadow bg-green-600 hover:bg-green-700 whitespace-nowrap"
+                            onClick={() => setShowEmbedModal(true)}
+                        >
+                            Código de incrustación
                         </button>
                         )}
                     </div>
@@ -280,6 +290,18 @@ const TopScorers = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Embed Modal */}
+            {showEmbedModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+                        <EmbedCodeGenerator 
+                            defaultType="top-scorers"
+                            onClose={() => setShowEmbedModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
