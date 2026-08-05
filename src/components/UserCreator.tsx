@@ -46,7 +46,7 @@ export default function UserCreator() {
         email,
         password,
         options: {
-          emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
+          emailRedirectTo: `${import.meta.env.VITE_APP_URL}/password-updater`,
         },
       });
       if (error) throw error;
@@ -96,7 +96,7 @@ export default function UserCreator() {
       const { error, data } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater',
+          emailRedirectTo: `${import.meta.env.VITE_APP_URL}/password-updater`,
         }
       });
       console.log('Magic link response:', { error, data });
@@ -130,7 +130,7 @@ export default function UserCreator() {
       const { error, data } = await supabase.auth.resend({
         type: 'signup',
         email,
-        options: { emailRedirectTo: 'https://abran-cancha-s1wj.vercel.app/password-updater' },
+        options: { emailRedirectTo: `${import.meta.env.VITE_APP_URL}/password-updater` },
       });
       console.log('Signup confirmation resend response:', { error, data });
       
