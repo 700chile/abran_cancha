@@ -10,7 +10,7 @@ export default function PasswordUpdater() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
 
-  // Handle magic link authentication and session setup
+  // Handle password reset session setup
   useEffect(() => {
     let active = true;
     
@@ -18,47 +18,33 @@ export default function PasswordUpdater() {
       setAuthChecking(true);
       
       try {
-        // Check for current session (from magic link)
+        // Check for current session (from password reset link)
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session check error:', sessionError);
           if (active) {
-            setError('Error de autenticación. Por favor solicita un nuevo enlace mágico.');
+            setError('Error de autenticación. Por favor solicita un nuevo enlace de restablecimiento.');
             setAuthChecking(false);
           }
           return;
         }
 
         if (!sessionData.session) {
-          // Try to get user from hash (magic link redirect)
-          const { data: hashData, error: hashError } = await supabase.auth.getUser();
-          
-          if (hashError) {
-            console.error('Hash auth error:', hashError);
-            if (active) {
-              setError('Enlace inválido o expirado. Por favor solicita un nuevo enlace mágico.');
-              setAuthChecking(false);
-            }
-            return;
+          if (active) {
+            setError('Enlace inválido o expirado. Por favor solicita un nuevo enlace de restablecimiento de contraseña.');
+            setAuthChecking(false);
           }
-
-          if (!hashData.user) {
-            if (active) {
-              setError('No se encontró sesión activa. Por favor solicita un nuevo enlace mágico.');
-              setAuthChecking(false);
-            }
-            return;
-          }
+          return;
         }
 
-        // If we reach here, user is authenticated
+        // User is authenticated via password reset link
         const { data: u } = await supabase.auth.getUser();
         const user = u?.user;
         
         if (!active || !user) {
           if (active) {
-            setError('Error de autenticación. Por favor solicita un nuevo enlace mágico.');
+            setError('Error de autenticación. Por favor solicita un nuevo enlace de restablecimiento.');
             setAuthChecking(false);
           }
           return;
@@ -102,7 +88,7 @@ export default function PasswordUpdater() {
       } catch (e) {
         console.error('Auth setup error:', e);
         if (active) {
-          setError('Error de autenticación. Por favor solicita un nuevo enlace mágico.');
+          setError('Error de autenticación. Por favor solicita un nuevo enlace de restablecimiento.');
         }
       } finally {
         if (active) {
@@ -163,7 +149,7 @@ export default function PasswordUpdater() {
           <div className="bg-white rounded-lg shadow-md p-6 space-y-4 max-w-xl">
             <div className="text-red-600 text-sm">{error}</div>
             <div className="text-sm text-gray-600">
-              Por favor solicita un nuevo enlace mágico para restablecer tu contraseña.
+              Por favor solicita un nuevo enlace de restablecimiento de contraseña.
             </div>
           </div>
         </div>

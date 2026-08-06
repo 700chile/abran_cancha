@@ -92,20 +92,17 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      console.log('Calling supabase.auth.signInWithOtp with:', email);
-      const { error, data } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${import.meta.env.VITE_APP_URL}/password-updater`,
-        }
+      console.log('Calling supabase.auth.resetPasswordForEmail with:', email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${import.meta.env.VITE_APP_URL}/password-updater`,
       });
-      console.log('Magic link response:', { error, data });
+      console.log('Password reset email response:', { error });
       
       if (error) {
-        console.error('Magic link error:', error);
+        console.error('Password reset error:', error);
         throw error;
       }
-      console.log('Magic link email sent');
+      console.log('Password reset email sent');
       setMessage('Se envió un enlace para restablecer contraseña al correo especificado. Pide al usuario que revise su correo.');
     } catch (e: any) {
       console.error('Complete password reset error:', e);
