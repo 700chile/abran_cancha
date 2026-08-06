@@ -83,7 +83,7 @@ export default function UserCreator() {
   };
 
   const resendConfirmation = async () => {
-    console.log('Starting password reset for email:', email);
+    console.log('Starting magic link login for email:', email);
     setError(null);
     setMessage(null);
     if (!email) {
@@ -92,21 +92,24 @@ export default function UserCreator() {
     }
     setResendLoading(true);
     try {
-      console.log('Calling supabase.auth.resetPasswordForEmail with:', email);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${import.meta.env.VITE_APP_URL}/password-updater`,
+      console.log('Calling supabase.auth.signInWithOtp with:', email);
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${import.meta.env.VITE_APP_URL}/`,
+        }
       });
-      console.log('Password reset email response:', { error });
+      console.log('Magic link response:', { error });
       
       if (error) {
-        console.error('Password reset error:', error);
+        console.error('Magic link error:', error);
         throw error;
       }
-      console.log('Password reset email sent');
-      setMessage('Se envió un enlace para restablecer contraseña al correo especificado. Pide al usuario que revise su correo.');
+      console.log('Magic link email sent');
+      setMessage('Se envió un enlace mágico para iniciar sesión al correo especificado. Una vez que el usuario inicie sesión, podrá actualizar su contraseña desde el menú.');
     } catch (e: any) {
-      console.error('Complete password reset error:', e);
-      setError(e?.message || 'No se pudo enviar el correo para restablecer contraseña');
+      console.error('Complete magic link error:', e);
+      setError(e?.message || 'No se pudo enviar el correo para iniciar sesión');
     } finally {
       setResendLoading(false);
       setTimeout(() => setMessage(null), 4000);

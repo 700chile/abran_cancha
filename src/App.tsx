@@ -269,7 +269,7 @@ function App() {
                   <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
                   <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />
                   <Route path="/create-user" element={<ProtectedRoute need="users:manage"><UserCreator /></ProtectedRoute>} />
-                  <Route path="/password-updater" element={<PasswordUpdater />} />
+                  <Route path="/password-updater" element={<ProtectedRoute><PasswordUpdater /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
