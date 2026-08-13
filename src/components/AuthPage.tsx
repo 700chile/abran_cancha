@@ -94,7 +94,7 @@ export default function AuthPage() {
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">Contraseña</label>
+            <label className="block text-sm mb-1">Login</label>
             <input
               type="password"
               className="w-full border rounded px-3 py-2"
