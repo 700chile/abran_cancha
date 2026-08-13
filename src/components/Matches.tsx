@@ -59,6 +59,15 @@ const Matches: React.FC = () => {
     const [loadingScorers, setLoadingScorers] = useState<boolean>(false);
     const [showEmbedModal, setShowEmbedModal] = useState(false);
 
+    // Helper function to check if match is suspended
+    const isSuspendedMatch = (match: Match): boolean => {
+        // Check if match has null goals AND venue contains "suspendido" (case-insensitive)
+        return match.goles_local === null && 
+               match.goles_visita === null && 
+               (match.RECINTO?.toLowerCase().includes('suspendido') === true || 
+                match.recinto?.toLowerCase().includes('suspendido') === true);
+    };
+
     // Group matches by group name
     const groupedMatches = useMemo(() => {
         return matches.reduce<Record<string, Match[]>>((acc, match) => {
@@ -394,7 +403,13 @@ const Matches: React.FC = () => {
                                                         </div>
                                                     )}
                                                     <div className="font-bold text-lg bg-gray-100 px-3 py-1 rounded">
-                                                        {match.goles_local !== null ? match.goles_local : '-'} - {match.goles_visita !== null ? match.goles_visita : '-'}
+                                                        {isSuspendedMatch(match) ? (
+                                                            <span className="text-red-600">SUSPENDIDO</span>
+                                                        ) : (
+                                                            <>
+                                                                {match.goles_local !== null ? match.goles_local : '-'} - {match.goles_visita !== null ? match.goles_visita : '-'}
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </div>
                                                     
