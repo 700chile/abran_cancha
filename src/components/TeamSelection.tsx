@@ -15,9 +15,24 @@ interface TeamGroupAssignment {
     teamID: number;
 }
 
+// Helper function to check if a team is qualified based on competition and position
+const isTeamQualified = (competitionId: number, position: number): boolean => {
+    if (competitionId === 33) {
+        // Top 2 qualify
+        return position <= 2;
+    } else if (competitionId <= 2 || competitionId === 37) {
+        // Top 8 qualify for play-offs
+        return position <= 8;
+    } else if (competitionId === 32) {
+        // Top 2 qualify
+        return position <= 2;
+    }
+    return false;
+};
+
 const TeamSelection: React.FC = () => {
     const { competitionID } = useParams<{ competitionID: string }>();
-    const [competition, setCompetition] = useState<{ NOMBRE: string; EDICION: string; } | null>(null);
+    const [competition, setCompetition] = useState<{ NOMBRE: string; EDICION: string; TIPO?: string; } | null>(null);
     const [rounds, setRounds] = useState<RoundConfig[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
     const [selectedTeams, setSelectedTeams] = useState<TeamGroupAssignment[]>([]);
@@ -68,6 +83,57 @@ const TeamSelection: React.FC = () => {
                 const teamType = competitionData.TIPO === 'COPA SELECCIONES FEDERACION' ? 'SELECCION_NACIONAL' : 'CLUB';
                 const { data: teamsData } = await supabase.rpc('get_teams', { team_type: teamType });
                 setTeams(teamsData);
+
+                // Fetch standings from the first round (regular season) for qualification
+                if (roundsData.length > 0) {
+                    const firstRoundId = roundsData[0].ID;
+                    const { data: groupsData } = await supabase
+                        .from('grupo')
+                        .select('ID, NOMBRE')
+                        .eq('ID_RONDA', firstRoundId)
+                        .order('NOMBRE', { ascending: true });
+
+                    if (groupsData && groupsData.length > 0) {
+                        const allStandings = await Promise.all(
+                            groupsData.map(async (group) => {
+                                const { data: standingsData } = await supabase
+                                    .rpc('get_standings', { grupo_param: group.ID });
+                                return standingsData?.map((row: any) => ({
+                                    pos: row.pos,
+                                    nombre: row.nombre,
+                                    chapa: row.chapa,
+                                    grupo: group.NOMBRE
+                                })) || [];
+                            })
+                        );
+                        const flatStandings = allStandings.flat();
+
+                        // Pre-select qualified teams for the second round (play-offs)
+                        if (roundsData.length > 1) {
+                            const qualifiedTeams = flatStandings
+                                .filter(standing => isTeamQualified(parseInt(competitionID), standing.pos))
+                                .map(standing => {
+                                    const team = teamsData?.find((t: Team) => t.NOMBRE === standing.nombre || t.NOMBRE === standing.chapa);
+                                    if (team) {
+                                        // Find the corresponding group in the second round
+                                        const secondRoundGroups = roundsData[1].GRUPOS || [];
+                                        // Simple assignment: assign qualified teams to groups in order
+                                        const groupIndex = flatStandings.indexOf(standing) % secondRoundGroups.length;
+                                        return {
+                                            groupID: secondRoundGroups[groupIndex]?.ID,
+                                            teamID: team.ID
+                                        };
+                                    }
+                                    return null;
+                                })
+                                .filter((assignment): assignment is TeamGroupAssignment => assignment !== null);
+                            
+                            if (qualifiedTeams.length > 0) {
+                                setSelectedTeams(qualifiedTeams);
+                            }
+                        }
+                    }
+                }
 
             } catch (error) {
                 console.error('Error fetching data:', error);
