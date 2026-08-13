@@ -98,6 +98,22 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                 console.log('Competition data loaded');
                 setCompetition(competitionData);
 
+                // Fetch available teams for this competition FIRST (needed for pre-selection)
+                console.log('Fetching available teams...');
+                const { data: teamsData, error: teamsError } = await supabase
+                    .rpc('teams_available_by_competition', { torneo: parseInt(competitionId, 10) });
+
+                if (teamsError) throw teamsError;
+                if (!isMounted) return;
+                
+                // Sort teams alphabetically
+                const sortedTeams = (teamsData || []).sort((a: Team, b: Team) => 
+                    a.nombre.localeCompare(b.nombre, 'es')
+                );
+                
+                console.log('Available teams loaded:', sortedTeams);
+                setTeams(sortedTeams);
+
                 // Fetch round data if roundId is provided
                 if (selectedRoundId) {
                     console.log('Fetching round data...');
@@ -238,22 +254,6 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                     
                     setSelectedTeams(updatedSelectedTeams);
                 }
-
-                // Fetch available teams for this competition
-                console.log('Fetching available teams...');
-                const { data: teamsData, error: teamsError } = await supabase
-                    .rpc('teams_available_by_competition', { torneo: parseInt(competitionId, 10) });
-
-                if (teamsError) throw teamsError;
-                if (!isMounted) return;
-                
-                // Sort teams alphabetically
-                const sortedTeams = (teamsData || []).sort((a: Team, b: Team) => 
-                    a.nombre.localeCompare(b.nombre, 'es')
-                );
-                
-                console.log('Available teams loaded:', sortedTeams);
-                setTeams(sortedTeams);
 
             } catch (err) {
                 console.error('Error fetching data:', err);
