@@ -42,6 +42,7 @@ export default function AuthPage() {
         email,
         options: {
           emailRedirectTo: `${import.meta.env.VITE_APP_URL}/`,
+          shouldCreateUser: false,
         },
       });
       console.log('Magic link response:', { error, data });
