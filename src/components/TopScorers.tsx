@@ -51,25 +51,42 @@ const TopScorers = () => {
     useEffect(() => {
         const fetchLastUpdateDate = async () => {
             try {
-                const { data, error } = await supabase
-                    .rpc('get_max_date_by_group_id', {
-                        group_id: selectedCompetition
-                    });
+                // Fetch all ronda IDs for the selected competition
+                const { data: rondaData, error: rondaError } = await supabase
+                    .from('ronda')
+                    .select('ID')
+                    .eq('ID_CAMPEONATO', selectedCompetition);
 
-                if (error) throw error;
-                if (data && typeof data === 'string') {
-                    const dateStr = data;
-                    const [year, month, day] = dateStr.split('-');
-                    const parsedYear = parseInt(year);
-                    const parsedMonth = parseInt(month);
-                    const parsedDay = parseInt(day);
-                    
-                    if (!isNaN(parsedYear) && !isNaN(parsedMonth) && !isNaN(parsedDay)) {
-                        setLastUpdateDate(new Date(parsedYear, parsedMonth - 1, parsedDay));
-                    }
-                } else {
-                    console.error('Unexpected date data format:', data);
-                }
+                if (rondaError) throw rondaError;
+                const rondaIds = rondaData?.map(r => r.ID) || [];
+
+                // Fetch all groups for the selected competition
+                const { data: groupsData, error: groupsError } = await supabase
+                    .from('grupo')
+                    .select('ID, NOMBRE')
+                    .eq('TIPO', 'TODOS CONTRA TODOS')
+                    .in('ID_RONDA', rondaIds)
+                    .order('NOMBRE', { ascending: true });
+
+                if (groupsError) throw groupsError;
+
+                // Fetch max date for each group and find the latest date
+                const groupDates = await Promise.all(
+                    groupsData?.map(async (group) => {
+                        const { data: dateData, error: dateError } = await supabase
+                            .rpc('get_max_date_by_group_id', { group_id: group.ID });
+
+                        if (dateError) throw dateError;
+                        return dateData ? new Date(dateData) : null;
+                    }) || []
+                );
+
+                // Find the latest date among all groups
+                const latestDate = groupDates
+                    .filter((date): date is Date => date !== null)
+                    .reduce((latest, current) => current > latest ? current : latest, new Date('1970-01-01'));
+
+                setLastUpdateDate(latestDate);
             } catch (error) {
                 console.error('Error fetching last update date:', error);
             }
