@@ -384,7 +384,7 @@ const LeagueStandings = () => {
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.gf}</td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.gc}</td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.dif}</td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.pts}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-bold">{row.pts}</td>
                                                         </tr>
                                                     ))}
                                             </tbody>
