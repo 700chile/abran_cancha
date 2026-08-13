@@ -36,12 +36,15 @@ export default function AuthPage() {
     setMessage(null);
     setMagicLinkLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      console.log('Sending magic link to:', email);
+      console.log('Redirect URL:', `${import.meta.env.VITE_APP_URL}/`);
+      const { error, data } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${import.meta.env.VITE_APP_URL}/`,
         },
       });
+      console.log('Magic link response:', { error, data });
       if (error) {
         setError(error.message);
         return;

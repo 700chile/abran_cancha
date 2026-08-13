@@ -23,13 +23,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     (async () => {
       const { data } = await supabase.auth.getSession();
+      console.log('AuthProvider - Initial session:', data.session);
       if (!isMounted) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log('AuthProvider - Auth state changed:', event, newSession);
       setSession(newSession);
       setUser(newSession?.user ?? null);
     });
