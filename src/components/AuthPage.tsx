@@ -73,7 +73,7 @@ export default function AuthPage() {
           onClick={() => setUseMagicLink(true)}
           className={`flex-1 py-2 px-4 rounded ${useMagicLink ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
-          Enlace mágico
+          Olvidé mi contraseña
         </button>
       </div>
 
