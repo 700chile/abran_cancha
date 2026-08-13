@@ -131,7 +131,7 @@ export default function AuthPage() {
             disabled={magicLinkLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded disabled:opacity-60"
           >
-            {magicLinkLoading ? 'Enviando...' : 'Enviar enlace mágico'}
+            {magicLinkLoading ? 'Enviando...' : 'Enviar correo'}
           </button>
         </form>
       )}
