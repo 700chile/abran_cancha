@@ -67,7 +67,7 @@ export default function AuthPage() {
           onClick={() => setUseMagicLink(false)}
           className={`flex-1 py-2 px-4 rounded ${!useMagicLink ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
-          Contraseña
+          Login
         </button>
         <button
           type="button"
@@ -94,7 +94,7 @@ export default function AuthPage() {
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">Login</label>
+            <label className="block text-sm mb-1">Contraseña</label>
             <input
               type="password"
               className="w-full border rounded px-3 py-2"
