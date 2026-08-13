@@ -42,6 +42,7 @@ export default function UserCreator() {
     }
     setLoading(true);
     try {
+      console.log('Creating user with email:', email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -50,31 +51,43 @@ export default function UserCreator() {
         },
       });
       if (error) throw error;
+      console.log('User created successfully:', data);
+      
       // Create profile and default role assignment immediately using returned user id
       const newUserId = data?.user?.id;
-      if (newUserId) {
-        try {
-          await supabase.from('rbac_profiles').upsert({
-            user_id: newUserId,
-            email,
-            display_name: displayName || null,
-          });
-        } catch (e) {
-          console.error('[RBAC:UI] upsert rbac_profiles error', e);
-        }
-        try {
-          const defaultRoleId = roleId ? Number(roleId) : 2;
-          await supabase.from('user_role').upsert(
-            { user_id: newUserId, role_id: defaultRoleId },
-            { onConflict: 'user_id' }
-          );
-        } catch (e) {
-          console.error('[RBAC:UI] upsert user_role error', e);
-        }
+      if (!newUserId) {
+        throw new Error('No user ID returned from Supabase');
       }
+      console.log('Creating profile for user ID:', newUserId);
+      
+      // Create rbac_profiles entry
+      const { error: profileError } = await supabase.from('rbac_profiles').upsert({
+        user_id: newUserId,
+        email,
+        display_name: displayName || null,
+      });
+      if (profileError) {
+        console.error('Error creating rbac_profiles:', profileError);
+        throw new Error(`Error creating profile: ${profileError.message}`);
+      }
+      console.log('rbac_profiles created successfully');
+      
+      // Create user_role entry
+      const defaultRoleId = roleId ? Number(roleId) : 2;
+      console.log('Assigning role ID:', defaultRoleId, 'to user:', newUserId);
+      const { error: roleError } = await supabase.from('user_role').upsert(
+        { user_id: newUserId, role_id: defaultRoleId },
+        { onConflict: 'user_id' }
+      );
+      if (roleError) {
+        console.error('Error creating user_role:', roleError);
+        throw new Error(`Error assigning role: ${roleError.message}`);
+      }
+      console.log('user_role created successfully');
+      
       setMessage('Usuario creado (pendiente confirmación). Se envió un correo de verificación con enlace a la página para actualizar contraseña.');
     } catch (e: any) {
-      console.error(e);
+      console.error('Error in sendInvite:', e);
       setError(e?.message || 'Error enviando invitación');
     } finally {
       setLoading(false);
