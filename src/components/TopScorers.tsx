@@ -244,7 +244,7 @@ const TopScorers = () => {
 
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-4 py-2 text-right text-sm text-gray-500">
-                        Refleja partidos hasta: {lastUpdateDate ? lastUpdateDate.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/-/g, '/') : 'Cargando...'}
+                        Refleja partidos hasta: {lastUpdateDate?.toLocaleDateString() || 'Cargando...'}
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full border-separate border-spacing-y-2.5 text-center">
