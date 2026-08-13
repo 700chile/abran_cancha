@@ -153,8 +153,12 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                     
                     // If no existing assignments and this is a second round, pre-select qualified teams
                     const hasAssignments = assignments && assignments.length > 0;
+                    console.log('Has existing assignments:', hasAssignments);
+                    console.log('Competition data:', competitionData);
+                    
                     if (!hasAssignments && competitionData) {
                         try {
+                            console.log('Attempting to pre-select qualified teams...');
                             // Find previous round
                             const { data: allRounds } = await supabase
                                 .from('ronda')
@@ -162,9 +166,13 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                 .eq('ID_CAMPEONATO', competitionData.ID)
                                 .order('ID');
                             
+                            console.log('All rounds:', allRounds);
                             const currentRoundIndex = allRounds?.findIndex(r => r.ID === selectedRoundId) || -1;
+                            console.log('Current round index:', currentRoundIndex);
+                            
                             if (currentRoundIndex > 0 && allRounds) {
                                 const previousRoundId = allRounds[currentRoundIndex - 1].ID;
+                                console.log('Previous round ID:', previousRoundId);
                                 
                                 // Fetch groups from previous round
                                 const { data: previousGroups } = await supabase
@@ -172,6 +180,8 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                     .select('ID, NOMBRE')
                                     .eq('ID_RONDA', previousRoundId)
                                     .order('NOMBRE', { ascending: true });
+                                
+                                console.log('Previous groups:', previousGroups);
                                 
                                 if (previousGroups && previousGroups.length > 0) {
                                     // Fetch standings from previous round groups
@@ -188,7 +198,9 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                     );
                                     
                                     const flatStandings = allStandings.flat();
+                                    console.log('Flat standings:', flatStandings);
                                     const competitionIdNum = parseInt(competitionId, 10);
+                                    console.log('Competition ID number:', competitionIdNum);
                                     
                                     // Pre-select qualified teams
                                     const qualifiedTeamIds = flatStandings
@@ -200,6 +212,8 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                             return team?.id;
                                         })
                                         .filter((id): id is number => id !== undefined);
+                                    
+                                    console.log('Qualified team IDs:', qualifiedTeamIds);
                                     
                                     // Assign qualified teams to groups in order
                                     let teamIndex = 0;
@@ -213,6 +227,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                             teamIndex++;
                                         }
                                     });
+                                    console.log('Updated selected teams after pre-selection:', updatedSelectedTeams);
                                 }
                             }
                         } catch (error) {
@@ -232,8 +247,13 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                 if (teamsError) throw teamsError;
                 if (!isMounted) return;
                 
-                console.log('Available teams loaded:', teamsData);
-                setTeams(teamsData || []);
+                // Sort teams alphabetically
+                const sortedTeams = (teamsData || []).sort((a: Team, b: Team) => 
+                    a.nombre.localeCompare(b.nombre, 'es')
+                );
+                
+                console.log('Available teams loaded:', sortedTeams);
+                setTeams(sortedTeams);
 
             } catch (err) {
                 console.error('Error fetching data:', err);
