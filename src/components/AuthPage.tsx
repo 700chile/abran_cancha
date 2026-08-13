@@ -39,7 +39,7 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${import.meta.env.VITE_APP_URL}/`,
         },
       });
       if (error) {
