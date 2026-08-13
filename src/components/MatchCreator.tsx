@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../supabase';
 import type { Group, Match, Gameday } from '../types/match';
 
 // Type for the team data returned by get_teams_by_group function

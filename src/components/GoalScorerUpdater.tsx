@@ -1,6 +1,6 @@
 // src/components/GoalScorerUpdater.tsx
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 
 interface Match {
     id: number;

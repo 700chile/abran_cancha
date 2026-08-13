@@ -1,7 +1,7 @@
 // src/components/MatchUpdater.tsx
 import { useState, useEffect, useRef } from 'react';
 import { usePermissions } from './PermissionProvider';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { getPosterLogo } from '../utils/posterLogos';
 import { renderScheduleImage } from './PosterScheduleCanvas';

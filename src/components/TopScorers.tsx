@@ -1,7 +1,7 @@
 // src/components/TopScorers.tsx
 import { useState, useEffect } from 'react';
 import { usePermissions } from './PermissionProvider';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderTopScorersPoster } from './PosterTopScorersCanvas';
 import EmbedCodeGenerator from './EmbedCodeGenerator';

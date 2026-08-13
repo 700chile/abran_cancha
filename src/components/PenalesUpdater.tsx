@@ -1,6 +1,6 @@
 // src/components/PenalesUpdater.tsx
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 
 interface PenaltyMatch {
   id: number;

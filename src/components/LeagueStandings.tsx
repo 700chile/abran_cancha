@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { usePermissions } from './PermissionProvider';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import { renderStandingsPoster, type StandingsPosterRow } from './PosterStandingsCanvas';
 import EmbedCodeGenerator from './EmbedCodeGenerator';

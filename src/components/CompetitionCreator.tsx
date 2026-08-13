@@ -3,7 +3,7 @@ import type { CompetitionFormState, RoundType, RoundVueltas } from '../types';
 import { COMPETITION_TYPES, ROUND_TYPES, ROUND_VUELTAS } from '../types';
 import { createCompetition } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 
 interface Message {
     type: 'success' | 'error';

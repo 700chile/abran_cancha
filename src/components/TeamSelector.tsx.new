@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type { FC, ChangeEvent, FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../supabase';
 
 // Interfaces for our data models
 interface Team {

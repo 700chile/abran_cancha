@@ -1,6 +1,6 @@
 // src/components/Matches.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../supabase';
 import { getTeamLogo } from '../utils/teamLogos';
 import EmbedCodeGenerator from './EmbedCodeGenerator';
 import { usePermissions } from './PermissionProvider';
