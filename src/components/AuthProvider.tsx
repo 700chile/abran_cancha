@@ -24,6 +24,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (async () => {
       const { data } = await supabase.auth.getSession();
       console.log('AuthProvider - Initial session:', data.session);
+      console.log('AuthProvider - Current URL:', window.location.href);
+      console.log('AuthProvider - URL hash:', window.location.hash);
+      console.log('AuthProvider - URL search params:', window.location.search);
       if (!isMounted) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
@@ -32,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
       console.log('AuthProvider - Auth state changed:', event, newSession);
+      console.log('AuthProvider - Current URL on state change:', window.location.href);
       setSession(newSession);
       setUser(newSession?.user ?? null);
     });
