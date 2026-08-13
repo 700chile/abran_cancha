@@ -3,6 +3,21 @@ import type { FC } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 
+// Helper function to check if a team is qualified based on competition and position
+const isTeamQualified = (competitionId: number, position: number): boolean => {
+    if (competitionId === 33) {
+        // Top 2 qualify
+        return position <= 2;
+    } else if (competitionId <= 2 || competitionId === 37) {
+        // Top 8 qualify for play-offs
+        return position <= 8;
+    } else if (competitionId === 32) {
+        // Top 2 qualify
+        return position <= 2;
+    }
+    return false;
+};
+
 // Interfaces for our data models
 interface Team {
     id: number;
@@ -135,6 +150,77 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                             updatedSelectedTeams[assignment.ID_GRUPO].push(assignment.ID_EQUIPO);
                         }
                     });
+                    
+                    // If no existing assignments and this is a second round, pre-select qualified teams
+                    const hasAssignments = assignments && assignments.length > 0;
+                    if (!hasAssignments && competitionData) {
+                        try {
+                            // Find previous round
+                            const { data: allRounds } = await supabase
+                                .from('ronda')
+                                .select('ID, NOMBRE')
+                                .eq('ID_CAMPEONATO', competitionData.ID)
+                                .order('ID');
+                            
+                            const currentRoundIndex = allRounds?.findIndex(r => r.ID === selectedRoundId) || -1;
+                            if (currentRoundIndex > 0 && allRounds) {
+                                const previousRoundId = allRounds[currentRoundIndex - 1].ID;
+                                
+                                // Fetch groups from previous round
+                                const { data: previousGroups } = await supabase
+                                    .from('grupo')
+                                    .select('ID, NOMBRE')
+                                    .eq('ID_RONDA', previousRoundId)
+                                    .order('NOMBRE', { ascending: true });
+                                
+                                if (previousGroups && previousGroups.length > 0) {
+                                    // Fetch standings from previous round groups
+                                    const allStandings = await Promise.all(
+                                        previousGroups.map(async (group) => {
+                                            const { data: standingsData } = await supabase
+                                                .rpc('get_standings', { grupo_param: group.ID });
+                                            return standingsData?.map((row: any) => ({
+                                                pos: row.pos,
+                                                nombre: row.nombre,
+                                                chapa: row.chapa
+                                            })) || [];
+                                        })
+                                    );
+                                    
+                                    const flatStandings = allStandings.flat();
+                                    const competitionIdNum = parseInt(competitionId, 10);
+                                    
+                                    // Pre-select qualified teams
+                                    const qualifiedTeamIds = flatStandings
+                                        .filter(standing => isTeamQualified(competitionIdNum, standing.pos))
+                                        .map(standing => {
+                                            const team = teamsData?.find((t: Team) => 
+                                                t.nombre === standing.nombre || t.nombre === standing.chapa
+                                            );
+                                            return team?.id;
+                                        })
+                                        .filter((id): id is number => id !== undefined);
+                                    
+                                    // Assign qualified teams to groups in order
+                                    let teamIndex = 0;
+                                    groupsData?.forEach(group => {
+                                        const teamsToAssign = Math.min(
+                                            group.EQUIPOS_CANT,
+                                            qualifiedTeamIds.length - teamIndex
+                                        );
+                                        for (let i = 0; i < teamsToAssign && teamIndex < qualifiedTeamIds.length; i++) {
+                                            updatedSelectedTeams[group.ID].push(qualifiedTeamIds[teamIndex]);
+                                            teamIndex++;
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error pre-selecting qualified teams:', error);
+                            // Continue without pre-selection if it fails
+                        }
+                    }
+                    
                     setSelectedTeams(updatedSelectedTeams);
                 }
 
