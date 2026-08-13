@@ -124,7 +124,7 @@ export default function AuthPage() {
             />
           </div>
           <p className="text-sm text-gray-600">
-            Te enviaremos un enlace mágico a tu correo para iniciar sesión sin contraseña.
+            Te enviaremos un enlace a tu correo.
           </p>
           <button
             type="submit"
