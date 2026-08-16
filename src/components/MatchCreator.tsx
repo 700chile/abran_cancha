@@ -419,6 +419,24 @@ const MatchCreator: React.FC = () => {
               // Round Robin
               groupGamedays = generateRoundRobinMatches(group);
               
+              // Apply leading zeros for MÁS DE DOS VUELTAS
+              if (group.legs === 'MÁS DE DOS VUELTAS') {
+                groupGamedays = groupGamedays.map(gd => {
+                  const gamedayNumber = gd.matches[0]?.fecha || 1;
+                  const gamedayName = gamedayNumber <= 9
+                    ? `Jornada 0${gamedayNumber}`
+                    : gd.name;
+                  return {
+                    ...gd,
+                    name: gamedayName,
+                    matches: gd.matches.map(match => ({
+                      ...match,
+                      ronda: gamedayName
+                    }))
+                  };
+                });
+              }
+              
               if (group.legs === 'IDA Y VUELTA') {
                 console.log('Adding second leg for Round Robin...');
                 groupGamedays = [
@@ -430,20 +448,34 @@ const MatchCreator: React.FC = () => {
                 const setsCount = initialGroupSets[group.id] || 3;
                 console.log(`Generating ${setsCount} sets for group ${group.name}`);
                 
+                // Get the base set count (number of matchdays in one complete set)
+                const baseSetGamedays = generateRoundRobinMatches(group, false);
+                const baseSetCount = baseSetGamedays.length;
+                
                 // Generate additional sets (beyond the first set)
                 for (let i = 1; i < setsCount; i++) {
                   const additionalGamedays = generateRoundRobinMatches(group, false);
                   // Adjust gameday numbering for additional sets
-                  const adjustedGamedays = additionalGamedays.map((gd) => ({
-                    ...gd,
-                    id: `${group.id}-${gd.matches[0]?.fecha + (i * groupGamedays.length)}`,
-                    name: `Jornada ${gd.matches[0]?.fecha + (i * groupGamedays.length)}`,
-                    matches: gd.matches.map(match => ({
-                      ...match,
-                      fecha: match.fecha + (i * groupGamedays.length),
-                      ronda: `Jornada ${match.fecha + (i * groupGamedays.length)}`
-                    }))
-                  }));
+                  const adjustedGamedays = additionalGamedays.map((gd) => {
+                    const newGamedayNumber = gd.matches[0]?.fecha + (i * baseSetCount);
+                    const gamedayName = newGamedayNumber <= 9
+                      ? `Jornada 0${newGamedayNumber}`
+                      : `Jornada ${newGamedayNumber}`;
+                    
+                    return {
+                      ...gd,
+                      id: `${group.id}-${newGamedayNumber}`,
+                      name: gamedayName,
+                      matches: gd.matches.map(match => {
+                        const newMatchNumber = match.fecha + (i * baseSetCount);
+                        return {
+                          ...match,
+                          fecha: newMatchNumber,
+                          ronda: gamedayName
+                        };
+                      })
+                    };
+                  });
                   groupGamedays = [...groupGamedays, ...adjustedGamedays];
                 }
               }
@@ -564,26 +596,40 @@ const MatchCreator: React.FC = () => {
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
 
-    // Get current gamedays for this group
-    const currentGroupGamedays = gamedays.filter(g => g.groupId === groupId);
     const currentSetCount = groupSets[groupId] || 3;
-    const baseGamedaysCount = currentGroupGamedays.length / currentSetCount;
+    
+    // Calculate the base set count (number of matchdays in one complete set)
+    // For a 7-team group: 7 matchdays per set
+    // For a 5-team group: 5 matchdays per set
+    const baseSetCount = group.teamsCount % 2 === 0 
+      ? group.teamsCount - 1 
+      : group.teamsCount;
 
     // Generate one more set
     const additionalGamedays = generateRoundRobinMatches(group, false);
     const newSetNumber = currentSetCount + 1;
     
     // Adjust gameday numbering for the new set
-    const adjustedGamedays = additionalGamedays.map((gd) => ({
-      ...gd,
-      id: `${group.id}-${gd.matches[0]?.fecha + (newSetNumber - 1) * baseGamedaysCount}`,
-      name: `Jornada ${gd.matches[0]?.fecha + (newSetNumber - 1) * baseGamedaysCount}`,
-      matches: gd.matches.map(match => ({
-        ...match,
-        fecha: match.fecha + (newSetNumber - 1) * baseGamedaysCount,
-        ronda: `Jornada ${match.fecha + (newSetNumber - 1) * baseGamedaysCount}`
-      }))
-    }));
+    const adjustedGamedays = additionalGamedays.map((gd) => {
+      const newGamedayNumber = gd.matches[0]?.fecha + (newSetNumber - 1) * baseSetCount;
+      const gamedayName = newGamedayNumber <= 9
+        ? `Jornada 0${newGamedayNumber}`
+        : `Jornada ${newGamedayNumber}`;
+      
+      return {
+        ...gd,
+        id: `${group.id}-${newGamedayNumber}`,
+        name: gamedayName,
+        matches: gd.matches.map(match => {
+          const newMatchNumber = match.fecha + (newSetNumber - 1) * baseSetCount;
+          return {
+            ...match,
+            fecha: newMatchNumber,
+            ronda: gamedayName
+          };
+        })
+      };
+    });
 
     // Update gamedays
     setGamedays(prev => [...prev, ...adjustedGamedays]);
