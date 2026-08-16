@@ -1,6 +1,6 @@
 // Types for match creation
 export type TournamentType = 'TODOS CONTRA TODOS' | 'ELIMINACION DIRECTA';
-export type LegsType = 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA';
+export type LegsType = 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA' | 'MÁS DE DOS VUELTAS';
 
 export interface Team {
   id: string;

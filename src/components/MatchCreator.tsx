@@ -19,7 +19,7 @@ type SupabaseGroup = {
   NOMBRE: string;
   ID_RONDA: number;
   TIPO: string;
-  VUELTAS: 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA';
+  VUELTAS: 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA' | 'MÁS DE DOS VUELTAS';
   EQUIPOS_CANT: number;
   equipos?: SupabaseEquipoGrupo[];
 };
@@ -241,6 +241,7 @@ const MatchCreator: React.FC = () => {
   const [competitionEdition, setCompetitionEdition] = useState('');
   const [roundName, setRoundName] = useState('');
   const [validationErrors, setValidationErrors] = useState<{groupId: string; message: string}[]>([]);
+  const [groupSets, setGroupSets] = useState<Record<string, number>>({});
   
   // Log the extracted values
   useEffect(() => {
@@ -382,7 +383,7 @@ const MatchCreator: React.FC = () => {
               name: group.NOMBRE,
               type: group.TIPO as 'TODOS CONTRA TODOS' | 'ELIMINACION DIRECTA',
               // VUELTAS is already a string with the correct value ('UNA VUELTA' or 'IDA Y VUELTA')
-              legs: group.VUELTAS as 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA',
+              legs: group.VUELTAS as 'UNA VUELTA' | 'IDA Y VUELTA' | 'FINAL UNICA' | 'MÁS DE DOS VUELTAS',
               teams: (group.equipos || []).map(eg => ({
                 id: eg.equipo.ID.toString(),
                 name: eg.equipo.NOMBRE
@@ -394,6 +395,15 @@ const MatchCreator: React.FC = () => {
           });
           
           setGroups(formattedGroups);
+          
+          // Initialize group sets for MÁS DE DOS VUELTAS (default to 3 sets)
+          const initialGroupSets: Record<string, number> = {};
+          formattedGroups.forEach(group => {
+            if (group.legs === 'MÁS DE DOS VUELTAS') {
+              initialGroupSets[group.id] = 3;
+            }
+          });
+          setGroupSets(initialGroupSets);
           
           // Generate gamedays for each group
           const allGamedays: Gameday[] = [];
@@ -415,6 +425,27 @@ const MatchCreator: React.FC = () => {
                   ...groupGamedays,
                   ...generateRoundRobinMatches(group, true)
                 ];
+              } else if (group.legs === 'MÁS DE DOS VUELTAS') {
+                console.log('Adding multiple sets for MÁS DE DOS VUELTAS...');
+                const setsCount = initialGroupSets[group.id] || 3;
+                console.log(`Generating ${setsCount} sets for group ${group.name}`);
+                
+                // Generate additional sets (beyond the first set)
+                for (let i = 1; i < setsCount; i++) {
+                  const additionalGamedays = generateRoundRobinMatches(group, false);
+                  // Adjust gameday numbering for additional sets
+                  const adjustedGamedays = additionalGamedays.map((gd) => ({
+                    ...gd,
+                    id: `${group.id}-${gd.matches[0]?.fecha + (i * groupGamedays.length)}`,
+                    name: `Jornada ${gd.matches[0]?.fecha + (i * groupGamedays.length)}`,
+                    matches: gd.matches.map(match => ({
+                      ...match,
+                      fecha: match.fecha + (i * groupGamedays.length),
+                      ronda: `Jornada ${match.fecha + (i * groupGamedays.length)}`
+                    }))
+                  }));
+                  groupGamedays = [...groupGamedays, ...adjustedGamedays];
+                }
               }
             } else {
               console.log('Generating Elimination matches...');
@@ -526,6 +557,42 @@ const MatchCreator: React.FC = () => {
     
     // Using the correct route format that matches App.tsx routing
     navigate(`/competition/${competitionId}/round/${roundId}/select-teams?group=${groupId}`);
+  };
+
+  // Add another set of matchdays for a specific group
+  const addAnotherSet = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    // Get current gamedays for this group
+    const currentGroupGamedays = gamedays.filter(g => g.groupId === groupId);
+    const currentSetCount = groupSets[groupId] || 3;
+    const baseGamedaysCount = currentGroupGamedays.length / currentSetCount;
+
+    // Generate one more set
+    const additionalGamedays = generateRoundRobinMatches(group, false);
+    const newSetNumber = currentSetCount + 1;
+    
+    // Adjust gameday numbering for the new set
+    const adjustedGamedays = additionalGamedays.map((gd) => ({
+      ...gd,
+      id: `${group.id}-${gd.matches[0]?.fecha + (newSetNumber - 1) * baseGamedaysCount}`,
+      name: `Jornada ${gd.matches[0]?.fecha + (newSetNumber - 1) * baseGamedaysCount}`,
+      matches: gd.matches.map(match => ({
+        ...match,
+        fecha: match.fecha + (newSetNumber - 1) * baseGamedaysCount,
+        ronda: `Jornada ${match.fecha + (newSetNumber - 1) * baseGamedaysCount}`
+      }))
+    }));
+
+    // Update gamedays
+    setGamedays(prev => [...prev, ...adjustedGamedays]);
+
+    // Update sets count
+    setGroupSets(prev => ({
+      ...prev,
+      [groupId]: newSetNumber
+    }));
   };
 
   // Save matches to database
@@ -712,7 +779,17 @@ const MatchCreator: React.FC = () => {
       
       {groups.map(group => (
         <div key={group.id} className="mb-8 p-4 border rounded">
-          <h2 className="text-xl font-semibold mb-4">Grupo: {group.name}</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Grupo: {group.name}</h2>
+            {group.legs === 'MÁS DE DOS VUELTAS' && (
+              <button
+                onClick={() => addAnotherSet(group.id)}
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+              >
+                Agregar otra vuelta
+              </button>
+            )}
+          </div>
           
           {gamedays
             .filter(g => g.groupId === group.id)
