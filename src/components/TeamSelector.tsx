@@ -296,12 +296,21 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
             const teamIndex = newState[groupId].indexOf(teamId);
             if (isChecked && teamIndex === -1) {
                 // Check if team is already selected in another group
-                const selectedGroups = Object.entries(newState).filter(([_, teamIds]) => teamIds.length > 0);
-                if (selectedGroups.length > 0) {
-                    const selectedGroupNames = selectedGroups.map(([groupId]) => {
-                        const group = groups.find(g => g.ID === parseInt(groupId));
-                        return group ? group.NOMBRE : `Grupo ${groupId}`;
-                    }).join(', ');
+                const isTeamSelectedElsewhere = Object.entries(newState).some(([otherGroupId, teamIds]) => {
+                    if (parseInt(otherGroupId) === groupId) return false; // Skip current group
+                    return teamIds.includes(teamId);
+                });
+                
+                if (isTeamSelectedElsewhere) {
+                    const selectedGroupNames = Object.entries(newState)
+                        .filter(([otherGroupId, teamIds]) => {
+                            if (parseInt(otherGroupId) === groupId) return false;
+                            return teamIds.includes(teamId);
+                        })
+                        .map(([groupId]) => {
+                            const group = groups.find(g => g.ID === parseInt(groupId));
+                            return group ? group.NOMBRE : `Grupo ${groupId}`;
+                        }).join(', ');
                     console.warn(`Team ${teamId} is already selected in: ${selectedGroupNames}. Cannot select in multiple groups.`);
                     return prev; // Prevent selection
                 }
