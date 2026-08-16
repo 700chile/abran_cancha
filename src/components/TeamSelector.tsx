@@ -62,6 +62,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState(false);
+    const [preSelectedMessage, setPreSelectedMessage] = useState(false);
 
     // Remove the round parameter from URL if it exists in search params
     useEffect(() => {
@@ -244,6 +245,7 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                                         }
                                     });
                                     console.log('Updated selected teams after pre-selection:', updatedSelectedTeams);
+                                    setPreSelectedMessage(true);
                                 }
                             }
                         } catch (error) {
@@ -825,6 +827,12 @@ const TeamSelector: FC<TeamSelectorProps> = ({ competitionId, roundId: initialRo
                 {success && (
                     <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                         ¡Asignaciones guardadas correctamente!
+                    </div>
+                )}
+                
+                {preSelectedMessage && (
+                    <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                        Los equipos han sido preseleccionados. Para aceptar, haga click en Guardar.
                     </div>
                 )}
                 
