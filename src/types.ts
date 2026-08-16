@@ -31,7 +31,8 @@ export const ROUND_TYPES = [
 export const ROUND_VUELTAS = [
     'UNA VUELTA',
     'IDA Y VUELTA',
-    'FINAL ÚNICA'
+    'FINAL ÚNICA',
+    'MÁS DE DOS VUELTAS'
 ] as const;
 
 export type RoundType = typeof ROUND_TYPES[number];
