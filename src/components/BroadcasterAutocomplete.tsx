@@ -18,6 +18,7 @@ const BroadcasterAutocomplete = ({ value, onChange, placeholder = 'Seleccione un
     const [showOptions, setShowOptions] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const listRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchBroadcasters = async () => {
@@ -103,8 +104,21 @@ const BroadcasterAutocomplete = ({ value, onChange, placeholder = 'Seleccione un
         }
     }, [highlightedIndex]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowOptions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className="relative">
+        <div className="relative" ref={containerRef}>
             <input
                 type="text"
                 value={inputValue}

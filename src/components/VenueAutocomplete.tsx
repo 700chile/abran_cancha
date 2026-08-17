@@ -18,6 +18,7 @@ const VenueAutocomplete = ({ value, onChange, placeholder = 'Seleccione un recin
     const [showOptions, setShowOptions] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const listRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchVenues = async () => {
@@ -98,8 +99,21 @@ const VenueAutocomplete = ({ value, onChange, placeholder = 'Seleccione un recin
         }
     }, [highlightedIndex]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowOptions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className="relative">
+        <div className="relative" ref={containerRef}>
             <input
                 type="text"
                 value={inputValue}
