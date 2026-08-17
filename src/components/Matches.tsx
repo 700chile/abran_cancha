@@ -164,6 +164,7 @@ const Matches: React.FC = () => {
                 const { data, error } = await supabase
                     .from('campeonato')
                     .select('*')
+                    .in('STATUS', ['COMPLETO', 'ACTIVO'])
                     .order('ID', { ascending: false });
 
                 if (error) throw error;

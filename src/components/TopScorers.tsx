@@ -35,6 +35,7 @@ const TopScorers = () => {
                 const { data, error } = await supabase
                     .from('campeonato')
                     .select('ID, NOMBRE, EDICION')
+                    .in('STATUS', ['COMPLETO', 'ACTIVO'])
                     .order('EDICION', { ascending: false })
                     .order('NOMBRE');
 

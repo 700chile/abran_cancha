@@ -64,6 +64,7 @@ const LeagueStandings = () => {
             const { data: competitionsData, error: competitionsError } = await supabase
                 .from('campeonato')
                 .select('ID, NOMBRE, EDICION')
+                .in('STATUS', ['COMPLETO', 'ACTIVO'])
                 .order('ID');
 
             if (competitionsError) throw competitionsError;
