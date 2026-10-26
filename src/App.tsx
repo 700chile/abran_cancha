@@ -264,7 +264,7 @@ function App() {
                   <Route path="/competition/:competitionId/round/:roundId/select-teams" element={
                     <ProtectedRoute need="matches:create"><TeamSelectorWrapper /></ProtectedRoute>
                   } />
-                  <Route path="/competition/:id/build-matches" element={<ProtectedRoute need="matches:create"><MatchCreator /></ProtectedRoute>} />
+                  <Route path="/competition/:competitionId/round/:roundId/create-matches" element={<ProtectedRoute need="matches:create"><MatchCreator /></ProtectedRoute>} />
                   <Route path="/create-matches" element={<ProtectedRoute need="matches:create"><CompetitionRoundSelector /></ProtectedRoute>} />
                   <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
                   <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />

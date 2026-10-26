@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import type { Group, Match, Gameday } from '../types/match';
 
@@ -217,22 +217,19 @@ const generateEliminationMatches = (group: Group): Gameday[] => {
 const MatchCreator: React.FC = () => {
   // Get all route parameters and query parameters
   const params = useParams();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   // Log all available information for debugging
   useEffect(() => {
     console.log('=== Debugging Route Parameters ===');
     console.log('Full URL:', window.location.href);
     console.log('Path segments:', window.location.pathname.split('/'));
     console.log('All route params:', params);
-    console.log('All query params:', Object.fromEntries(searchParams.entries()));
-  }, [params, searchParams]);
-  
-  // Get the competition ID from the first path segment after 'competition'
-  const pathSegments = window.location.pathname.split('/');
-  const competitionId = pathSegments[pathSegments.indexOf('competition') + 1];
-  const roundId = searchParams.get('round');
+  }, [params]);
+
+  // Get the competition ID and round ID from route parameters
+  const competitionId = params.competitionId;
+  const roundId = params.roundId;
   
   const [groups, setGroups] = useState<Group[]>([]);
   const [gamedays, setGamedays] = useState<Gameday[]>([]);
@@ -242,7 +239,6 @@ const MatchCreator: React.FC = () => {
   const [roundName, setRoundName] = useState('');
   const [validationErrors, setValidationErrors] = useState<{groupId: string; message: string}[]>([]);
   const [groupSets, setGroupSets] = useState<Record<string, number>>({});
-  const [competitionError, setCompetitionError] = useState<string | null>(null);
   
   // Log the extracted values
   useEffect(() => {
@@ -261,22 +257,6 @@ const MatchCreator: React.FC = () => {
       try {
         console.log('Setting loading to true');
         setIsLoading(true);
-
-        // Validate that the competition is editable using get_editable_competitions()
-        const { data: editableCompetitions, error: editableError } = await supabase.rpc('get_editable_competitions');
-        if (editableError) {
-          console.error('Error fetching editable competitions:', editableError);
-          throw editableError;
-        }
-
-        // Check if the current competition is in the editable list
-        const isEditable = editableCompetitions?.some((c: any) => c.id === parseInt(competitionId));
-        if (!isEditable) {
-          console.error('Competition is not editable:', competitionId);
-          setCompetitionError('Esta competición no está disponible para edición (STATUS = COMPLETO)');
-          setIsLoading(false);
-          return;
-        }
 
         // Fetch competition name
         console.log('Fetching competition data for ID:', competitionId);
@@ -798,28 +778,6 @@ const MatchCreator: React.FC = () => {
     </div>;
   }
 
-  if (competitionError) {
-    return <div className="container mx-auto p-4">
-      <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">
-              Error de competición
-            </h3>
-            <div className="mt-2 text-sm text-red-700">
-              {competitionError}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>;
-  }
-  
   // Check if there are any validation errors
   const hasValidationErrors = validationErrors.length > 0;
 

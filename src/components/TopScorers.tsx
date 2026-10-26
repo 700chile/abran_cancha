@@ -49,7 +49,12 @@ const TopScorers = () => {
                     // Non-admin users use the SQL function
                     const { data: displayData, error } = await supabase.rpc('get_displayable_competitions');
                     if (error) throw error;
-                    data = displayData;
+                    // Map lowercase column names to uppercase to match the interface
+                    data = displayData?.map((c: any) => ({
+                        ID: c.id,
+                        NOMBRE: c.nombre,
+                        EDICION: c.edición
+                    })) || [];
                 }
 
                 setCompetitions(data || []);

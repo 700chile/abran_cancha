@@ -76,7 +76,12 @@ const LeagueStandings = () => {
                 // Non-admin users use the SQL function
                 const { data, error } = await supabase.rpc('get_displayable_competitions');
                 if (error) throw error;
-                competitionsData = data;
+                // Map lowercase column names to uppercase to match the interface
+                competitionsData = data?.map((c: any) => ({
+                    ID: c.id,
+                    NOMBRE: c.nombre,
+                    EDICION: c.edición
+                })) || [];
             }
 
             setCompetitions(competitionsData || []);

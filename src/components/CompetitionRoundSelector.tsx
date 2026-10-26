@@ -27,13 +27,18 @@ const CompetitionRoundSelector: React.FC = () => {
     const fetchCompetitions = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from('campeonato')
-          .select('ID, NOMBRE, EDICION')
-          .order('ID', { ascending: false });
-
+        // Use get_editable_competitions() to fetch competitions that can be edited
+        const { data, error } = await supabase.rpc('get_editable_competitions');
         if (error) throw error;
-        setCompetitions(data || []);
+
+        // Map lowercase column names to uppercase to match the interface
+        const mappedData = data?.map((c: any) => ({
+          ID: c.id,
+          NOMBRE: c.nombre,
+          EDICION: c.edición
+        })) || [];
+
+        setCompetitions(mappedData);
       } catch (err) {
         console.error('Error fetching competitions:', err);
         setError('Error al cargar las competiciones');
@@ -75,7 +80,7 @@ const CompetitionRoundSelector: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCompetition && selectedRound) {
-      navigate(`/competition/${selectedCompetition}/build-matches?round=${selectedRound}`);
+      navigate(`/competition/${selectedCompetition}/round/${selectedRound}/create-matches`);
     }
   };
 
