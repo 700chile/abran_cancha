@@ -242,6 +242,7 @@ const MatchCreator: React.FC = () => {
   const [roundName, setRoundName] = useState('');
   const [validationErrors, setValidationErrors] = useState<{groupId: string; message: string}[]>([]);
   const [groupSets, setGroupSets] = useState<Record<string, number>>({});
+  const [competitionError, setCompetitionError] = useState<string | null>(null);
   
   // Log the extracted values
   useEffect(() => {
@@ -260,7 +261,23 @@ const MatchCreator: React.FC = () => {
       try {
         console.log('Setting loading to true');
         setIsLoading(true);
-        
+
+        // Validate that the competition is editable using get_editable_competitions()
+        const { data: editableCompetitions, error: editableError } = await supabase.rpc('get_editable_competitions');
+        if (editableError) {
+          console.error('Error fetching editable competitions:', editableError);
+          throw editableError;
+        }
+
+        // Check if the current competition is in the editable list
+        const isEditable = editableCompetitions?.some((c: any) => c.id === parseInt(competitionId));
+        if (!isEditable) {
+          console.error('Competition is not editable:', competitionId);
+          setCompetitionError('Esta competición no está disponible para edición (STATUS = COMPLETO)');
+          setIsLoading(false);
+          return;
+        }
+
         // Fetch competition name
         console.log('Fetching competition data for ID:', competitionId);
         const { data: competitionData, error: competitionError } = await supabase
@@ -268,7 +285,7 @@ const MatchCreator: React.FC = () => {
           .select('NOMBRE, EDICION')
           .eq('ID', competitionId)
           .single<{ NOMBRE: string; EDICION: string }>();
-          
+
         if (competitionError) {
           console.error('Error fetching competition:', competitionError);
           throw competitionError;
@@ -778,6 +795,28 @@ const MatchCreator: React.FC = () => {
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-screen">
       <div className="text-xl">Cargando...</div>
+    </div>;
+  }
+
+  if (competitionError) {
+    return <div className="container mx-auto p-4">
+      <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">
+              Error de competición
+            </h3>
+            <div className="mt-2 text-sm text-red-700">
+              {competitionError}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>;
   }
   

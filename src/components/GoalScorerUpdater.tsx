@@ -41,12 +41,18 @@ const GoalScorerUpdater = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('campeonato')
-                    .select('ID, NOMBRE, EDICION');
-
+                // Use get_editable_competitions() to fetch competitions that can be edited
+                const { data, error } = await supabase.rpc('get_editable_competitions');
                 if (error) throw error;
-                setCompetitions(data || []);
+
+                // Map the data to match the Competition interface
+                const mappedData = data?.map((c: any) => ({
+                    ID: c.id,
+                    NOMBRE: c.nombre,
+                    EDICION: c.edición
+                })) || [];
+
+                setCompetitions(mappedData);
             } catch (error) {
                 console.error('Error fetching competitions:', error);
                 setError('Error fetching competitions');

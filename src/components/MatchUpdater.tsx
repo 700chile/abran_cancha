@@ -465,9 +465,30 @@ export default function MatchUpdater() {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data } = await supabase.from('campeonato').select('ID, NOMBRE, EDICION, APODO');
+                // Use get_editable_competitions() to fetch competitions that can be edited
+                const { data, error } = await supabase.rpc('get_editable_competitions');
+                if (error) throw error;
                 if (data) {
-                    setCompetitions(data);
+                    // Fetch APODO for each competition since the SQL function doesn't include it
+                    const competitionIds = data.map((c: any) => c.id);
+                    const { data: apoData, error: apoError } = await supabase
+                        .from('campeonato')
+                        .select('ID, APODO')
+                        .in('ID', competitionIds);
+                    if (apoError) throw apoError;
+
+                    // Merge APODO into the competition data
+                    const competitionsWithApodo = data.map((c: any) => {
+                        const apoRecord = apoData?.find((a: any) => a.ID === c.id);
+                        return {
+                            ID: c.id,
+                            NOMBRE: c.nombre,
+                            EDICION: c.edición,
+                            APODO: apoRecord?.APODO || null
+                        };
+                    });
+
+                    setCompetitions(competitionsWithApodo);
                     setSelectedCompetition(37);
                 }
             } catch (error) {

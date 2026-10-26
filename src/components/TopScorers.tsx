@@ -32,14 +32,26 @@ const TopScorers = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('campeonato')
-                    .select('ID, NOMBRE, EDICION')
-                    .in('STATUS', ['COMPLETO', 'ACTIVO'])
-                    .order('EDICION', { ascending: false })
-                    .order('NOMBRE');
+                // Use get_displayable_competitions() unless user is admin
+                const isAdmin = hasPermission('permissions:admin');
+                let data;
 
-                if (error) throw error;
+                if (isAdmin) {
+                    // Admin users see all competitions
+                    const { data: adminData, error } = await supabase
+                        .from('campeonato')
+                        .select('ID, NOMBRE, EDICION')
+                        .order('EDICION', { ascending: false })
+                        .order('NOMBRE');
+                    if (error) throw error;
+                    data = adminData;
+                } else {
+                    // Non-admin users use the SQL function
+                    const { data: displayData, error } = await supabase.rpc('get_displayable_competitions');
+                    if (error) throw error;
+                    data = displayData;
+                }
+
                 setCompetitions(data || []);
             } catch (error) {
                 console.error('Error fetching competitions:', error);
@@ -47,7 +59,7 @@ const TopScorers = () => {
         };
 
         fetchCompetitions();
-    }, []);
+    }, [hasPermission]);
 
     useEffect(() => {
         const fetchLastUpdateDate = async () => {

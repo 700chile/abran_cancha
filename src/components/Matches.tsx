@@ -161,18 +161,30 @@ const Matches: React.FC = () => {
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('campeonato')
-                    .select('*')
-                    .in('STATUS', ['COMPLETO', 'ACTIVO'])
-                    .order('ID', { ascending: false });
+                // Use get_displayable_competitions() unless user is admin
+                const isAdmin = hasPermission('permissions:admin');
+                let data;
 
-                if (error) throw error;
+                if (isAdmin) {
+                    // Admin users see all competitions
+                    const { data: adminData, error } = await supabase
+                        .from('campeonato')
+                        .select('*')
+                        .order('ID', { ascending: false });
+                    if (error) throw error;
+                    data = adminData;
+                } else {
+                    // Non-admin users use the SQL function
+                    const { data: displayData, error } = await supabase.rpc('get_displayable_competitions');
+                    if (error) throw error;
+                    data = displayData;
+                }
+
                 setCompetitions(data || []);
-                
+
                 // Set default competition to ID 37 if it exists, otherwise use the first one
                 if (data && data.length > 0) {
-                    const defaultComp = data.find(c => c.ID === 37) || data[0];
+                    const defaultComp = data.find((c: any) => c.ID === 37) || data[0];
                     setSelectedCompetition(defaultComp.ID);
                 }
             } catch (error) {
@@ -181,7 +193,7 @@ const Matches: React.FC = () => {
         };
 
         fetchCompetitions();
-    }, []);
+    }, [hasPermission]);
 
     // Fetch matchdays when competition changes
     useEffect(() => {

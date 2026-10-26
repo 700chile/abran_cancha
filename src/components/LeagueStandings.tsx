@@ -60,14 +60,25 @@ const LeagueStandings = () => {
 
     const fetchLeagueData = useCallback(async () => {
         try {
-            // Fetch competitions
-            const { data: competitionsData, error: competitionsError } = await supabase
-                .from('campeonato')
-                .select('ID, NOMBRE, EDICION')
-                .in('STATUS', ['COMPLETO', 'ACTIVO'])
-                .order('ID');
+            // Fetch competitions - use get_displayable_competitions() unless user is admin
+            const isAdmin = hasPermission('permissions:admin');
+            let competitionsData;
 
-            if (competitionsError) throw competitionsError;
+            if (isAdmin) {
+                // Admin users see all competitions
+                const { data, error } = await supabase
+                    .from('campeonato')
+                    .select('ID, NOMBRE, EDICION')
+                    .order('ID');
+                if (error) throw error;
+                competitionsData = data;
+            } else {
+                // Non-admin users use the SQL function
+                const { data, error } = await supabase.rpc('get_displayable_competitions');
+                if (error) throw error;
+                competitionsData = data;
+            }
+
             setCompetitions(competitionsData || []);
 
             // If no competition selected, return early
@@ -156,7 +167,7 @@ const LeagueStandings = () => {
         } finally {
             setLoading(false);
         }
-    }, [selectedCompetition]);
+    }, [selectedCompetition, hasPermission]);
 
     // Re-fetch data when competition changes
     useEffect(() => {

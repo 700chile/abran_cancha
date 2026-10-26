@@ -63,13 +63,18 @@ export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) =
     useEffect(() => {
         const fetchCompetitions = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('campeonato')
-                    .select('ID, NOMBRE, EDICION')
-                    .order('NOMBRE');
-
+                // Use get_editable_competitions() to fetch competitions that can be edited
+                const { data, error } = await supabase.rpc('get_editable_competitions');
                 if (error) throw error;
-                setCompetitions(data || []);
+
+                // Map the data to match the Torneo interface
+                const mappedData = data?.map((c: any) => ({
+                    ID: c.id,
+                    NOMBRE: c.nombre,
+                    EDICION: c.edición
+                })) || [];
+
+                setCompetitions(mappedData);
             } catch (err) {
                 console.error('Error fetching competitions:', err);
                 setError('Error fetching competitions');
