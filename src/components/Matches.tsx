@@ -51,13 +51,32 @@ const Matches: React.FC = () => {
     // State management
     const [matches, setMatches] = useState<Match[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [selectedMatchday, setSelectedMatchday] = useState<string | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [matchdays, setMatchdays] = useState<Matchday[]>([]);
     const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
     const [loadingScorers, setLoadingScorers] = useState<boolean>(false);
     const [showEmbedModal, setShowEmbedModal] = useState(false);
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     // Helper function to check if match is suspended
     const isSuspendedMatch = (match: Match): boolean => {

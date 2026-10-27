@@ -34,8 +34,27 @@ const GoalScorerUpdater = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loadingPlayers, setLoadingPlayers] = useState(false);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [selectedEventType, setSelectedEventType] = useState<'GOL' | 'AUTOGOL'>('GOL');
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     // Fetch competitions
     useEffect(() => {

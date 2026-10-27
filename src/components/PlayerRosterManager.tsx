@@ -34,7 +34,26 @@ export default function PlayerRosterManager() {
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
     const [competitions, setCompetitions] = useState<Torneo[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     useEffect(() => {
         const fetchCompetitions = async () => {

@@ -30,6 +30,7 @@ import UserRoleManager from './components/UserRoleManager';
 import PenalesUpdater from './components/PenalesUpdater';
 import UserCreator from './components/UserCreator';
 import PasswordUpdater from './components/PasswordUpdater';
+import DefaultCompetitionSelector from './components/DefaultCompetitionSelector';
 import { supabase } from './supabase';
 
 // Embed layout - renders content without navigation
@@ -124,6 +125,7 @@ const ProtectedNavGroups: FC = () => {
       'permissions:admin': has('permissions:admin'),
       'users:manage': has('users:manage'),
       'embed:create': has('embed:create'),
+      'default:competition': has('default:competition'),
     },
   });
   return (
@@ -181,17 +183,23 @@ const ProtectedNavGroups: FC = () => {
         </Link></PermissionGate>
       </div>
       <div className="flex space-x-2">
-        <PermissionGate need="users:manage"><Link 
+        <PermissionGate need="users:manage"><Link
           to="/users-roles"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Usuarios y Roles
         </Link></PermissionGate>
-        <PermissionGate need="users:manage"><Link 
+        <PermissionGate need="users:manage"><Link
           to="/create-user"
           className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
         >
           Crear Usuario
+        </Link></PermissionGate>
+        <PermissionGate need="default:competition"><Link
+          to="/default-competition"
+          className="text-gray-700 hover:text-brand-primary px-2 py-1 rounded-md text-xs font-medium"
+        >
+          Establecer Predeterminada
         </Link></PermissionGate>
       </div>
     </>
@@ -269,6 +277,7 @@ function App() {
                   <Route path="/create-team" element={<ProtectedRoute need="teams:create"><TeamCreator /></ProtectedRoute>} />
                   <Route path="/users-roles" element={<ProtectedRoute need="users:manage"><UserRoleManager /></ProtectedRoute>} />
                   <Route path="/create-user" element={<ProtectedRoute need="users:manage"><UserCreator /></ProtectedRoute>} />
+                  <Route path="/default-competition" element={<ProtectedRoute need="default:competition"><DefaultCompetitionSelector /></ProtectedRoute>} />
                   <Route path="/password-updater" element={<ProtectedRoute><PasswordUpdater /></ProtectedRoute>} />
                 </Routes>
               </main>

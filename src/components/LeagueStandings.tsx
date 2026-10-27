@@ -52,11 +52,30 @@ const LeagueStandings = () => {
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [groups, setGroups] = useState<Group[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number>(37); // 2026 edition
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [selectedGroup, setSelectedGroup] = useState<string>(''); // Remove hardcoded default, let auto-selection handle it
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
     const [showEmbedModal, setShowEmbedModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     const fetchLeagueData = useCallback(async () => {
         try {
@@ -87,7 +106,10 @@ const LeagueStandings = () => {
             setCompetitions(competitionsData || []);
 
             // If no competition selected, return early
-            if (!selectedCompetition) return;
+            if (!selectedCompetition) {
+                setLoading(false);
+                return;
+            }
 
             // Fetch all ronda IDs for the selected competition
             const { data: rondaData, error: rondaError } = await supabase
@@ -192,8 +214,8 @@ const LeagueStandings = () => {
                         <select
                             id="competition"
                             className="w-full p-2 bg-brand-primary text-black rounded-lg"
-                            value={selectedCompetition}
-                            onChange={(e) => setSelectedCompetition(Number(e.target.value))}
+                            value={selectedCompetition || ''}
+                            onChange={(e) => setSelectedCompetition(Number(e.target.value) || null)}
                         >
                             {competitions.map(competition => (
                                 <option key={competition.ID} value={competition.ID}>
@@ -285,7 +307,7 @@ const LeagueStandings = () => {
                                   title: 'TABLA DE POSICIONES',
                                   subtitle: comp ? `${comp.NOMBRE} ${comp.EDICION}` : 'TABLA DE POSICIONES',
                                   credit,
-                                  competitionId: selectedCompetition,
+                                  competitionId: selectedCompetition || 0,
                                   totalTeams: groupStandings.length,
                                 });
                                 const a = document.createElement('a');
@@ -358,7 +380,7 @@ const LeagueStandings = () => {
                                                                         <span className="absolute left-0 top-0 h-full w-2 bg-blue-500"></span>
                                                                     )}
                                                                 </>
-                                                            ) : (selectedCompetition <= 2 || selectedCompetition === 37) ? (
+                                                            ) : (selectedCompetition && (selectedCompetition <= 2 || selectedCompetition === 37)) ? (
                                                                 // National competition logic (2026 edition ID 37)
                                                                 <>
                                                                     {row.pos <= 8 && (
@@ -424,7 +446,7 @@ const LeagueStandings = () => {
                                     <span className="text-sm text-gray-600">3ro y 4to (Clasifican al repechaje intercontinental)</span>
                                 </div>
                             </>
-                        ) : (selectedCompetition <= 2 || selectedCompetition === 37) ? (
+                        ) : (selectedCompetition && (selectedCompetition <= 2 || selectedCompetition === 37)) ? (
                             // National competition legend (2026 edition ID 37)
                             <>
                                 <div className="flex items-center gap-2">

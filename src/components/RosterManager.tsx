@@ -40,7 +40,7 @@ const POSITION_OPTIONS = [
 
 export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) => {
     const [competitions, setCompetitions] = useState<Torneo[]>([]);
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [teams, setTeams] = useState<Team[]>([]);
     const [players, setPlayers] = useState<PlayerInput[]>(() => {
         const initialPlayers = [];
@@ -59,6 +59,25 @@ export const RosterManager: React.FC<RosterManagerProps> = ({ onRosterSaved }) =
     const [success, setSuccess] = useState<string | null>(null);
     const [rosterExists, setRosterExists] = useState(false);
     const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     useEffect(() => {
         const fetchCompetitions = async () => {

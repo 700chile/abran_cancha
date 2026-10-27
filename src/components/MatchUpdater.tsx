@@ -66,7 +66,7 @@ interface Match {
 export default function MatchUpdater() {
     const { has: hasPermission } = usePermissions();
     const [selectedMatchday, setSelectedMatchday] = useState<string>('');
-    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [matchdays, setMatchdays] = useState<Matchday[]>([]);
     const [matches, setMatches] = useState<Match[]>([]);
@@ -77,6 +77,25 @@ export default function MatchUpdater() {
     const [transmision, setTransmision] = useState<string>('');
     const [localGoals, setLocalGoals] = useState<string>('0');
     const [visitGoals, setVisitGoals] = useState<string>('0');
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
     const [selectedMatchForUpdate, setSelectedMatchForUpdate] = useState<Match | null>(null);
     const [localTeam, setLocalTeam] = useState<string>('');
     const [visitTeam, setVisitTeam] = useState<string>('');
@@ -489,7 +508,6 @@ export default function MatchUpdater() {
                     });
 
                     setCompetitions(competitionsWithApodo);
-                    setSelectedCompetition(37);
                 }
             } catch (error) {
                 console.error('Error fetching competitions:', error);

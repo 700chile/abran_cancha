@@ -24,10 +24,29 @@ const TopScorers = () => {
     const [scorers, setScorers] = useState<TopScorer[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdateDate, setLastUpdateDate] = useState<Date | null>(null);
-    const [selectedCompetition, setSelectedCompetition] = useState<number>(37);
+    const [selectedCompetition, setSelectedCompetition] = useState<number | null>(null);
     const [competitions, setCompetitions] = useState<Competition[]>([]);
     const [isGeneratingPoster, setIsGeneratingPoster] = useState(false);
     const [showEmbedModal, setShowEmbedModal] = useState(false);
+
+    // Fetch default competition on mount
+    useEffect(() => {
+        const fetchDefaultCompetition = async () => {
+            try {
+                const { data, error } = await supabase.rpc('get_default_competition');
+                if (error) throw error;
+                if (data) {
+                    setSelectedCompetition(data);
+                }
+            } catch (error) {
+                console.error('Error fetching default competition:', error);
+                // Fallback to hardcoded value if fetch fails
+                setSelectedCompetition(37);
+            }
+        };
+
+        fetchDefaultCompetition();
+    }, []);
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -111,6 +130,11 @@ const TopScorers = () => {
         };
 
         const fetchScorers = async () => {
+            if (!selectedCompetition) {
+                setLoading(false);
+                return;
+            }
+
             try {
                 const { data, error } = await supabase
                     .rpc('get_top_scorers', {
@@ -243,11 +267,11 @@ const TopScorers = () => {
                 <div className="flex flex-col sm:flex-row gap-4 mb-5">
                     <div>
                         <label htmlFor="competition" className="text-xs font-semibold text-gray-600 uppercase">CAMPEONATO</label>
-                        <select 
+                        <select
                             id="competition"
                             className="w-full p-2 border rounded-lg bg-brand-primary text-black"
-                            value={selectedCompetition}
-                            onChange={(e) => setSelectedCompetition(Number(e.target.value))}
+                            value={selectedCompetition || ''}
+                            onChange={(e) => setSelectedCompetition(Number(e.target.value) || null)}
                         >
                             {competitions.map((competition) => (
                                 <option key={competition.ID} value={competition.ID}>
