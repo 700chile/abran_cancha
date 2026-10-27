@@ -380,6 +380,13 @@ const LeagueStandings = () => {
                                                                         <span className="absolute left-0 top-0 h-full w-2 bg-blue-500"></span>
                                                                     )}
                                                                 </>
+                                                            ) : selectedCompetition === 41 ? (
+                                                                // ID = 41 competition logic - only top 2 (Fase final)
+                                                                <>
+                                                                    {row.pos <= 2 && (
+                                                                        <span className="absolute left-0 top-0 h-full w-2 bg-green-500"></span>
+                                                                    )}
+                                                                </>
                                                             ) : (selectedCompetition && (selectedCompetition <= 2 || selectedCompetition === 37)) ? (
                                                                 // National competition logic (2026 edition ID 37)
                                                                 <>
@@ -444,6 +451,14 @@ const LeagueStandings = () => {
                                 <div className="flex items-center gap-2">
                                     <div className="bg-blue-500 w-2 h-2 rounded-full"></div>
                                     <span className="text-sm text-gray-600">3ro y 4to (Clasifican al repechaje intercontinental)</span>
+                                </div>
+                            </>
+                        ) : selectedCompetition === 41 ? (
+                            // ID = 41 competition legend - only top 2 (Fase final)
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-green-500 w-2 h-2 rounded-full"></div>
+                                    <span className="text-sm text-gray-600">Top 2 (Fase final)</span>
                                 </div>
                             </>
                         ) : (selectedCompetition && (selectedCompetition <= 2 || selectedCompetition === 37)) ? (
