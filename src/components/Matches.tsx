@@ -205,12 +205,6 @@ const Matches: React.FC = () => {
                 }
 
                 setCompetitions(data || []);
-
-                // Set default competition to ID 37 if it exists, otherwise use the first one
-                if (data && data.length > 0) {
-                    const defaultComp = data.find((c: any) => c.ID === 37) || data[0];
-                    setSelectedCompetition(defaultComp.ID);
-                }
             } catch (error) {
                 console.error('Error fetching competitions:', error);
             }
